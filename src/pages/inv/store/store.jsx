@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { message } from 'antd';
+import { message, Form } from 'antd';
 import ProForm, { ProFormText, ProFormDateRangePicker, ProFormSelect } from '@ant-design/pro-form';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import { EditableProTable } from '@ant-design/pro-table';
 import ProCard from '@ant-design/pro-card';
+import TableForm from './components/TableForm';
 
 const waitTime = (time = 100) => {
     return new Promise((resolve) => {
@@ -142,37 +143,9 @@ export default () => {
                     collapsible
                     onCollapse={(collapse) => console.log(collapse)}
                 >
-                    <EditableProTable
-
-                        rowKey="id"
-                        headerTitle="可编辑表格"
-                        maxLength={100}
-                        recordCreatorProps={
-                            {
-                                position: 'bottom',
-                                record: newRecord,
-                            }
-                        }
-                        columns={columns}
-                        request={async () => ({
-                            data: defaultData,
-                            total: 3,
-                            success: true,
-                        })}
-                        value={dataSource}
-                        onChange={setDataSource}
-                        editable={{
-                            type: "multiple",
-                            editableKeys,
-                            onSave: async () => {
-                                setNewRecord({
-                                    id: (Math.random() * 1000000).toFixed(0),
-                                });
-                            },
-                            onChange: setEditableRowKeys,
-                        }}
-                    />
-
+                    <Form.Item name="members">
+                        <TableForm />
+                    </Form.Item>
 
                 </ProCard>
             </ProForm>
