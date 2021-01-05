@@ -1,54 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Space, Modal, message, Row, TreeSelect, Tree } from 'antd';
+import { Button, Space, message } from 'antd';
 import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import ProTable from '@ant-design/pro-table';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-layout';
 import { history } from 'umi';
-
-
 import HttpService from '@/utils/HttpService.jsx';
-
-const { confirm } = Modal;
-
-const { TreeNode } = TreeSelect;
-
-const CompanyStructure = ({ key, form }) => {
-
-    const [treeData, setTreeData] = useState([]);
-
-    useEffect(() => {
-        refreshData();
-    }, [])
-
-
-    const refreshData = () => {
-        HttpService.post('reportServer/companyStructure/getAllChildrenRecursionByCode', JSON.stringify({ parent_code: 0 }))
-            .then(res => {
-                if (res.resultCode == "1000") {
-                    setTreeData(res.data)
-                } else {
-                    message.error(res.message);
-                }
-            });
-    }
-
-    const onChange = value => {
-        form.setFieldsValue({
-            [key]: value,
-        });
-        console.log('renderFormItem onChange ',);
-    };
-
-    return (<TreeSelect
-        style={{ width: '100%' }}
-        dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-        treeData={treeData}
-        placeholder="Please select"
-        treeDefaultExpandAll
-        allowClear
-        onChange={onChange}
-    />);
-}
 
 
 //删除按钮事件
@@ -105,7 +61,7 @@ const fetchData = async (params, sort, filter) => {
         perPage: params.pageSize,
         ...params
     }
-    const result = await HttpService.post('reportServer/storage/listStorageByPage', JSON.stringify(requestParam));
+    const result = await HttpService.post('reportServer/invStore/getStoreListByPage', JSON.stringify(requestParam));
     console.log('result : ', result);
     return Promise.resolve({
         data: result.data.list,
@@ -118,104 +74,28 @@ const storeList = () => {
 
     console.log('绘制布局')
     const ref = useRef();
-    const [visible, setVisible] = useState(false);
-    const [initData, setInitData] = useState({});
-
 
     //定义列
     const columns = [
         {
-            title: '仓库编号',
-            dataIndex: 'num',
+            title: '编号',
+            dataIndex: 'transaction_id',
             valueType: 'text',
         },
         {
-            title: '仓库名称',
-            dataIndex: 'name',
+            title: '类型',
+            dataIndex: 'store',
             valueType: 'text',
         },
         {
-            title: '租赁时间',
-            // hideInSearch: true,
-            dataIndex: 'time',
+            title: '创建人',
+            dataIndex: 'create_by',
+            valueType: 'text',
+        },
+        {
+            title: '创建时间',
+            dataIndex: 'create_date',
             valueType: 'date',
-        },
-        {
-            title: '仓库类型',
-            dataIndex: 'type_name',
-            valueType: 'select',
-            key: 'type',
-            request: async () => {
-                const result = await HttpService.post('reportServer/baseData/listBaseDataByType', JSON.stringify({
-                    type: 'storage_type'
-                }));
-
-                if (result.resultCode == '1000') {
-                    return Promise.resolve(result.data);
-                } else {
-                    message.error('数据获取失败')
-                    return Promise.resolve([]);
-                }
-            }
-        },
-        {
-            title: '所属部门',
-            dataIndex: 'department',
-            key: 'department',
-            filters: true,
-            renderFormItem: (item, {}, form) => {
-          
-
-                return (
-                    <CompanyStructure
-                        key={item.key}
-                        form={form}
-                    />
-
-                );
-            },
-        },
-        {
-            title: '是否禁用',
-            dataIndex: 'is_disable',
-            valueType: 'text',
-            hideInSearch: true,
-            render: (text, record) => {
-                return record.is_disable == 0 ? ('否') : ('是');
-            }
-        },
-        {
-            title: '是否默认',
-            dataIndex: 'is_default',
-            valueType: 'text',
-            hideInSearch: true,
-            render: (text, record) => {
-                return record.is_default == 0 ? ('否') : ('是');
-            }
-        },
-        {
-            title: '地址',
-            dataIndex: 'address',
-            valueType: 'text',
-            hideInSearch: true,
-        },
-        {
-            title: '面积',
-            dataIndex: 'area',
-            valueType: 'text',
-            hideInSearch: true,
-        },
-        {
-            title: '联系人',
-            dataIndex: 'contacts_name',
-            valueType: 'text',
-            hideInSearch: true,
-        },
-        {
-            title: '电话',
-            dataIndex: 'contacts_tel',
-            valueType: 'text',
-            hideInSearch: true,
         },
         {
             title: '操作',
@@ -224,10 +104,9 @@ const storeList = () => {
             valueType: 'option',
             render: (text, record) => [
                 <a key="link3" onClick={() => {
-                    setVisible(true);
-                    setInitData(record);
+
                 }} >编辑</a>,
-                <a key="link4" onClick={() => onDeleteClickListener(ref, [record.id])} >删除</a>,
+                <a key="link4" onClick={() => { }} >删除</a>,
             ]
         },
     ];
@@ -259,7 +138,7 @@ const storeList = () => {
                         </span>
                     </Space>
                 )}
-                tableAlertOptionRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
+                tableAlertOptionRender={({ selectedRowKeys }) => (
                     <Space size={16}>
                         <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
                     </Space>
@@ -271,12 +150,12 @@ const storeList = () => {
                     defaultCollapsed: true
                 }}
                 dateFormatter="string"
-                headerTitle="仓库列表"
-                 toolBarRender={(action, { selectedRows }) => [
-                      <Button type="primary" onClick={() => history.push('/transation/store')}>
+                headerTitle="入库管理"
+                toolBarRender={(action, { selectedRows }) => [
+                    <Button type="primary" onClick={() => history.push('/transation/store')}>
                         新建
                       </Button>
-                    ]}
+                ]}
             />
         </PageContainer>
 
