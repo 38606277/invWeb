@@ -22,7 +22,7 @@ export default () => {
                 name: '蚂蚁设计有限公司',
                 useMode: 'chapter',
             }}>
-                <ProForm.Group>
+                <ProForm.Group
                     <ProFormText width="md" name="name" label="签约客户名称" tooltip="最长为 24 位" placeholder="请输入名称" />
                     <ProFormText width="md" name="company" label="我方公司名称" placeholder="请输入名称" />
                 </ProForm.Group>
