@@ -4,14 +4,14 @@
     layout: false,
     path: '/user/loginTest',
     component: './login',
-    exact: true
+    exact: true,
   },
   {
     name: 'login',
     layout: false,
     path: '/user/login',
     component: './user/login',
-    exact: true
+    exact: true,
   },
   {
     name: 'user',
@@ -21,32 +21,32 @@
         name: 'user.user-list',
         path: '/user/userList',
         component: './user/UserList',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/user/userInfo/:userId',
         component: './user/UserInfo',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/user/UpdatePwd/:userId',
         component: './user/UpdatePwd',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/user/userView/:userId',
         component: './user/UserView',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/user',
         redirect: '/user/userList',
-        exact: true
-      }
+        exact: true,
+      },
     ],
   },
   {
@@ -57,28 +57,27 @@
         name: 'user.user-list',
         path: '/dbs/dbsList',
         component: './system/dbs/DbsList',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/dbs/dbInfo/:name',
         component: './system/dbs/DbInfo',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/dbs/dbView/:name',
         component: './system/dbs/DbView',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/dbs',
         redirect: '/dbs/dbsList',
-        exact: true
-      }
-    ]
-
+        exact: true,
+      },
+    ],
   },
   {
     name: 'rule',
@@ -88,21 +87,21 @@
         name: 'user.user-list',
         path: '/rule/ruleInfo/:roleId',
         component: './system/rule/RuleInfo',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/rule',
         redirect: '/rule/ruleInfo/null',
-        exact: true
-      }
-    ]
+        exact: true,
+      },
+    ],
   },
   {
     name: 'Auth',
     path: '/Auth',
     component: './system/auth/Auth',
-    exact: true
+    exact: true,
   },
 
   {
@@ -113,34 +112,33 @@
         name: 'user.user-list',
         path: '/rule/ruleInfo/:roleId',
         component: './system/rule/RuleInfo',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/role/roleList',
         component: './system/role/RoleList',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/role/roleInfo/:roleId',
         component: './system/role/RoleInfo',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/role/roleUser/:roleId',
         component: './system/role/RoleUser',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/role',
         redirect: '/role/roleList',
-        exact: true
-      }
-    ]
-
+        exact: true,
+      },
+    ],
   },
 
   {
@@ -151,22 +149,21 @@
         name: 'user.user-list',
         path: '/authType/authTypeList',
         component: './system/authType/AuthTypeList',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/authType/authTypeInfo/:name',
         component: './system/authType/AuthTypeInfo',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/authType',
         redirect: '/authType/authTypeList',
-        exact: true
-      }
-    ]
-
+        exact: true,
+      },
+    ],
   },
 
   {
@@ -177,15 +174,15 @@
         name: 'user.user-list',
         path: '/org/OrgManager',
         component: './system/org/OrgManager',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/org',
         redirect: 'org/OrgManager',
-        exact: true
-      }
-    ]
+        exact: true,
+      },
+    ],
   },
   {
     name: 'menu',
@@ -195,20 +192,20 @@
         name: 'user.user-list',
         path: '/menu/menuManager',
         component: './system/menu/MenuManager',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/menu/menuEdit/:action/:id',
         component: './system/menu/menuEdit',
-        exact: true
+        exact: true,
       },
       {
         name: 'user.user-list',
         path: '/menu',
-        redirect: '/menu/MenuManager'
-      }
-    ]
+        redirect: '/menu/MenuManager',
+      },
+    ],
   },
   {
     name: 'storage',
@@ -217,19 +214,19 @@
       {
         name: 'user.user-list',
         path: '/storage/storageList',
-        component: './storage/storage/StorageList'
+        component: './storage/storage/StorageList',
       },
       {
         name: 'user.user-list',
         path: '/storage/inStorageList',
-        component: './storage/inStorage/InStorageList'
+        component: './storage/inStorage/InStorageList',
       },
       {
         name: 'user.user-list',
         path: '/storage',
         redirect: '/storage/storageList',
-      }
-    ]
+      },
+    ],
   },
   {
     name: 'inv',
@@ -238,36 +235,34 @@
       {
         name: 'user.user-list',
         path: '/transation/storeList',
-        component: './inv/store/storeList'
+        component: './inv/store/storeList',
       },
       {
         name: 'user.user-list',
         path: '/transation/store',
-        component: './inv/store/store'
+        component: './inv/store/store',
       },
       {
         name: 'user.user-list',
         path: '/transation/deliverList',
-        component: './inv/deliver/deliverList'
+        component: './inv/deliver/deliverList',
       },
       {
         name: 'user.user-list',
         path: '/transation/deliver',
-        component: './inv/deliver/deliver'
+        component: './inv/deliver/deliver',
       },
       {
         name: 'user.user-list',
         path: '/transation/transferList',
-        component: './inv/transfer/transferList'
+        component: './inv/transfer/transferList',
       },
       {
         name: 'user.user-list',
         path: '/transation/countList',
-        component: './inv/count/countList'
-      }
-  
-  
-    ]
+        component: './inv/count/countList',
+      },
+    ],
   },
 
   {
@@ -277,28 +272,32 @@
       {
         name: 'user.user-list',
         path: '/mdm/dict/dictList',
-        component: './mdm/dict/dictList'
+        component: './mdm/dict/dictList',
       },
       {
         name: 'user.user-list',
         path: '/mdm/item/itemList',
-        component: './mdm/item/itemList'
+        component: './mdm/item/itemList',
       },
       {
         name: 'user.user-list',
         path: '/mdm/itemCategory/itemCategoryList',
-        component: './mdm/itemCategory/itemCategoryList'
-      }
-  
-    ]
+        component: './mdm/itemCategory/itemCategoryList',
+      },
+    ],
   },
-
+  {
+    name: 'user.user-list',
+    path: '/inv/org',
+    component: './inv/org/InvOrg',
+    exact: true,
+  },
   {
     path: '/welcome',
     name: 'welcome',
     icon: 'smile',
     component: './Welcome',
-    exact: true
+    exact: true,
   },
   {
     path: '/admin',
@@ -311,24 +310,24 @@
         name: 'sub-page',
         icon: 'smile',
         component: './Welcome',
-        exact: true
+        exact: true,
       },
-    ]
+    ],
   },
   {
     name: 'list.table-list',
     icon: 'table',
     path: '/list',
     component: './ListTableList',
-    exact: true
+    exact: true,
   },
   {
     path: '/',
     //redirect: '/user',
-    exact: true
+    exact: true,
   },
   {
     component: './404',
-    exact: true
+    exact: true,
   },
 ];
