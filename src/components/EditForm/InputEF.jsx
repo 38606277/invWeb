@@ -20,7 +20,7 @@ const InputEF = (props) => {
                 value={text}
                 autoFocus
                 onChange={(e) => {
-                    handleFieldChange(e.target.value, name, record.key)
+                    handleFieldChange(e.target.value, name, record)
                 }}
                 placeholder={placeholder}
             />

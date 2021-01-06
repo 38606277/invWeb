@@ -1,12 +1,9 @@
 import { Table, Form, message } from 'antd';
-import React, { useState, useImperativeHandle, forwardRef } from 'react';
-import styles from '../style.less';
-import InputEF from '@/components/EditForm/InputEF'
-import SelectEF from '@/components/EditForm/SelectEF'
+import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 
 const TableForm = forwardRef((props, ref) => {
 
-  const { primaryKey, tableForm, value, onChange } = props;
+  const { primaryKey, tableForm, value, onChange, columns } = props;
 
   const [data, setData] = useState(value);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -27,13 +24,13 @@ const TableForm = forwardRef((props, ref) => {
     }
   }))
 
-
+  //新增一行
   const newMember = (newItem) => {
     const newData = data?.map((item) => ({ ...item })) || [];
     newData.push(newItem);
     setData(newData);
   };
-
+  //移除选择项
   const removeRows = () => {
     if (selectedRows.length < 1) {
       message.error('请选择删除项');
@@ -48,22 +45,23 @@ const TableForm = forwardRef((props, ref) => {
       }
       return true;
     });
-    console.log('newData', newData);
+    setSelectedRows([]);
     setData(newData);
-    setSelectedRows([])
     if (onChange) {
-      onChange(newData);
+      onChange(data);
     }
   }
-
+  //根据key获取行
   const getRowByKey = (key, newData) =>
     (newData || data)?.filter((item) => item[primaryKey] === key)[0];
 
+  //filed字段值修改回调
   const handleFieldChange = (
     filedValue,
     fieldName,
-    key,
+    record,
   ) => {
+    const key = record[primaryKey]
     const newData = [...(data)];
     const target = getRowByKey(key, newData);
     if (target) {
@@ -73,7 +71,7 @@ const TableForm = forwardRef((props, ref) => {
     onChange(newData);
   };
 
-  const columns = [
+  const columnsTest = [
     {
       title: '成员姓名',
       dataIndex: 'name',
@@ -161,7 +159,7 @@ const TableForm = forwardRef((props, ref) => {
         form={tableForm}>
         <Table
           key={primaryKey}
-          columns={columns}
+          columns={columns(handleFieldChange, tableForm)}
           dataSource={data}
           pagination={false}
           rowSelection={{
