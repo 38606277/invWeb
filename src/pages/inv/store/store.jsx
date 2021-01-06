@@ -12,19 +12,19 @@ const { Option } = Select;
 
 const tableData = [
   {
-    key: '1',
+    value_id: '1',
     workId: '00001',
     name: 'John Brown',
     department: 'New York No. 1 Lake Park',
   },
   {
-    key: '2',
+    value_id: '2',
     workId: '00002',
     name: 'Jim Green',
     department: 'London No. 1 Lake Park',
   },
   {
-    key: '3',
+    value_id: '3',
     workId: '00003',
     name: 'Joe Black',
     department: 'Sidney No. 1 Lake Park',
@@ -96,7 +96,7 @@ export default () => {
               <Button type='primary' onClick={() => {
                 //新增一行
                 tableRef.current.addItem({
-                  key: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                  value_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
                   workId: '这是默认值',
                   name: '这是默认值',
                   department: '',
@@ -114,7 +114,7 @@ export default () => {
           }
         >
           <Form.Item name='members'>
-            <TableForm ref={tableRef} primaryKey='key' tableForm={tableForm} />
+            <TableForm ref={tableRef} primaryKey='value_id' tableForm={tableForm} />
           </Form.Item>
 
         </ProCard>

@@ -62,8 +62,9 @@ const TableForm = forwardRef((props, ref) => {
     const handleFieldChange = (
         filedValue,
         fieldName,
-        key,
+        record,
     ) => {
+        let key = record[primaryKey];
         const newData = [...(data)];
         const target = getRowByKey(key, newData);
         if (target) {
