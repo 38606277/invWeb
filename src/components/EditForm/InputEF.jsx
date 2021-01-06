@@ -18,7 +18,6 @@ const InputEF = (props) => {
         >
             <Input
                 value={text}
-                autoFocus
                 onChange={(e) => {
                     handleFieldChange(e.target.value, name, record)
                 }}

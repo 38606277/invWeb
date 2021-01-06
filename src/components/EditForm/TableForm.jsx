@@ -1,16 +1,18 @@
 import { Table, Form, message } from 'antd';
 import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
+import InputEF from '@/components/EditForm/InputEF'
+import SelectEF from '@/components/EditForm/SelectEF'
 
 const TableForm = forwardRef((props, ref) => {
 
   const { primaryKey, tableForm, value, onChange, columns } = props;
-
   const [data, setData] = useState(value);
   const [selectedRows, setSelectedRows] = useState([]);
 
   const onTableChange = (selectedRowKeys, selectedRows) => {
     setSelectedRows(selectedRows);
   }
+
 
   //通过ref暴露函数
   useImperativeHandle(ref, () => ({
@@ -26,9 +28,11 @@ const TableForm = forwardRef((props, ref) => {
 
   //新增一行
   const newMember = (newItem) => {
+    console.log('newMember');
     const newData = data?.map((item) => ({ ...item })) || [];
     newData.push(newItem);
     setData(newData);
+    console.log('newMember end');
   };
   //移除选择项
   const removeRows = () => {
@@ -71,33 +75,32 @@ const TableForm = forwardRef((props, ref) => {
     onChange(newData);
   };
 
-  const columnsTest = [
-    {
-      title: '成员姓名',
-      dataIndex: 'name',
-      key: 'name',
-      width: '20%',
-      render: (text, record, index) => {
-        return (
-          <InputEF
-            tableForm={tableForm}
-            text={text}
-            record={record}
-            index={index}
-            name="name"
-            rules={[{ required: true, message: 'Please input your name!' }]}
-            handleFieldChange={handleFieldChange}
-            placeholder={"请输入成员姓名"}
-          />
-        );
-      },
+  /**
+   * 根据参数构建columns 
+   * @param {} columnsParams 
+   */
+  const buildColumns = (columnParamsList) => {
+    let newColmuns = [];
+    let index;
+    for (index = 0; index < columnParamsList.length; index++) {
+      let columnParams = columnParamsList[index];
+      if (columnParams.renderType === 'InputEF') {
+        newColmuns.push(getInputEF(columnParams))
+      } else if (columnParams.renderType === 'SelectEF') {
+        newColmuns.push(getSelectEF(columnParams))
+      }
+    }
+    return newColmuns;
+  }
 
-    },
-    {
-      title: '工号',
-      dataIndex: 'workId',
-      key: 'workId',
-      width: '20%',
+  const getInputEF = (columnParams) => {
+    const { params } = columnParams;
+
+    return {
+      title: columnParams.title,
+      dataIndex: columnParams.dataIndex,
+      key: columnParams.key,
+      width: columnParams?.width,
       render: (text, record, index) => {
         return (
           <InputEF
@@ -105,19 +108,23 @@ const TableForm = forwardRef((props, ref) => {
             text={text}
             record={record}
             index={index}
-            name="workId"
-            rules={[{ required: true, message: 'Please input your workId!' }]}
+            name={columnParams.key}
             handleFieldChange={handleFieldChange}
-            placeholder={"请输入工号"}
+            rules={params.rules}
+            placeholder={params.placeholder}
           />
         );
       },
-    },
-    {
-      title: '所属部门',
-      dataIndex: 'department',
-      key: 'department',
-      width: '40%',
+    }
+  }
+
+  const getSelectEF = (columnParams) => {
+    const { params } = columnParams;
+    return {
+      title: columnParams.title,
+      dataIndex: columnParams.dataIndex,
+      key: columnParams.key,
+      width: columnParams?.width,
       render: (text, record, index) => {
         return (
           <SelectEF
@@ -125,32 +132,18 @@ const TableForm = forwardRef((props, ref) => {
             text={text}
             record={record}
             index={index}
-            name="department"
-            rules={[{ required: true, message: 'Please select your department!' }]}
+            name={columnParams.key}
             handleFieldChange={handleFieldChange}
-            placeholder={"请输选择所属部门"}
-            keyName="dict_id"
-            valueName="dict_name"
-            dictData={
-              [
-                {
-                  dict_id: '1',
-                  dict_name: "信息部",
-                }, {
-                  dict_id: '2',
-                  dict_name: "财务部",
-                }, {
-                  dict_id: '3',
-                  dict_name: "行政部",
-                }
-              ]
-            }
+            rules={params.rules}
+            placeholder={params.placeholder}
+            keyName={params.keyName}
+            valueName={params.valueName}
+            dictData={params.dictData}
           />
         );
-
       },
-    },
-  ];
+    }
+  }
 
   return (
     <>
@@ -159,7 +152,7 @@ const TableForm = forwardRef((props, ref) => {
         form={tableForm}>
         <Table
           key={primaryKey}
-          columns={columns(handleFieldChange, tableForm)}
+          columns={buildColumns(columns)}
           dataSource={data}
           pagination={false}
           rowSelection={{
