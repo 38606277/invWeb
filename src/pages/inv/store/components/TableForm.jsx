@@ -10,6 +10,8 @@ const TableForm = ({ tableRef, tableForm, value, onChange }) => {
   const [randomIndex, setRandomIndex] = useState(0);
   const [data, setData] = useState(value);
 
+  console.log('TableForm value', value)
+
   //通过ref暴露函数
   useImperativeHandle(tableRef, () => ({
     newMember: () => {
@@ -60,6 +62,7 @@ const TableForm = ({ tableRef, tableForm, value, onChange }) => {
       render: (text, record, index) => {
         return (
           <InputEF
+            tableForm={tableForm}
             text={text}
             record={record}
             index={index}
@@ -81,6 +84,7 @@ const TableForm = ({ tableRef, tableForm, value, onChange }) => {
 
         return (
           <InputEF
+            tableForm={tableForm}
             text={text}
             record={record}
             index={index}
@@ -98,8 +102,10 @@ const TableForm = ({ tableRef, tableForm, value, onChange }) => {
       key: 'department',
       width: '40%',
       render: (text, record, index) => {
+
         return (
           <SelectEF
+            tableForm={tableForm}
             text={text}
             record={record}
             index={index}

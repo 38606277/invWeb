@@ -8,6 +8,29 @@ import FormItem from 'antd/lib/form/FormItem';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
+
+
+const tableData = [
+  {
+    key: '1',
+    workId: '00001',
+    name: 'John Brown',
+    department: 'New York No. 1 Lake Park',
+  },
+  {
+    key: '2',
+    workId: '00002',
+    name: 'Jim Green',
+    department: 'London No. 1 Lake Park',
+  },
+  {
+    key: '3',
+    workId: '00003',
+    name: 'Joe Black',
+    department: 'Sidney No. 1 Lake Park',
+  },
+];
+
 export default () => {
 
   const [tableForm] = Form.useForm();
@@ -15,6 +38,7 @@ export default () => {
 
 
   const tableRef = useRef();
+
 
 
   return (
@@ -33,6 +57,7 @@ export default () => {
     >
       <Form
         form={mainForm}
+        initialValues={{ members: tableData }}
         onFinish={async (values) => {
           //验证tableForm
           tableForm.validateFields()
@@ -125,8 +150,9 @@ export default () => {
         </ProCard>
 
         <ProCard
-          style={{ marginTop: '30px' }}
           title="行信息"
+          style={{ marginTop: '30px' }}
+
           headerBordered
           collapsible
           onCollapse={(collapse) => console.log(collapse)}

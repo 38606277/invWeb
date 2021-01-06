@@ -8,7 +8,9 @@ const SelectEF = (props) => {
     const { name, rules } = props;
     const { placeholder, handleFieldChange } = props;
     const { dictData, keyName, valueName } = props;
+    const { tableForm } = props;
 
+    tableForm.setFieldsValue({ [`${index}_${name}`]: text });
 
     return (<Form.Item
         name={`${index}_${name}`}
