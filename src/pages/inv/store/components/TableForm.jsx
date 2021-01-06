@@ -1,16 +1,22 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Input, Table, Form } from 'antd';
-import React, { useState } from 'react';
+import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import styles from '../style.less';
 import InputEF from '@/components/EditForm/InputEF'
 import SelectEF from '@/components/EditForm/SelectEF'
 
 
-const TableForm = ({ value, onChange }) => {
-
+const TableForm = ({ tableRef, tableForm, value, onChange }) => {
   const [randomIndex, setRandomIndex] = useState(0);
   const [data, setData] = useState(value);
-  const [mForm] = Form.useForm();
+
+  //通过ref暴露函数
+  useImperativeHandle(tableRef, () => ({
+    newMember: () => {
+      //新增一行
+      newMember();
+    }
+  }))
   const getRowByKey = (key, newData) =>
     (newData || data)?.filter((item) => item.key === key)[0];
 
@@ -52,7 +58,6 @@ const TableForm = ({ value, onChange }) => {
       key: 'name',
       width: '20%',
       render: (text, record, index) => {
-
         return (
           <InputEF
             text={text}
@@ -128,24 +133,17 @@ const TableForm = ({ value, onChange }) => {
   return (
     <>
       <Form
-        form={mForm}>
+        form={tableForm}>
         <Table
+          key='key'
           columns={columns}
           dataSource={data}
           pagination={false}
           rowClassName={(record) => (record.editable ? styles.editable : '')}
         />
-        <Button
-          style={{ width: '100%', marginTop: 16, marginBottom: 8 }}
-          type="dashed"
-          onClick={newMember}
-        >
-          <PlusOutlined />
-        新增成员
-      </Button>
       </Form>
     </>
   );
 };
 
-export default TableForm;
+export default forwardRef(TableForm);

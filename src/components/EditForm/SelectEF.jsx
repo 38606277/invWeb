@@ -1,5 +1,6 @@
 import React from 'react';
 import { Select, Form } from 'antd';
+const { Option } = Select;
 
 const SelectEF = (props) => {
 
