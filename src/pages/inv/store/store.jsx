@@ -36,11 +36,6 @@ export default () => {
   const [tableForm] = Form.useForm();
   const [mainForm] = Form.useForm();
 
-
-
-
-
-
   return (
     <PageContainer
       header={
@@ -100,7 +95,14 @@ export default () => {
 
               <Button type='primary' onClick={() => {
                 //新增一行
-                tableRef.current.newMember();
+                tableRef.current.addItem({
+                  key: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                  workId: '这是默认值',
+                  name: '这是默认值',
+                  department: '',
+                  editable: true,
+                  isNew: true,
+                });
               }}> 新建
               </Button>,
               <Button type='danger' style={{ margin: '12px' }} onClick={() => {
@@ -112,7 +114,7 @@ export default () => {
           }
         >
           <Form.Item name='members'>
-            <TableForm ref={tableRef} tableForm={tableForm} />
+            <TableForm ref={tableRef} primaryKey='key' tableForm={tableForm} />
           </Form.Item>
 
         </ProCard>

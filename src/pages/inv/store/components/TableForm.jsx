@@ -6,8 +6,8 @@ import SelectEF from '@/components/EditForm/SelectEF'
 
 const TableForm = forwardRef((props, ref) => {
 
-  const { tableForm, value, onChange } = props;
-  const [randomIndex, setRandomIndex] = useState(0);
+  const { primaryKey, tableForm, value, onChange } = props;
+
   const [data, setData] = useState(value);
   const [selectedRows, setSelectedRows] = useState([]);
 
@@ -17,9 +17,9 @@ const TableForm = forwardRef((props, ref) => {
 
   //通过ref暴露函数
   useImperativeHandle(ref, () => ({
-    newMember: () => {
+    addItem: (item) => {
       //新增一行
-      newMember();
+      newMember(item);
     },
     //删除选中项
     removeRows: () => {
@@ -28,18 +28,9 @@ const TableForm = forwardRef((props, ref) => {
   }))
 
 
-  const newMember = () => {
+  const newMember = (newItem) => {
     const newData = data?.map((item) => ({ ...item })) || [];
-
-    newData.push({
-      key: `NEW_TEMP_ID_${randomIndex}`,
-      workId: '',
-      name: '',
-      department: '',
-      editable: true,
-      isNew: true,
-    });
-    setRandomIndex(randomIndex + 1);
+    newData.push(newItem);
     setData(newData);
   };
 
@@ -51,7 +42,7 @@ const TableForm = forwardRef((props, ref) => {
     const newData = data.filter(item => {
       let i;
       for (i = 0; i < selectedRows.length; i++) {
-        if (selectedRows[i].key === item.key) {
+        if (selectedRows[i][primaryKey] === item[primaryKey]) {
           return false;
         }
       }
@@ -66,7 +57,7 @@ const TableForm = forwardRef((props, ref) => {
   }
 
   const getRowByKey = (key, newData) =>
-    (newData || data)?.filter((item) => item.key === key)[0];
+    (newData || data)?.filter((item) => item[primaryKey] === key)[0];
 
   const handleFieldChange = (
     filedValue,
@@ -79,7 +70,6 @@ const TableForm = forwardRef((props, ref) => {
       target[fieldName] = filedValue;
       setData(newData);
     }
-
     onChange(newData);
   };
 
@@ -111,7 +101,6 @@ const TableForm = forwardRef((props, ref) => {
       key: 'workId',
       width: '20%',
       render: (text, record, index) => {
-
         return (
           <InputEF
             tableForm={tableForm}
@@ -132,7 +121,6 @@ const TableForm = forwardRef((props, ref) => {
       key: 'department',
       width: '40%',
       render: (text, record, index) => {
-
         return (
           <SelectEF
             tableForm={tableForm}
@@ -172,7 +160,7 @@ const TableForm = forwardRef((props, ref) => {
         key='tableForm'
         form={tableForm}>
         <Table
-          key='key'
+          key={primaryKey}
           columns={columns}
           dataSource={data}
           pagination={false}
