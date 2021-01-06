@@ -2,10 +2,13 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, Input, Table, Form } from 'antd';
 import React, { useState } from 'react';
 import styles from '../style.less';
+import InputEF from '@/components/EditForm/InputEF'
+import SelectEF from '@/components/EditForm/SelectEF'
+
 
 const TableForm = ({ value, onChange }) => {
 
-  const [index, setIndex] = useState(0);
+  const [randomIndex, setRandomIndex] = useState(0);
   const [data, setData] = useState(value);
   const [mForm] = Form.useForm();
   const getRowByKey = (key, newData) =>
@@ -15,7 +18,7 @@ const TableForm = ({ value, onChange }) => {
     const newData = data?.map((item) => ({ ...item })) || [];
 
     newData.push({
-      key: `NEW_TEMP_ID_${index}`,
+      key: `NEW_TEMP_ID_${randomIndex}`,
       workId: '',
       name: '',
       department: '',
@@ -23,19 +26,19 @@ const TableForm = ({ value, onChange }) => {
       isNew: true,
     });
 
-    setIndex(index + 1);
+    setRandomIndex(randomIndex + 1);
     setData(newData);
   };
 
   const handleFieldChange = (
-    e,
+    filedValue,
     fieldName,
     key,
   ) => {
     const newData = [...(data)];
     const target = getRowByKey(key, newData);
     if (target) {
-      target[fieldName] = e.target.value;
+      target[fieldName] = filedValue;
       setData(newData);
     }
 
@@ -49,39 +52,39 @@ const TableForm = ({ value, onChange }) => {
       key: 'name',
       width: '20%',
       render: (text, record, index) => {
-        if (record.editable) {
-          return (
-            <Form.Item
-              name={`${index}_id`}
-              rules={[{ required: true, message: 'Please input your username!' }]}>
-              <Input
-                value={text}
-                autoFocus
-                onChange={(e) => handleFieldChange(e, 'name', record.key)}
-                placeholder="成员姓名"
-              />
-            </Form.Item>
-          );
-        }
-        return text;
+
+        return (
+          <InputEF
+            text={text}
+            record={record}
+            index={index}
+            name="name"
+            rules={[{ required: true, message: 'Please input your name!' }]}
+            handleFieldChange={handleFieldChange}
+            placeholder={"请输入成员姓名"}
+          />
+        );
       },
+
     },
     {
       title: '工号',
       dataIndex: 'workId',
       key: 'workId',
       width: '20%',
-      render: (text, record) => {
-        if (record.editable) {
-          return (
-            <Input
-              value={text}
-              onChange={(e) => handleFieldChange(e, 'workId', record.key)}
-              placeholder="工号"
-            />
-          );
-        }
-        return text;
+      render: (text, record, index) => {
+
+        return (
+          <InputEF
+            text={text}
+            record={record}
+            index={index}
+            name="workId"
+            rules={[{ required: true, message: 'Please input your workId!' }]}
+            handleFieldChange={handleFieldChange}
+            placeholder={"请输入工号"}
+          />
+        );
       },
     },
     {
@@ -89,18 +92,35 @@ const TableForm = ({ value, onChange }) => {
       dataIndex: 'department',
       key: 'department',
       width: '40%',
-      render: (text, record) => {
-        if (record.editable) {
-          return (
-            <Input
-              value={text}
-              onChange={(e) => handleFieldChange(e, 'department', record.key)}
+      render: (text, record, index) => {
+        return (
+          <SelectEF
+            text={text}
+            record={record}
+            index={index}
+            name="department"
+            rules={[{ required: true, message: 'Please select your department!' }]}
+            handleFieldChange={handleFieldChange}
+            placeholder={"请输选择所属部门"}
+            keyName="dict_id"
+            valueName="dict_name"
+            dictData={
+              [
+                {
+                  dict_id: '1',
+                  dict_name: "信息部",
+                }, {
+                  dict_id: '2',
+                  dict_name: "财务部",
+                }, {
+                  dict_id: '3',
+                  dict_name: "行政部",
+                }
+              ]
+            }
+          />
+        );
 
-              placeholder="所属部门"
-            />
-          );
-        }
-        return text;
       },
     },
   ];
