@@ -1,26 +1,32 @@
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, Input, Table, Form } from 'antd';
+import { Table, Form, message } from 'antd';
 import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import styles from '../style.less';
 import InputEF from '@/components/EditForm/InputEF'
 import SelectEF from '@/components/EditForm/SelectEF'
 
+const TableForm = forwardRef((props, ref) => {
 
-const TableForm = ({ tableRef, tableForm, value, onChange }) => {
+  const { tableForm, value, onChange } = props;
   const [randomIndex, setRandomIndex] = useState(0);
   const [data, setData] = useState(value);
+  const [selectedRows, setSelectedRows] = useState([]);
 
-  console.log('TableForm value', value)
+  const onTableChange = (selectedRowKeys, selectedRows) => {
+    setSelectedRows(selectedRows);
+  }
 
   //通过ref暴露函数
-  useImperativeHandle(tableRef, () => ({
+  useImperativeHandle(ref, () => ({
     newMember: () => {
       //新增一行
       newMember();
+    },
+    //删除选中项
+    removeRows: () => {
+      removeRows();
     }
   }))
-  const getRowByKey = (key, newData) =>
-    (newData || data)?.filter((item) => item.key === key)[0];
+
 
   const newMember = () => {
     const newData = data?.map((item) => ({ ...item })) || [];
@@ -33,10 +39,34 @@ const TableForm = ({ tableRef, tableForm, value, onChange }) => {
       editable: true,
       isNew: true,
     });
-
     setRandomIndex(randomIndex + 1);
     setData(newData);
   };
+
+  const removeRows = () => {
+    if (selectedRows.length < 1) {
+      message.error('请选择删除项');
+      return;
+    }
+    const newData = data.filter(item => {
+      let i;
+      for (i = 0; i < selectedRows.length; i++) {
+        if (selectedRows[i].key === item.key) {
+          return false;
+        }
+      }
+      return true;
+    });
+    console.log('newData', newData);
+    setData(newData);
+    setSelectedRows([])
+    if (onChange) {
+      onChange(newData);
+    }
+  }
+
+  const getRowByKey = (key, newData) =>
+    (newData || data)?.filter((item) => item.key === key)[0];
 
   const handleFieldChange = (
     filedValue,
@@ -139,17 +169,20 @@ const TableForm = ({ tableRef, tableForm, value, onChange }) => {
   return (
     <>
       <Form
+        key='tableForm'
         form={tableForm}>
         <Table
           key='key'
           columns={columns}
           dataSource={data}
           pagination={false}
-          rowClassName={(record) => (record.editable ? styles.editable : '')}
+          rowSelection={{
+            type: 'checkbox',
+            onChange: onTableChange,
+          }}
         />
       </Form>
     </>
   );
-};
-
-export default forwardRef(TableForm);
+});
+export default TableForm;

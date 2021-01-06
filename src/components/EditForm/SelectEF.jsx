@@ -10,10 +10,12 @@ const SelectEF = (props) => {
     const { dictData, keyName, valueName } = props;
     const { tableForm } = props;
 
-    tableForm.setFieldsValue({ [`${index}_${name}`]: text });
+    const formName = `${index}_${name}`;
+
+    tableForm.setFieldsValue({ [formName]: text });
 
     return (<Form.Item
-        name={`${index}_${name}`}
+        name={formName}
         rules={rules}
     >
         <Select allowClear
@@ -21,7 +23,7 @@ const SelectEF = (props) => {
             onChange={(value) => {
                 handleFieldChange(value, name, record.key)
             }}>
-            {dictData.map(item => <Option value={item[keyName]}>{item[valueName]}</Option>)}
+            {dictData.map(item => <Option key={`${formName}_${item[keyName]}`} value={item[keyName]}>{item[valueName]}</Option>)}
         </Select>
     </Form.Item>)
 }
