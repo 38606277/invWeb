@@ -3,6 +3,9 @@ import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import TableForm from './components/TableForm';
+import SelectOrgDailog from '@/components/Org/SelectOrgDialog';
+
+const { Search } = Input;
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -13,6 +16,8 @@ export default () => {
   const [mainForm] = Form.useForm();
 
   const [tableData, setTableData] = useState([]);
+
+  const [selectOrgDailogVisible, setSelectOrgDailogVisible] = useState(false);
 
   useEffect(() => {
     //初始化数据
@@ -44,7 +49,6 @@ export default () => {
         {
           extra: [
             <Button key="submit" type='primary' onClick={() => {
-              console.log('mainForm', mainForm)
               mainForm?.submit()
             }}>提交</Button>,
             <Button key="reset">重置</Button>,
@@ -61,6 +65,8 @@ export default () => {
               //验证成功
               console.log('main数据', values);
               console.log('行数据', tableData);
+              let deleteRecord = tableRef.current.getDeleteRecord();
+              console.log('getDeleteRecord:', deleteRecord);
               message.success('提交成功');
             })
             .catch(errorInfo => {
@@ -74,12 +80,56 @@ export default () => {
           onCollapse={(collapse) => console.log(collapse)}>
           <Row gutter={16}>
             <Col lg={6} md={12} sm={24}>
+
+              <Form.Item
+                label="入库编码"
+                name="code"
+              >
+                <Input placeholde="自动生成" disabled />
+              </Form.Item>
+
+
               <Form.Item
                 label="仓库名"
-                name="name"
-                rules={[{ required: true, message: '请输入仓库名称' }]}
+                name="org_name"
+                rules={[{ required: true, message: '请输入选择仓库' }]}
               >
-                <Input placeholder="请输入仓库名称" />
+                <Search
+                  placeholder="请选择仓库"
+                  allowClear
+                  readOnly={true}
+                  enterButton="Search"
+                  size="large"
+                  onClick={() => {
+                    setSelectOrgDailogVisible(true)
+                  }}
+                  onSearch={() => {
+                    setSelectOrgDailogVisible(true)
+                  }}
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="time"
+                label="入库时间"
+                rules={[{ required: true, message: '请选择入库时间' }]}>
+                <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />
+              </Form.Item>
+
+              <Form.Item
+                label="供应商"
+                name="name"
+                rules={[{ required: true, message: '请输入供应商' }]}
+              >
+                <Input placeholde="请输入供应商" />
+              </Form.Item>
+
+              <Form.Item
+                label="备注"
+                name="remark"
+                rules={[{ required: true, message: '请输入备注' }]}
+              >
+                <Input placeholde="请输入备注" />
               </Form.Item>
             </Col>
           </Row>
@@ -95,7 +145,6 @@ export default () => {
         onCollapse={(collapse) => console.log(collapse)}
         extra={
           [
-
             <Button type='primary' onClick={() => {
               //新增一行
               tableRef.current.addItem({
@@ -123,7 +172,22 @@ export default () => {
         }} tableForm={tableForm} />
 
       </ProCard>
+      <SelectOrgDailog
+        modalVisible={selectOrgDailogVisible}
+        handleOk={(selectOrg) => {
+          if (selectOrg) {
+            mainForm.setFieldsValue({
+              org_id: selectOrg.org_id,
+              org_name: selectOrg.org_name
+            })
+          }
+          setSelectOrgDailogVisible(false);
+        }}
+        handleCancel={() => {
+          setSelectOrgDailogVisible(false);
+        }}
 
+      />
 
 
     </PageContainer>);

@@ -1,6 +1,5 @@
 import { Table, Form, message } from 'antd';
 import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
-import styles from '../style.less';
 import InputEF from '@/components/EditForm/InputEF'
 import SelectEF from '@/components/EditForm/SelectEF'
 
@@ -8,7 +7,8 @@ const TableForm = forwardRef((props, ref) => {
 
     const { primaryKey, tableForm, value, onChange } = props;
 
-    const [data, setData] = useState(value);
+    const [data, setData] = useState(value);//列表行数据
+    const [deleteRecord, setDeleteRecord] = useState([]);//删除记录
     const [selectedRows, setSelectedRows] = useState([]);
     const [departmentDic, setDepartmentDic] = useState([]);
 
@@ -29,13 +29,7 @@ const TableForm = forwardRef((props, ref) => {
 
     }, []);
 
-    //监听value值 ，长度改变更新布局
-    // useEffect(() => {
-    //     setData(value);
-    // }, [value.length]);
-
-
-
+    // 选中回调 
     const onTableChange = (selectedRowKeys, selectedRows) => {
         setSelectedRows(selectedRows);
     }
@@ -54,23 +48,29 @@ const TableForm = forwardRef((props, ref) => {
         initData: (initData) => {
             setData(initData);
             if (onChange) {
-                onChange(data);
+                onChange(initData);
             }
         },
         //获取表格数据
         getTableData() {
             return data;
+        },
+
+        //获取删除记录
+        getDeleteRecord() {
+            return deleteRecord;
         }
 
     }))
 
-
+    //新增一行
     const newMember = (newItem) => {
         const newData = data?.map((item) => ({ ...item })) || [];
         newData.push(newItem);
         setData(newData);
     };
 
+    //删除选中项目
     const removeRows = () => {
         if (selectedRows.length < 1) {
             message.error('请选择删除项');
@@ -85,17 +85,22 @@ const TableForm = forwardRef((props, ref) => {
             }
             return true;
         });
-        console.log('newData', newData);
+        //console.log('newData', newData);
         setData(newData);
+        let newDeleteRecord = deleteRecord.concat(selectedRows);
+        setDeleteRecord(newDeleteRecord);
         setSelectedRows([]);
+
         if (onChange) {
             onChange(newData);
         }
     }
 
+    //根据key获取行数据
     const getRowByKey = (key, newData) =>
         (newData || data)?.filter((item) => item[primaryKey] === key)[0];
 
+    //修改行数据属性值
     const handleFieldChange = (
         filedValue,
         fieldName,
