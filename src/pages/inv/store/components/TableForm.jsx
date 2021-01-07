@@ -8,7 +8,6 @@ const TableForm = forwardRef((props, ref) => {
 
     const { primaryKey, tableForm, value, onChange } = props;
 
-
     const [data, setData] = useState(value);
     const [selectedRows, setSelectedRows] = useState([]);
     const [departmentDic, setDepartmentDic] = useState([]);
@@ -31,15 +30,13 @@ const TableForm = forwardRef((props, ref) => {
     }, []);
 
     //监听value值 ，长度改变更新布局
-    useEffect(() => {
-        setData(value);
-    }, [value.length]);
+    // useEffect(() => {
+    //     setData(value);
+    // }, [value.length]);
 
 
 
     const onTableChange = (selectedRowKeys, selectedRows) => {
-        console.log('selectedRowKeys', selectedRowKeys);
-        console.log('selects', selectedRows);
         setSelectedRows(selectedRows);
     }
 
@@ -52,7 +49,19 @@ const TableForm = forwardRef((props, ref) => {
         //删除选中项
         removeRows: () => {
             removeRows();
+        },
+        //手动初始化数据
+        initData: (initData) => {
+            setData(initData);
+            if (onChange) {
+                onChange(data);
+            }
+        },
+        //获取表格数据
+        getTableData() {
+            return data;
         }
+
     }))
 
 
@@ -99,7 +108,9 @@ const TableForm = forwardRef((props, ref) => {
             target[fieldName] = filedValue;
             setData(newData);
         }
-        onChange(newData);
+        if (onChange) {
+            onChange(newData);
+        }
     };
 
     const columns = [

@@ -3,7 +3,6 @@ import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import TableForm from './components/TableForm';
-import FormItem from 'antd/lib/form/FormItem';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -13,31 +12,30 @@ export default () => {
   const [tableForm] = Form.useForm();
   const [mainForm] = Form.useForm();
 
-
+  const [tableData, setTableData] = useState([]);
 
   useEffect(() => {
-    mainForm.setFieldsValue({
-      members: [
-        {
-          id: '1',
-          workId: '00001',
-          name: 'John Brown',
-          department: '2',
-        },
-        {
-          id: '2',
-          workId: '00002',
-          name: 'Jim Green',
-          department: 'London No. 1 Lake Park',
-        },
-        {
-          id: '3',
-          workId: '00003',
-          name: 'Joe Black',
-          department: 'Sidney No. 1 Lake Park',
-        },
-      ]
-    });
+    //初始化数据
+    tableRef?.current?.initData([
+      {
+        id: '1',
+        workId: '00001',
+        name: 'John Brown',
+        department: '2',
+      },
+      {
+        id: '2',
+        workId: '00002',
+        name: 'Jim Green',
+        department: 'London No. 1 Lake Park',
+      },
+      {
+        id: '3',
+        workId: '00003',
+        name: 'Joe Black',
+        department: 'Sidney No. 1 Lake Park',
+      },
+    ]);
   }, []);
 
   return (
@@ -61,7 +59,8 @@ export default () => {
           tableForm.validateFields()
             .then(() => {
               //验证成功
-              console.log(values);
+              console.log('main数据', values);
+              console.log('行数据', tableData);
               message.success('提交成功');
             })
             .catch(errorInfo => {
@@ -85,43 +84,47 @@ export default () => {
             </Col>
           </Row>
         </ProCard>
-
-        <ProCard
-          title="行信息"
-          style={{ marginTop: '30px' }}
-
-          headerBordered
-          collapsible
-          onCollapse={(collapse) => console.log(collapse)}
-          extra={
-            [
-
-              <Button type='primary' onClick={() => {
-                //新增一行
-                tableRef.current.addItem({
-                  id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                  workId: '这是默认值',
-                  name: '这是默认值',
-                  department: '',
-                  editable: true,
-                  isNew: true,
-                });
-              }}> 新建
-              </Button>,
-              <Button type='danger' style={{ margin: '12px' }} onClick={() => {
-                //删除选中项
-                tableRef.current.removeRows();
-              }}> 删除</Button>
-
-            ]
-          }
-        >
-          <Form.Item name='members'>
-            <TableForm ref={tableRef} primaryKey='id' tableForm={tableForm} />
-          </Form.Item>
-
-        </ProCard>
       </Form>
+
+
+      <ProCard
+        title="行信息"
+        style={{ marginTop: '30px' }}
+        headerBordered
+        collapsible
+        onCollapse={(collapse) => console.log(collapse)}
+        extra={
+          [
+
+            <Button type='primary' onClick={() => {
+              //新增一行
+              tableRef.current.addItem({
+                id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                workId: '这是默认值',
+                name: '这是默认值',
+                department: '',
+                editable: true,
+                isNew: true,
+              });
+            }}> 新建
+              </Button>,
+            <Button type='danger' style={{ margin: '12px' }} onClick={() => {
+              //删除选中项
+              tableRef.current.removeRows();
+            }}> 删除</Button>
+
+          ]
+        }
+      >
+        <TableForm ref={tableRef} primaryKey='id' value={tableData} onChange={(newTableData) => {
+          //onChange实时回调最新的TableData 
+          //手动获取方式 tableRef?.current?.getTableData()，可以节省onChange方法
+          setTableData(newTableData);
+        }} tableForm={tableForm} />
+
+      </ProCard>
+
+
 
     </PageContainer>);
 };
