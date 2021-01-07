@@ -1,5 +1,5 @@
 import { Table, Form, message } from 'antd';
-import React, { useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import styles from '../style.less';
 import InputEF from '@/components/EditForm/InputEF'
 import SelectEF from '@/components/EditForm/SelectEF'
@@ -8,10 +8,38 @@ const TableForm = forwardRef((props, ref) => {
 
     const { primaryKey, tableForm, value, onChange } = props;
 
+
     const [data, setData] = useState(value);
     const [selectedRows, setSelectedRows] = useState([]);
+    const [departmentDic, setDepartmentDic] = useState([]);
+
+    useEffect(() => {
+        setTimeout(3000);
+        setDepartmentDic([
+            {
+                dict_id: '1',
+                dict_name: "信息部",
+            }, {
+                dict_id: '2',
+                dict_name: "财务部",
+            }, {
+                dict_id: '3',
+                dict_name: "行政部",
+            }
+        ])
+
+    }, []);
+
+    //监听value值 ，长度改变更新布局
+    useEffect(() => {
+        setData(value);
+    }, [value.length]);
+
+
 
     const onTableChange = (selectedRowKeys, selectedRows) => {
+        console.log('selectedRowKeys', selectedRowKeys);
+        console.log('selects', selectedRows);
         setSelectedRows(selectedRows);
     }
 
@@ -50,7 +78,7 @@ const TableForm = forwardRef((props, ref) => {
         });
         console.log('newData', newData);
         setData(newData);
-        setSelectedRows([])
+        setSelectedRows([]);
         if (onChange) {
             onChange(newData);
         }
@@ -135,18 +163,7 @@ const TableForm = forwardRef((props, ref) => {
                         keyName="dict_id"
                         valueName="dict_name"
                         dictData={
-                            [
-                                {
-                                    dict_id: '1',
-                                    dict_name: "信息部",
-                                }, {
-                                    dict_id: '2',
-                                    dict_name: "财务部",
-                                }, {
-                                    dict_id: '3',
-                                    dict_name: "行政部",
-                                }
-                            ]
+                            departmentDic
                         }
                     />
                 );
@@ -161,7 +178,7 @@ const TableForm = forwardRef((props, ref) => {
                 key='tableForm'
                 form={tableForm}>
                 <Table
-                    key={primaryKey}
+                    rowKey={primaryKey}
                     columns={columns}
                     dataSource={data}
                     pagination={false}

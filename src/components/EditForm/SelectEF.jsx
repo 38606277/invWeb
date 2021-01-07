@@ -21,8 +21,6 @@ const SelectEF = (props) => {
         <Select allowClear
             placeholder={placeholder}
             onChange={(value) => {
-                console.log('handleFieldChange', value)
-                console.log('handleFieldChange', handleFieldChange)
                 handleFieldChange(value, name, record)
             }}>
             {dictData.map(item => <Option key={`${formName}_${item[keyName]}`} value={item[keyName]}>{item[valueName]}</Option>)}

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
@@ -8,33 +8,37 @@ import FormItem from 'antd/lib/form/FormItem';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-
-
-const tableData = [
-  {
-    value_id: '1',
-    workId: '00001',
-    name: 'John Brown',
-    department: 'New York No. 1 Lake Park',
-  },
-  {
-    value_id: '2',
-    workId: '00002',
-    name: 'Jim Green',
-    department: 'London No. 1 Lake Park',
-  },
-  {
-    value_id: '3',
-    workId: '00003',
-    name: 'Joe Black',
-    department: 'Sidney No. 1 Lake Park',
-  },
-];
-
 export default () => {
   const tableRef = useRef();
   const [tableForm] = Form.useForm();
   const [mainForm] = Form.useForm();
+
+
+
+  useEffect(() => {
+    mainForm.setFieldsValue({
+      members: [
+        {
+          id: '1',
+          workId: '00001',
+          name: 'John Brown',
+          department: '2',
+        },
+        {
+          id: '2',
+          workId: '00002',
+          name: 'Jim Green',
+          department: 'London No. 1 Lake Park',
+        },
+        {
+          id: '3',
+          workId: '00003',
+          name: 'Joe Black',
+          department: 'Sidney No. 1 Lake Park',
+        },
+      ]
+    });
+  }, []);
 
   return (
     <PageContainer
@@ -52,7 +56,6 @@ export default () => {
     >
       <Form
         form={mainForm}
-        initialValues={{ members: tableData }}
         onFinish={async (values) => {
           //验证tableForm
           tableForm.validateFields()
@@ -96,7 +99,7 @@ export default () => {
               <Button type='primary' onClick={() => {
                 //新增一行
                 tableRef.current.addItem({
-                  value_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                  id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
                   workId: '这是默认值',
                   name: '这是默认值',
                   department: '',
@@ -114,7 +117,7 @@ export default () => {
           }
         >
           <Form.Item name='members'>
-            <TableForm ref={tableRef} primaryKey='value_id' tableForm={tableForm} />
+            <TableForm ref={tableRef} primaryKey='id' tableForm={tableForm} />
           </Form.Item>
 
         </ProCard>
