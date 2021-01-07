@@ -238,7 +238,7 @@ const dictList = () => {
                 dateFormatter="string"
                 headerTitle="字典列表"
                  toolBarRender={(action, { selectedRows }) => [
-                    <Button type="primary" onClick={() => history.push('/transation/deliver')}>
+                    <Button type="primary" onClick={() => history.push('/mdm/dict/dict')}>
                       新建
                     </Button>
                   ]}
