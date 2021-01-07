@@ -10,56 +10,13 @@ import HttpService from '@/utils/HttpService.jsx';
 
 const { confirm } = Modal;
 
-const { TreeNode } = TreeSelect;
-
-const CompanyStructure = ({ key, form }) => {
-
-    const [treeData, setTreeData] = useState([]);
-
-    useEffect(() => {
-        refreshData();
-    }, [])
-
-
-    const refreshData = () => {
-        HttpService.post('reportServer/companyStructure/getAllChildrenRecursionByCode', JSON.stringify({ parent_code: 0 }))
-            .then(res => {
-                if (res.resultCode == "1000") {
-                    setTreeData(res.data)
-                } else {
-                    message.error(res.message);
-                }
-            });
-    }
-
-    const onChange = value => {
-        form.setFieldsValue({
-            [key]: value,
-        });
-        console.log('renderFormItem onChange ',);
-    };
-
-    return (<TreeSelect
-        style={{ width: '100%' }}
-        dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-        treeData={treeData}
-        placeholder="Please select"
-        treeDefaultExpandAll
-        allowClear
-        onChange={onChange}
-    />);
-}
-
 
 //删除按钮事件
-const onDeleteClickListener = (ref, selectedRowKeys) => {
-
+const onDeleteClickListener = (selectedRowKeys) => {
     if (selectedRowKeys.length < 1) {
         message.error('请选择需要删除的内容');
         return;
     }
-    console.log('onDeleteClickListener', selectedRowKeys);
-
     confirm({
         title: '温馨提示',
         content: `您确定要删除吗？`,
@@ -67,7 +24,7 @@ const onDeleteClickListener = (ref, selectedRowKeys) => {
         cancelText: '取消',
         okType: 'danger',
         onOk() {
-            deleteByIds(ref, selectedRowKeys);
+            deleteByIds(selectedRowKeys);
         },
         onCancel() {
 
@@ -76,20 +33,17 @@ const onDeleteClickListener = (ref, selectedRowKeys) => {
 
 }
 //删除
-const deleteByIds = (ref, selectedRowKeys) => {
+const deleteByIds = ( selectedRowKeys) => {
     if (selectedRowKeys.length < 1) {
         message.error('请选择需要删除的内容');
         return;
     }
-
-    HttpService.post('reportServer/storage/deleteStorage', JSON.stringify({ ids: selectedRowKeys.toString() }))
+    HttpService.post('reportServer/mdmDict/deleteDictById', JSON.stringify({ dict_id: selectedRowKeys.toString() }))
         .then(res => {
             if (res.resultCode == "1000") {
                 //刷新
                 // 清空选中项
-                ref.current.clearSelected();
-                ref.current.reload();
-
+                fetchData({current:0,pageSize:10},"","");
             } else {
                 message.error(res.message);
             }
@@ -101,12 +55,11 @@ const fetchData = async (params, sort, filter) => {
     console.log('getByKeyword', params, sort, filter);
     // current: 1, pageSize: 20
     let requestParam = {
-        pageNum: params.current,
+        startIndex: params.current,
         perPage: params.pageSize,
         ...params
     }
-    const result = await HttpService.post('reportServer/storage/listStorageByPage', JSON.stringify(requestParam));
-    console.log('result : ', result);
+    const result = await HttpService.post('reportServer/mdmDict/getAllPage', JSON.stringify(requestParam));
     return Promise.resolve({
         data: result.data.list,
         total: result.data.total,
@@ -116,83 +69,32 @@ const fetchData = async (params, sort, filter) => {
 
 const dictList = () => {
 
-    console.log('绘制布局')
     const ref = useRef();
     const [visible, setVisible] = useState(false);
     const [initData, setInitData] = useState({});
-
 
     //定义列
     const columns = [
         {
             title: '编码',
-            dataIndex: 'num',
+            dataIndex: 'dict_code',
             valueType: 'text',
         },
         {
             title: '名称',
-            dataIndex: 'name',
+            dataIndex: 'dict_name',
             valueType: 'text',
         },
-        {
-            title: '状态',
-            // hideInSearch: true,
-            dataIndex: 'time',
-            valueType: 'date',
-        },
-        {
-            title: '数据类型',
-            // hideInSearch: true,
-            dataIndex: 'name',
-            valueType: 'text',
-        },
-        {
-            title: '简码',
-            dataIndex: 'type_name',
-            valueType: 'select',
-            key: 'type',
-            request: async () => {
-                const result = await HttpService.post('reportServer/baseData/listBaseDataByType', JSON.stringify({
-                    type: 'storage_type'
-                }));
-
-                if (result.resultCode == '1000') {
-                    return Promise.resolve(result.data);
-                } else {
-                    message.error('数据获取失败')
-                    return Promise.resolve([]);
-                }
-            }
-        },
-        {
-            title: '所属部门',
-            dataIndex: 'department',
-            key: 'department',
-            filters: true,
-            renderFormItem: (item, {}, form) => {
-          
-
-                return (
-                    <CompanyStructure
-                        key={item.key}
-                        form={form}
-                    />
-
-                );
-            },
-        },
-
         {
             title: '操作',
             width: 180,
             key: 'option',
             valueType: 'option',
             render: (text, record) => [
-                <a key="link3" onClick={() => {
-                    setVisible(true);
-                    setInitData(record);
-                }} >编辑</a>,
-                <a key="link4" onClick={() => onDeleteClickListener(ref, [record.id])} >删除</a>,
+                <Button type="primary" onClick={() => history.push('/mdm/dict/dict/'+`${record.dict_id}`)}>
+                      编辑
+                    </Button>,
+                <Button onClick={() => onDeleteClickListener([record.dict_id])} >删除</Button>,
             ]
         },
     ];
@@ -238,7 +140,7 @@ const dictList = () => {
                 dateFormatter="string"
                 headerTitle="字典列表"
                  toolBarRender={(action, { selectedRows }) => [
-                    <Button type="primary" onClick={() => history.push('/mdm/dict/dict')}>
+                    <Button type="primary" onClick={() => history.push('/mdm/dict/dict/null')}>
                       新建
                     </Button>
                   ]}

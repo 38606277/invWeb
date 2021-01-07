@@ -59,8 +59,11 @@ const TableForm = forwardRef((props, ref) => {
         //获取表格数据
         getTableData() {
             return data;
+        },
+        //获取删除行
+        getDeleteData() {
+            return selectedRows;
         }
-
     }))
 
 

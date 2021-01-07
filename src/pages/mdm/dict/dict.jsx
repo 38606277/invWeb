@@ -4,51 +4,49 @@ import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import TableForm from './TableForm';
 import FormItem from 'antd/lib/form/FormItem';
+import HttpService from '../../../utils/HttpService';
+import { history } from 'umi';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-export default () => {
+export default (props) => {
 
   const [tableForm] = Form.useForm();
   const [mainForm] = Form.useForm();
   const tableRef = useRef();
   const [tableData, setTableData] = useState([]);
-  
+  const [query, setQuery] = useState('redux');
+
   useEffect(() => {
-    mainForm.setFieldsValue({
-      dict_id:"",
-      dict_code:"",
-      dict_name:"",
-      dict_type:""
-    });
-    //初始化数据
-    tableRef?.current?.initData([
-      {
-        value_id: '1',
-        value_code: '00001',
-        value_name: 'John Brown',
-        value_pid: 'New York No. 1 Lake Park',
-        dict_id: '2',
-      },
-      {
-        value_id: '2',
-        value_code: '00002',
-        value_name: 'Jim Green',
-        value_pid: 'London No. 1 Lake Park',
-        dict_id: '2',
-      },
-      {
-        value_id: '3',
-        value_code: '00003',
-        value_name: 'Joe Black',
-        value_pid: 'Sidney No. 1 Lake Park',
-        dict_id: '2',
-      },
-    ]);
-    
+    if("null"!=props.match.params.dict_id && ""!=props.match.params.dict_id){
+      HttpService.post('reportServer/mdmDict/getDictByID', JSON.stringify({ dict_id: props.match.params.dict_id }))
+      .then(res => {
+          if (res.resultCode == "1000") {
+            let mainFormV=res.data.mainForm;
+            let lineFormV=res.data.lineForm;
+            mainForm.setFieldsValue({
+              dict_id:mainFormV.dict_id,
+              dict_code:mainFormV.dict_code,
+              dict_name:mainFormV.dict_name,
+              dict_type:mainFormV.dict_type
+            });
+            //初始化数据
+            tableRef?.current?.initData(lineFormV);
+          } else {
+              message.error(res.message);
+          }
+      });
+    }else{
+      mainForm.setFieldsValue({
+        dict_id:"",
+        dict_code:"",
+        dict_name:"",
+        dict_type:"list"
+      });
+    }
   },[]);
-  console.log(tableData);
+
   return (
     <PageContainer
       header={
@@ -59,6 +57,7 @@ export default () => {
               mainForm?.submit()
             }}>提交</Button>,
             <Button key="reset">重置</Button>,
+            <Button key="back" onClick={()=>history.push('/mdm/dict/dictList')}>返回</Button>,
           ]
         }
       }
@@ -70,9 +69,21 @@ export default () => {
           tableForm.validateFields()
             .then(() => {
               //验证成功
-              console.log('main数据', values);
-              console.log('行数据', tableData);
-              message.success('提交成功');
+              let postData={
+                ...values,
+                lineForm:tableData,
+                lineDelete:tableRef?.current?.getDeleteData()
+              }
+              HttpService.post('reportServer/mdmDict/saveDict', JSON.stringify(postData))
+              .then(res => {
+                  if (res.resultCode == "1000") {
+                      //刷新
+                      message.success('提交成功');
+                      history.push("/mdm/dict/dictList");
+                  } else {
+                      message.error(res.message);
+                  }
+              });
             })
             .catch(errorInfo => {
               //验证失败
@@ -90,7 +101,7 @@ export default () => {
                 </Form.Item>
               <Form.Item
                 label="字典编码"
-                name="name"
+                name="dict_code"
                 rules={[{ required: true, message: '请输入字典编码' }]}
               >
                 <Input placeholder="请输入字典编码" />
@@ -99,7 +110,7 @@ export default () => {
             <Col xl={{ span: 6, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
               <Form.Item
                 label="字典名称"
-                name="url"
+                name="dict_name"
                 rules={[{ required: true, message: '请选择字典名称' }]}
               >
                 <Input
@@ -111,7 +122,7 @@ export default () => {
             <Col xl={{ span: 8, offset: 2 }} lg={{ span: 10 }} md={{ span: 24 }} sm={24}>
               <Form.Item
                 label="字典类型"
-                name="owner"
+                name="dict_type"
                 rules={[{ required: true, message: '请选择字典类型' }]}
               >
                 <Select placeholder="请选择字典类型">
@@ -126,13 +137,11 @@ export default () => {
         <ProCard
           title="行信息"
           style={{ marginTop: '30px' }}
-
           headerBordered
           collapsible
           onCollapse={(collapse) => console.log(collapse)}
           extra={
             [
-
               <Button type='primary' onClick={() => {
                 //新增一行
                 tableRef.current.addItem({
@@ -150,7 +159,6 @@ export default () => {
                 //删除选中项
                 tableRef.current.removeRows();
               }}> 删除</Button>
-
             ]
           }
         >
@@ -159,10 +167,7 @@ export default () => {
           //手动获取方式 tableRef?.current?.getTableData()，可以节省onChange方法
           setTableData(newTableData);
         }} tableForm={tableForm} />
-
         </ProCard>
       </Form>
-
     </PageContainer>);
 };
-
