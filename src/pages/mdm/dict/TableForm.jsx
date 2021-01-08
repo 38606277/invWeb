@@ -9,6 +9,7 @@ const TableForm = forwardRef((props, ref) => {
 
     const [data, setData] = useState(value);
     const [selectedRows, setSelectedRows] = useState([]);
+    const [deleteRecord, setDeleteRecord] = useState([]);//删除记录
     const [departmentDic, setDepartmentDic] = useState([]);
 
     useEffect(() => {
@@ -27,13 +28,6 @@ const TableForm = forwardRef((props, ref) => {
         ])
 
     }, []);
-
-    //监听value值 ，长度改变更新布局
-    // useEffect(() => {
-    //     setData(value);
-    // }, [value.length]);
-
-
 
     const onTableChange = (selectedRowKeys, selectedRows) => {
         setSelectedRows(selectedRows);
@@ -62,7 +56,7 @@ const TableForm = forwardRef((props, ref) => {
         },
         //获取删除行
         getDeleteData() {
-            return selectedRows;
+            return deleteRecord;
         }
     }))
 
@@ -87,9 +81,11 @@ const TableForm = forwardRef((props, ref) => {
             }
             return true;
         });
-        console.log('newData', newData);
         setData(newData);
-        //setSelectedRows([]);
+        let newDeleteRecord = deleteRecord.concat(selectedRows);
+        setDeleteRecord(newDeleteRecord);
+        setSelectedRows([]);
+
         if (onChange) {
             onChange(newData);
         }
@@ -127,7 +123,7 @@ const TableForm = forwardRef((props, ref) => {
                         tableForm={tableForm}
                         text={text}
                         record={record}
-                        index={index}
+                        index={record.value_id}
                         name="value_code"
                         rules={[{ required: true, message: 'Please input your name!' }]}
                         handleFieldChange={handleFieldChange}
@@ -148,7 +144,7 @@ const TableForm = forwardRef((props, ref) => {
                         tableForm={tableForm}
                         text={text}
                         record={record}
-                        index={index}
+                        index={record.value_id}
                         name="value_name"
                         rules={[{ required: true, message: 'Please input your workId!' }]}
                         handleFieldChange={handleFieldChange}
@@ -161,7 +157,6 @@ const TableForm = forwardRef((props, ref) => {
             title: '父ID',
             dataIndex: 'value_pid',
             key: 'value_pid',
-            width: '1%',
             className:styles.columnshow,
             render: (text, record, index) => {
                 return (
@@ -169,7 +164,7 @@ const TableForm = forwardRef((props, ref) => {
                   tableForm={tableForm}
                   text={text}
                   record={record}
-                  index={index}
+                  index={record.value_id}
                   name="value_pid"
                   rules={[{ required: false, message: 'Please input your workId!' }]}
                   handleFieldChange={handleFieldChange}
