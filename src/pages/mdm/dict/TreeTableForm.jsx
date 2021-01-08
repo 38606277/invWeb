@@ -177,7 +177,7 @@ const TreeTableForm = forwardRef((props, ref) => {
         record,
     ) => {
         
-       // debugger;
+       console.log("Tree");
         let key = record[primaryKey];
         const newData = [...(data)];
         const target = getRowByKey(key, newData);

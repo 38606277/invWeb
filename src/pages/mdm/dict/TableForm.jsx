@@ -99,6 +99,7 @@ const TableForm = forwardRef((props, ref) => {
         fieldName,
         record,
     ) => {
+        console.log("List");
         let key = record[primaryKey];
         const newData = [...(data)];
         const target = getRowByKey(key, newData);

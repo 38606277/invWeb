@@ -18,6 +18,7 @@ export default (props) => {
   const tableRef = useRef();
   const [tableData, setTableData] = useState([]);
   const [query, setQuery] = useState('redux');
+  const [displayType, setDisplayType] = useState('list');
 
   useEffect(() => {
     if("null"!=props.match.params.dict_id && ""!=props.match.params.dict_id){
@@ -32,6 +33,7 @@ export default (props) => {
               dict_name:mainFormV.dict_name,
               dict_type:mainFormV.dict_type
             });
+            setDisplayType(mainFormV.dict_type);
             //初始化数据
             tableRef?.current?.initData(lineFormV);
           } else {
@@ -110,7 +112,10 @@ export default (props) => {
     //   ]);
     }
   },[]);
-
+  const selectChage = (e) =>{
+    console.log(e);
+    setDisplayType(e);
+  }
   return (
     <PageContainer
       header={
@@ -189,7 +194,7 @@ export default (props) => {
                 name="dict_type"
                 rules={[{ required: true, message: '请选择字典类型' }]}
               >
-                <Select placeholder="请选择字典类型">
+                <Select placeholder="请选择字典类型" onChange={e => selectChage(e)}>
                   <Option value="list">列表</Option>
                   <Option value="tree">树</Option>
                 </Select>
@@ -226,25 +231,30 @@ export default (props) => {
             ]
           }
         >
-         {/* <TreeTableForm
-          ref={tableRef} 
-          primaryKey='value_id' 
-          value={tableData}
-          onChange={(newTableData) => {
-          //onChange实时回调最新的TableData 
-          //手动获取方式 tableRef?.current?.getTableData()，可以节省onChange方法
-          setTableData(newTableData);
-        }} tableForm={tableForm} /> */}
+          
 
-        <TableForm
-          ref={tableRef}
-          primaryKey='value_id' 
-          value={tableData}
-          onChange={(newTableData) => {
-          //onChange实时回调最新的TableData 
-          //手动获取方式 tableRef?.current?.getTableData()，可以节省onChange方法
-          setTableData(newTableData);
-        }} tableForm={tableForm} />
+          {displayType=='list'?
+            <TableForm
+              ref={tableRef}
+              primaryKey='value_id' 
+              value={tableData}
+              onChange={(newTableData) => {
+                //onChange实时回调最新的TableData 
+                //手动获取方式 tableRef?.current?.getTableData()，可以节省onChange方法
+                setTableData(newTableData);
+              }} 
+              tableForm={tableForm} />
+            :<TreeTableForm
+              ref={tableRef} 
+              primaryKey='value_id' 
+              value={tableData}
+              onChange={(newTableData) => {
+                //onChange实时回调最新的TableData 
+                //手动获取方式 tableRef?.current?.getTableData()，可以节省onChange方法
+                setTableData(newTableData);
+              }} 
+              tableForm={tableForm} /> 
+          }
 
         </ProCard>
       </Form>
