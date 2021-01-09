@@ -1,13 +1,14 @@
 import { Table, Form, message } from 'antd';
 import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import InputEF from '@/components/EditForm/InputEF'
-import SelectEF from '@/components/EditForm/SelectEF'
-
+import InputNumberEF from '@/components/EditForm/InputNumberEF'
+import InputSearchEF from '@/components/EditForm/InputSearchEF'
+import styles from '@/components/EditForm/index.less'
 const TableForm = forwardRef((props, ref) => {
 
     const { primaryKey, tableForm, value, onChange } = props;
 
-    const [data, setData] = useState(value);//列表行数据
+    const [data, setData] = useState(value || []);//列表行数据
     const [deleteRecord, setDeleteRecord] = useState([]);//删除记录
     const [selectedRows, setSelectedRows] = useState([]);
     const [departmentDic, setDepartmentDic] = useState([]);
@@ -118,72 +119,148 @@ const TableForm = forwardRef((props, ref) => {
         }
     };
 
+
+    const calculationMoney = (
+        filedValue,
+        fieldName,
+        record,
+    ) => {
+        let key = record[primaryKey];
+        const newData = [...(data)];
+        const target = getRowByKey(key, newData);
+
+        console.log('amount', target['amount'])
+        console.log('price', target['price'])
+        console.log('quantity', target['quantity'])
+
+        if (target) {
+            target['amount'] = target['price'] * target['quantity']
+            setData(newData);
+        }
+        if (onChange) {
+            onChange(newData);
+        }
+    };
+
+
     const columns = [
         {
-            title: '成员姓名',
-            dataIndex: 'name',
-            key: 'name',
-            width: '20%',
+            title: '物料名称',
+            dataIndex: 'item_name',
+            key: 'item_name',
+            render: (text, record, index) => {
+                return (
+                    <InputSearchEF
+                        tableForm={tableForm}
+                        text={text}
+                        record={record}
+                        index={record[primaryKey]}
+                        name="item_name"
+                        rules={[{ required: true, message: '请输入物料名称' }]}
+                        handleFieldChange={handleFieldChange}
+                        onSearch={() => {
+                            handleFieldChange('件', 'uom', record)
+                            handleFieldChange(29.8, 'price', record)
+                            handleFieldChange('衬衫', 'item_name', record)
+                        }}
+
+                    />
+                );
+            },
+        },
+
+        {
+            title: '单位',
+            dataIndex: 'uom',
+            key: 'uom',
             render: (text, record, index) => {
                 return (
                     <InputEF
                         tableForm={tableForm}
                         text={text}
                         record={record}
-                        index={index}
-                        name="name"
-                        rules={[{ required: true, message: 'Please input your name!' }]}
+                        index={record[primaryKey]}
+                        name="uom"
+                        disabled
                         handleFieldChange={handleFieldChange}
-                        placeholder={"请输入成员姓名"}
                     />
                 );
             },
-
         },
         {
-            title: '工号',
-            dataIndex: 'workId',
-            key: 'workId',
-            width: '20%',
+            title: '单价',
+            dataIndex: 'price',
+            key: 'price',
+            render: (text, record, index) => {
+                return (
+                    <InputNumberEF
+                        tableForm={tableForm}
+                        text={text}
+                        record={record}
+                        index={record[primaryKey]}
+                        name="price"
+                        precision={2}
+                        disabled
+                        handleFieldChange={handleFieldChange}
+                        onChange={calculationMoney}
+                    />
+                );
+            },
+        },
+        {
+            title: '数量',
+            dataIndex: 'quantity',
+            key: 'quantity',
+            render: (text, record, index) => {
+                return (
+                    <InputNumberEF
+                        tableForm={tableForm}
+                        text={text}
+                        record={record}
+                        index={record[primaryKey]}
+                        name="quantity"
+                        onChange={calculationMoney}
+                        rules={[{ required: true, message: '请输入数量' }]}
+                        precision={0}
+                        handleFieldChange={handleFieldChange}
+                    />
+                );
+            },
+        },
+        {
+            title: '金额',
+            dataIndex: 'amount',
+            key: 'amount',
+            render: (text, record, index) => {
+                return (
+                    <InputNumberEF
+                        tableForm={tableForm}
+                        text={text}
+                        record={record}
+                        index={record[primaryKey]}
+                        name="amount"
+                        precision={2}
+                        disabled
+                        handleFieldChange={handleFieldChange}
+                    />
+                );
+            },
+        },
+        {
+            title: '备注',
+            dataIndex: 'reamrk',
+            key: 'reamrk',
             render: (text, record, index) => {
                 return (
                     <InputEF
                         tableForm={tableForm}
                         text={text}
                         record={record}
-                        index={index}
-                        name="workId"
-                        rules={[{ required: true, message: 'Please input your workId!' }]}
+                        index={record[primaryKey]}
+                        name="reamrk"
                         handleFieldChange={handleFieldChange}
-                        placeholder={"请输入工号"}
                     />
                 );
-            },
-        },
-        {
-            title: '所属部门',
-            dataIndex: 'department',
-            key: 'department',
-            width: '40%',
-            render: (text, record, index) => {
-                return (
-                    <SelectEF
-                        tableForm={tableForm}
-                        text={text}
-                        record={record}
-                        index={index}
-                        name="department"
-                        rules={[{ required: true, message: 'Please select your department!' }]}
-                        handleFieldChange={handleFieldChange}
-                        placeholder={"请输选择所属部门"}
-                        keyName="dict_id"
-                        valueName="dict_name"
-                        dictData={
-                            departmentDic
-                        }
-                    />
-                );
-
             },
         },
     ];
@@ -191,6 +268,7 @@ const TableForm = forwardRef((props, ref) => {
     return (
         <>
             <Form
+                className={styles.tableForm}
                 key='tableForm'
                 form={tableForm}>
                 <Table

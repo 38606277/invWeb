@@ -1,12 +1,13 @@
 import React from 'react';
 import { Input, Form } from 'antd';
 import styles from './index.less'
+const { Search } = Input;
 
-const InputEF = (props) => {
+const InputSearchEF = (props) => {
 
     const { text, record, index } = props;
     const { name, rules } = props;
-    const { disabled, placeholder, handleFieldChange } = props;
+    const { placeholder, handleFieldChange, onSearch } = props;
     const { tableForm } = props;
 
     tableForm.setFieldsValue({ [`${index}_${name}`]: text });
@@ -18,11 +19,17 @@ const InputEF = (props) => {
             name={`${index}_${name}`}
             rules={rules}
         >
-            <Input
-                disabled={disabled}
+            <Search
                 value={text}
+                readOnly
                 onChange={(e) => {
                     handleFieldChange(e.target.value, name, record)
+                }}
+                onClick={() => {
+                    onSearch(name, record)
+                }}
+                onSearch={() => {
+                    onSearch(name, record)
                 }}
                 placeholder={placeholder}
             />
@@ -30,4 +37,4 @@ const InputEF = (props) => {
 
     )
 }
-export default InputEF;
+export default InputSearchEF;

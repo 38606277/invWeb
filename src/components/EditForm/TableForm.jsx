@@ -146,22 +146,20 @@ const TableForm = forwardRef((props, ref) => {
   }
 
   return (
-    <>
-      <Form
-        key='tableForm'
-        form={tableForm}>
-        <Table
-          key={primaryKey}
-          columns={buildColumns(columns)}
-          dataSource={data}
-          pagination={false}
-          rowSelection={{
-            type: 'checkbox',
-            onChange: onTableChange,
-          }}
-        />
-      </Form>
-    </>
+    <Form
+      key='tableForm'
+      form={tableForm}>
+      <Table
+        key={primaryKey}
+        columns={buildColumns(columns)}
+        dataSource={data}
+        pagination={false}
+        rowSelection={{
+          type: 'checkbox',
+          onChange: onTableChange,
+        }}
+      />
+    </Form>
   );
 });
 export default TableForm;
