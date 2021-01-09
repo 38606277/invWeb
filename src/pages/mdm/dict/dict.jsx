@@ -18,7 +18,7 @@ export default (props) => {
   const tableRef = useRef();
   const [tableData, setTableData] = useState([]);
   const [query, setQuery] = useState('redux');
-  const [displayType, setDisplayType] = useState('tree');
+  const [displayType, setDisplayType] = useState('list');
   const [isSelect,setIsSelect] = useState(false);
 
   useEffect(() => {
