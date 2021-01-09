@@ -276,6 +276,11 @@
       },
       {
         name: 'user.user-list',
+        path: '/mdm/dict/dict/:dict_id',
+        component: './mdm/dict/dict',
+      },
+      {
+        name: 'user.user-list',
         path: '/mdm/item/itemList',
         component: './mdm/item/itemList',
       },
