@@ -19,12 +19,14 @@ export default (props) => {
   const [tableData, setTableData] = useState([]);
   const [query, setQuery] = useState('redux');
   const [displayType, setDisplayType] = useState('list');
+  const [isSelect,setIsSelect] = useState(false);
 
   useEffect(() => {
     if("null"!=props.match.params.dict_id && ""!=props.match.params.dict_id){
       HttpService.post('reportServer/mdmDict/getDictByID', JSON.stringify({ dict_id: props.match.params.dict_id }))
       .then(res => {
           if (res.resultCode == "1000") {
+            setIsSelect(true);
             let mainFormV=res.data.mainForm;
             let lineFormV=res.data.lineForm;
             mainForm.setFieldsValue({
@@ -113,8 +115,10 @@ export default (props) => {
     }
   },[]);
   const selectChage = (e) =>{
-    console.log(e);
     setDisplayType(e);
+    if(mainForm.getFieldValue('dict_id')=="" || mainForm.getFieldValue('dict_id')=="null"){
+      tableRef?.current?.initData([]);
+    }
   }
   return (
     <PageContainer
@@ -194,7 +198,11 @@ export default (props) => {
                 name="dict_type"
                 rules={[{ required: true, message: '请选择字典类型' }]}
               >
-                <Select placeholder="请选择字典类型" onChange={e => selectChage(e)}>
+                <Select
+                 placeholder="请选择字典类型" 
+                 onChange={e => selectChage(e)}
+                 disabled={isSelect}
+                 >
                   <Option value="list">列表</Option>
                   <Option value="tree">树</Option>
                 </Select>
