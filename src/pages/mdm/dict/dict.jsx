@@ -3,6 +3,7 @@ import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import TableForm from './TableForm';
+import TreeTableForm from './TreeTableForm';
 import FormItem from 'antd/lib/form/FormItem';
 import HttpService from '../../../utils/HttpService';
 import { history } from 'umi';
@@ -17,12 +18,15 @@ export default (props) => {
   const tableRef = useRef();
   const [tableData, setTableData] = useState([]);
   const [query, setQuery] = useState('redux');
+  const [displayType, setDisplayType] = useState('list');
+  const [isSelect,setIsSelect] = useState(false);
 
   useEffect(() => {
     if("null"!=props.match.params.dict_id && ""!=props.match.params.dict_id){
       HttpService.post('reportServer/mdmDict/getDictByID', JSON.stringify({ dict_id: props.match.params.dict_id }))
       .then(res => {
           if (res.resultCode == "1000") {
+            setIsSelect(true);
             let mainFormV=res.data.mainForm;
             let lineFormV=res.data.lineForm;
             mainForm.setFieldsValue({
@@ -31,6 +35,7 @@ export default (props) => {
               dict_name:mainFormV.dict_name,
               dict_type:mainFormV.dict_type
             });
+            setDisplayType(mainFormV.dict_type);
             //初始化数据
             tableRef?.current?.initData(lineFormV);
           } else {
@@ -44,9 +49,77 @@ export default (props) => {
         dict_name:"",
         dict_type:"list"
       });
+    //   tableRef?.current?.initData([
+    //     {
+    //       value_id: 1,
+    //       value_name: 'John Brown sr.',
+    //       value_pid: 0,
+    //       value_code: 'No. 1',
+    //       children: [
+    //         {
+    //           value_id: 11,
+    //           value_name: 'John Brown',
+    //           value_pid: 1,
+    //           value_code: 'No. 2',
+    //         },
+    //         {
+    //           value_id: 12,
+    //           value_name: 'John Brown jr.',
+    //           value_pid: 1,
+    //           value_code: 'No. 3',
+    //           children: [
+    //             {
+    //               value_id: 121,
+    //               value_name: 'Jimmy Brown',
+    //               value_pid: 12,
+    //               value_code: 'No. 31',
+    //             },
+    //           ],
+    //         },
+    //         {
+    //           value_id: 13,
+    //           value_name: 'Jim Green sr.',
+    //           value_pid: 72,
+    //           value_code: 'No. 4',
+    //           children: [
+    //             {
+    //               value_id: 131,
+    //               value_name: 'Jim Green',
+    //               value_pid: 13,
+    //               value_code: 'No. 41',
+    //               children: [
+    //                 {
+    //                   value_id: 1311,
+    //                   value_name: 'Jim Green jr.',
+    //                   value_pid: 131,
+    //                   value_code: 'No. 411',
+    //                 },
+    //                 {
+    //                   value_id: 1312,
+    //                   value_name: 'Jimmy Green sr.',
+    //                   value_pid: 131,
+    //                   value_code: 'No. 412',
+    //                 },
+    //               ],
+    //             },
+    //           ],
+    //         },
+    //       ],
+    //     }, {
+    //       value_id: 2,
+    //         value_name: 'Joe Black',
+    //         value_pid: 0,
+    //         value_code: 'T. 1',
+    //       },
+    //   ]);
     }
   },[]);
-
+  const selectChage = (e) =>{
+    setDisplayType(e);
+    if(mainForm.getFieldValue('dict_id')=="" || mainForm.getFieldValue('dict_id')=="null"){
+      tableRef?.current?.initData([]);
+    }
+  }
   return (
     <PageContainer
       header={
@@ -125,7 +198,11 @@ export default (props) => {
                 name="dict_type"
                 rules={[{ required: true, message: '请选择字典类型' }]}
               >
-                <Select placeholder="请选择字典类型">
+                <Select
+                 placeholder="请选择字典类型" 
+                 onChange={e => selectChage(e)}
+                 disabled={isSelect}
+                 >
                   <Option value="list">列表</Option>
                   <Option value="tree">树</Option>
                 </Select>
@@ -162,11 +239,31 @@ export default (props) => {
             ]
           }
         >
-         <TableForm ref={tableRef} primaryKey='value_id' value={tableData} onChange={(newTableData) => {
-          //onChange实时回调最新的TableData 
-          //手动获取方式 tableRef?.current?.getTableData()，可以节省onChange方法
-          setTableData(newTableData);
-        }} tableForm={tableForm} />
+          
+
+          {displayType=='list'?
+            <TableForm
+              ref={tableRef}
+              primaryKey='value_id' 
+              value={tableData}
+              onChange={(newTableData) => {
+                //onChange实时回调最新的TableData 
+                //手动获取方式 tableRef?.current?.getTableData()，可以节省onChange方法
+                setTableData(newTableData);
+              }} 
+              tableForm={tableForm} />
+            :<TreeTableForm
+              ref={tableRef} 
+              primaryKey='value_id' 
+              value={tableData}
+              onChange={(newTableData) => {
+                //onChange实时回调最新的TableData 
+                //手动获取方式 tableRef?.current?.getTableData()，可以节省onChange方法
+                setTableData(newTableData);
+              }} 
+              tableForm={tableForm} /> 
+          }
+
         </ProCard>
       </Form>
     </PageContainer>);

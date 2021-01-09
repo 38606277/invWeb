@@ -1,14 +1,15 @@
-import { Table, Form, message } from 'antd';
+import { Table, Form, message, Input } from 'antd';
 import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import styles from './style.less';
 import InputEF from '@/components/EditForm/InputEF'
 
-const TableForm = forwardRef((props, ref) => {
+const TreeTableForm = forwardRef((props, ref) => {
 
     const { primaryKey, tableForm, value, onChange } = props;
 
     const [data, setData] = useState(value);
     const [selectedRows, setSelectedRows] = useState([]);
+    const [selectedRowKeys,setSelectedRowKeys] =useState([]);
     const [deleteRecord, setDeleteRecord] = useState([]);//删除记录
     const [departmentDic, setDepartmentDic] = useState([]);
 
@@ -30,7 +31,10 @@ const TableForm = forwardRef((props, ref) => {
     }, []);
 
     const onTableChange = (selectedRowKeys, selectedRows) => {
+        console.log('selectedRowKeys='+selectedRowKeys)
+        console.log('selectedRows='+selectedRows)
         setSelectedRows(selectedRows);
+        setSelectedRowKeys(selectedRowKeys);
     }
 
     //通过ref暴露函数
@@ -56,6 +60,7 @@ const TableForm = forwardRef((props, ref) => {
         },
         //获取删除行
         getDeleteData() {
+            console.log('delete='+JSON.stringify(deleteRecord));
             return deleteRecord;
         }
     }))
@@ -72,34 +77,107 @@ const TableForm = forwardRef((props, ref) => {
             message.error('请选择删除项');
             return;
         }
-        const newData = data.filter(item => {
-            let i;
-            for (i = 0; i < selectedRows.length; i++) {
-                if (selectedRows[i][primaryKey] === item[primaryKey]) {
-                    return false;
-                }
-            }
-            return true;
-        });
-        setData(newData);
-        let newDeleteRecord = deleteRecord.concat(selectedRows);
-        setDeleteRecord(newDeleteRecord);
+        console.log('selectedRows'+JSON.stringify(selectedRows));
+        const newSlectRow=[];
+        const newData =[];
+        for (let i = 0; i < selectedRows.length; i++) {
+            removeTreeListItem(data,selectedRows[i][primaryKey]);
+            // newSlectRow.push(selectedRows[i])
+            // if(undefined!=selectedRows[i].children){
+            //     getChildrenRowKey(selectedRows[i].children,newSlectRow);
+            // }
+        }
+       
+        const newdd=[...newData,...data];
+        console.log(newdd);
+        setData(newdd);
+        //赋值失败
+        console.log('newSlectRow'+JSON.stringify(selectedRows));
+        const newDelte= [...deleteRecord,...selectedRowKeys];
+        console.log('newDelte'+JSON.stringify(newDelte));
+        setDeleteRecord(newDelte);
         setSelectedRows([]);
-
+        setSelectedRowKeys([]);
+        console.log('selectedRows'+JSON.stringify(deleteRecord));
         if (onChange) {
             onChange(newData);
         }
     }
+    const removeTreeListItem = (treeList, id) => { // 根据id属性从数组（树结构）中移除元素
+        if (!treeList || !treeList.length) {
+            return
+        }
+        for (let i = 0; i < treeList.length; i++) {
+            if (treeList[i][primaryKey] == id) {
+                treeList.splice(i, 1);
+                break;
+            }
+            if(undefined!=treeList[i].children){
+                removeTreeListItem(treeList[i].children, id);
+            }
+        }
+    }
+    const getChildrenRowKey = (valueChild,childrenRowkey) => {
+        for(let i=0;i<valueChild.length;i++){
+                childrenRowkey.push(valueChild[i])
+                if(undefined!=valueChild[i].children){
+                    getChildrenRowKey(valueChild[i].children,childrenRowkey);
+                }
+        }
+        return childrenRowkey;
+    }
 
-    const getRowByKey = (key, newData) =>
-        (newData || data)?.filter((item) => item[primaryKey] === key)[0];
+    const getChildrenRowKeyForRemove = (valueChild) => {
+        valueChild.filter(item => {
+            for (let i = 0; i < valueChild.length; i++) {
+                if (valueChild[i][primaryKey] === item[primaryKey]) {
+                    return false
+                }
+                if(undefined!=item.children){
+                   getChildrenRowKeyForRemove(item.children);
+                }
+            }
+            return true;
+        });
+    }
+
+    const getChildrenDataByRowKey = (key , valueChild, childrenRowkey,tempData) => {
+        for(let i=0;i<valueChild.length;i++){
+            if(valueChild[i][primaryKey]===key){
+                return valueChild[i];
+            }
+            if(undefined!=valueChild[i].children){
+                tempData = getChildrenDataByRowKey(key,valueChild[i].children, childrenRowkey,tempData);
+            }
+        }
+        return tempData;
+    }
+
+    const getRowByKey = (key, valueChild) =>{
+        let childrenRowkey =[];
+        let tempData=null;
+        for(let i=0;i<valueChild.length;i++){
+            if(valueChild[i][primaryKey]===key){
+                return valueChild[i];
+            }
+            if(undefined!=valueChild[i].children){
+                tempData=getChildrenDataByRowKey(key,valueChild[i].children, childrenRowkey,tempData);
+            }
+        }
+        if(null!=tempData){
+            console.log("ssss=="+JSON.stringify(tempData));
+        }
+       
+        return tempData;
+    }
 
     const handleFieldChange = (
         filedValue,
         fieldName,
         record,
     ) => {
-        console.log("List");
+        
+       console.log("Tree");
         let key = record[primaryKey];
         const newData = [...(data)];
         const target = getRowByKey(key, newData);
@@ -177,18 +255,21 @@ const TableForm = forwardRef((props, ref) => {
         },
     ];
 
- 
+    const [checkStrictly, setCheckStrictly] = React.useState(false);
     return (
         <>
             <Form
                 key='tableForm'
                 form={tableForm}>
                 <Table
+                    expandable={{defaultExpandAllRows:true}}
                     rowKey={primaryKey}
                     columns={columns}
                     dataSource={data}
                     pagination={false}
                     rowSelection={{
+                        ...selectedRowKeys,
+                        checkStrictly,
                         type: 'checkbox',
                         onChange: onTableChange,
                     }}
@@ -197,4 +278,4 @@ const TableForm = forwardRef((props, ref) => {
         </>
     );
 });
-export default TableForm;
+export default TreeTableForm;
