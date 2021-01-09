@@ -3,6 +3,7 @@ import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'rea
 import styles from './style.less';
 import InputEF from '@/components/EditForm/InputEF';
 import { PlusOutlined } from '@ant-design/icons';
+import styles2 from '@/components/EditForm/index.less';
 
 const TreeTableForm = forwardRef((props, ref) => {
 
@@ -13,6 +14,7 @@ const TreeTableForm = forwardRef((props, ref) => {
     const [selectedRowKeys,setSelectedRowKeys] =useState([]);
     const [deleteRecord, setDeleteRecord] = useState([]);//删除记录
     const [departmentDic, setDepartmentDic] = useState([]);
+    const [expandedRowKeys,setExpandedRowKeys] = useState([]);
 
     useEffect(() => {
         setTimeout(3000);
@@ -31,9 +33,50 @@ const TreeTableForm = forwardRef((props, ref) => {
 
     }, []);
 
-    const onTableChange = (selectedRowKeys, selectedRows) => {
-        setSelectedRows(selectedRows);
-        setSelectedRowKeys(selectedRowKeys);
+    const onTableChange = (currentSelectedRowKeys, selectedRows) => {
+        //setSelectedRows(selectedRows);
+        // const newKeys=[...currentSelectedRowKeys,...selectedRowKeys];
+        // const newkey=[...new Set(newKeys)];
+       // setSelectedRowKeys(newkey);
+    }
+
+    const onTableSelectAll = (selected, selectedRows, changeRows) =>{
+        const temp=[];
+        if(selected){
+            for(let i=0;i<selectedRows.length;i++){
+                temp.push(selectedRows[i][primaryKey]);
+            }
+        }
+        setSelectedRowKeys(temp);
+    }
+    const onTableSelect = (record, selected, selectedRows, nativeEvent) =>{
+        const newdata=[];
+        newdata.push(record[primaryKey]);
+        if(selected){
+            if(undefined!=record.children){
+                findTreeListItemRowKey(record.children, newdata);
+            }
+            const newd=[...selectedRowKeys,...newdata];
+            const lastData=[...new Set(newd)];
+            setSelectedRowKeys(lastData);
+           
+        }else{
+            if(undefined!=record.children){
+                findTreeListItemRowKey(record.children, newdata);
+            }
+            const tempOld=[...selectedRowKeys];
+            for (let i = 0; i < tempOld.length; i++) {
+                for(let ii = 0; ii < newdata.length; ii++) {
+                    if (tempOld[i] == newdata[ii]) {
+                        selectedRowKeys.splice(selectedRowKeys.findIndex(item => item === newdata[ii]), 1);
+                        break;
+                    }
+                }
+            }
+            const temp=[];
+            const tempId=[...selectedRowKeys,...temp];
+            setSelectedRowKeys(tempId);
+        }
     }
 
     //通过ref暴露函数
@@ -59,7 +102,6 @@ const TreeTableForm = forwardRef((props, ref) => {
         },
         //获取删除行
         getDeleteData() {
-            console.log('delete='+JSON.stringify(deleteRecord));
             return deleteRecord;
         }
     }))
@@ -72,18 +114,23 @@ const TreeTableForm = forwardRef((props, ref) => {
     };
 
     const removeRows = () => {
-        if (selectedRows.length < 1) {
+        if (selectedRowKeys.length < 1) {
             message.error('请选择删除项');
             return;
         }
         const newSlectRow=[];
         const newData =[];
-        for (let i = 0; i < selectedRows.length; i++) {
-            removeTreeListItem(data,selectedRows[i][primaryKey]);
+        for (let i = 0; i < selectedRowKeys.length; i++) {
+            removeTreeListItem(data,selectedRowKeys[i]);
             // newSlectRow.push(selectedRows[i])
             // if(undefined!=selectedRows[i].children){
             //     getChildrenRowKey(selectedRows[i].children,newSlectRow);
             // }
+        }
+        for(let ii=0;expandedRowKeys.length;ii++){
+            for (let iii = 0; iii < selectedRowKeys.length; iii++) {
+                expandedRowKeys.splice(expandedRowKeys.findIndex(item => item === selectedRowKeys[iii]), 1);
+            }
         }
        
         const newdd=[...newData,...data];
@@ -93,10 +140,22 @@ const TreeTableForm = forwardRef((props, ref) => {
         setDeleteRecord(newDelte);
         setSelectedRows([]);
         setSelectedRowKeys([]);
-        if (onChange) {
-            onChange(newData);
+    }
+
+    const findTreeListItemRowKey = (treeList, idlist) => { // 根据id属性从数组（树结构）中移除元素
+        if (!treeList || !treeList.length) {
+            return
+        }
+        for (let i = 0; i < treeList.length; i++) {
+            if(idlist.indexOf(treeList[i][primaryKey])==-1){
+                idlist.push(treeList[i][primaryKey]);
+            }
+            if(undefined!=treeList[i].children){
+                findTreeListItemRowKey(treeList[i].children, idlist);
+            }
         }
     }
+
     const removeTreeListItem = (treeList, id) => { // 根据id属性从数组（树结构）中移除元素
         if (!treeList || !treeList.length) {
             return
@@ -113,10 +172,10 @@ const TreeTableForm = forwardRef((props, ref) => {
     }
     const getChildrenRowKey = (valueChild,childrenRowkey) => {
         for(let i=0;i<valueChild.length;i++){
-                childrenRowkey.push(valueChild[i])
-                if(undefined!=valueChild[i].children){
-                    getChildrenRowKey(valueChild[i].children,childrenRowkey);
-                }
+            childrenRowkey.push(valueChild[i])
+            if(undefined!=valueChild[i].children){
+                getChildrenRowKey(valueChild[i].children,childrenRowkey);
+            }
         }
         return childrenRowkey;
     }
@@ -158,10 +217,6 @@ const TreeTableForm = forwardRef((props, ref) => {
                 tempData=getChildrenDataByRowKey(key,valueChild[i].children, childrenRowkey,tempData);
             }
         }
-        if(null!=tempData){
-            console.log("ssss=="+JSON.stringify(tempData));
-        }
-       
         return tempData;
     }
 
@@ -211,9 +266,10 @@ const TreeTableForm = forwardRef((props, ref) => {
         setData(newdd);
         setSelectedRows([]);
         setSelectedRowKeys([]);
-        if (onChange) {
-            onChange(newdd);
-        }
+
+        expandedRowKeys.push(record[primaryKey]);
+        const tempss=[...expandedRowKeys];
+        setExpandedRowKeys(tempss)
     }
     const addTreeListItem = (treeList,Obj) => { // 根据id属性从数组（树结构）中添加元素
         if (!treeList || !treeList.length) {
@@ -228,6 +284,10 @@ const TreeTableForm = forwardRef((props, ref) => {
                 addTreeListItem(treeList[i].children,Obj);
             }
         }
+    }
+
+    const onExpandedRowsChange = (expandedRows) => {
+        setExpandedRowKeys(expandedRows)
     }
 
     const columns = [
@@ -306,23 +366,30 @@ const TreeTableForm = forwardRef((props, ref) => {
         },
     ];
 
-    const [checkStrictly, setCheckStrictly] = React.useState(false);
+    const [checkStrictly, setCheckStrictly] = React.useState(true);
     return (
         <>
             <Form
+                className={styles2.tableForm}
                 key='tableForm'
                 form={tableForm}>
                 <Table
-                    expandable={{defaultExpandAllRows:true}}
+                    expandable={{
+                        defaultExpandAllRows:true,
+                        onExpandedRowsChange:onExpandedRowsChange,
+                        expandedRowKeys:expandedRowKeys
+                    }}
                     rowKey={primaryKey}
                     columns={columns}
                     dataSource={data}
                     pagination={false}
                     rowSelection={{
-                        ...selectedRowKeys,
+                        selectedRowKeys:selectedRowKeys,
                         checkStrictly,
                         type: 'checkbox',
                         onChange: onTableChange,
+                        onSelect: onTableSelect,
+                        onSelectAll:onTableSelectAll,
                     }}
                 />
             </Form>

@@ -1,7 +1,8 @@
 import { Table, Form, message } from 'antd';
 import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import styles from './style.less';
-import InputEF from '@/components/EditForm/InputEF'
+import InputEF from '@/components/EditForm/InputEF';
+import styles2 from '@/components/EditForm/index.less';
 
 const TableForm = forwardRef((props, ref) => {
 
@@ -181,6 +182,7 @@ const TableForm = forwardRef((props, ref) => {
     return (
         <>
             <Form
+                className={styles2.tableForm}
                 key='tableForm'
                 form={tableForm}>
                 <Table
