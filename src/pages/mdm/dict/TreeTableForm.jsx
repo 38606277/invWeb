@@ -1,7 +1,8 @@
-import { Table, Form, message, Input } from 'antd';
+import { Table, Form, message, Input, Button } from 'antd';
 import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import styles from './style.less';
-import InputEF from '@/components/EditForm/InputEF'
+import InputEF from '@/components/EditForm/InputEF';
+import { PlusOutlined } from '@ant-design/icons';
 
 const TreeTableForm = forwardRef((props, ref) => {
 
@@ -31,8 +32,6 @@ const TreeTableForm = forwardRef((props, ref) => {
     }, []);
 
     const onTableChange = (selectedRowKeys, selectedRows) => {
-        console.log('selectedRowKeys='+selectedRowKeys)
-        console.log('selectedRows='+selectedRows)
         setSelectedRows(selectedRows);
         setSelectedRowKeys(selectedRowKeys);
     }
@@ -77,7 +76,6 @@ const TreeTableForm = forwardRef((props, ref) => {
             message.error('请选择删除项');
             return;
         }
-        console.log('selectedRows'+JSON.stringify(selectedRows));
         const newSlectRow=[];
         const newData =[];
         for (let i = 0; i < selectedRows.length; i++) {
@@ -89,16 +87,12 @@ const TreeTableForm = forwardRef((props, ref) => {
         }
        
         const newdd=[...newData,...data];
-        console.log(newdd);
         setData(newdd);
         //赋值失败
-        console.log('newSlectRow'+JSON.stringify(selectedRows));
         const newDelte= [...deleteRecord,...selectedRowKeys];
-        console.log('newDelte'+JSON.stringify(newDelte));
         setDeleteRecord(newDelte);
         setSelectedRows([]);
         setSelectedRowKeys([]);
-        console.log('selectedRows'+JSON.stringify(deleteRecord));
         if (onChange) {
             onChange(newData);
         }
@@ -176,8 +170,6 @@ const TreeTableForm = forwardRef((props, ref) => {
         fieldName,
         record,
     ) => {
-        
-       console.log("Tree");
         let key = record[primaryKey];
         const newData = [...(data)];
         const target = getRowByKey(key, newData);
@@ -189,6 +181,54 @@ const TreeTableForm = forwardRef((props, ref) => {
             onChange(newData);
         }
     };
+
+    const addChilren = (record) =>{
+        if(undefined==record.children){
+            record["children"]=[];
+            record.children.push({
+                value_id: `NEW_${(Math.random() * 1000000).toFixed(0)}`,
+                value_code: '',
+                value_name: '',
+                value_pid:record.value_id,
+                dict_id:record.dict_id,
+                editable: true,
+                isNew: true,
+            })
+        }else{
+            record.children.push({
+                value_id: `NEW_${(Math.random() * 1000000).toFixed(0)}`,
+                value_code: '',
+                value_name: '',
+                value_pid:record.value_id,
+                dict_id:record.dict_id,
+                editable: true,
+                isNew: true,
+            })
+        }
+        addTreeListItem(data,record);
+        const newData=[];
+        const newdd=[...newData,...data];
+        setData(newdd);
+        setSelectedRows([]);
+        setSelectedRowKeys([]);
+        if (onChange) {
+            onChange(newdd);
+        }
+    }
+    const addTreeListItem = (treeList,Obj) => { // 根据id属性从数组（树结构）中添加元素
+        if (!treeList || !treeList.length) {
+            return
+        }
+        for (let i = 0; i < treeList.length; i++) {
+            if (treeList[i][primaryKey] == Obj[primaryKey]) {
+                treeList[i]=Obj;
+                return;
+            }
+            if(undefined!=treeList[i].children){
+                addTreeListItem(treeList[i].children,Obj);
+            }
+        }
+    }
 
     const columns = [
         {
@@ -230,6 +270,17 @@ const TreeTableForm = forwardRef((props, ref) => {
                         placeholder={"请输入工号"}
                     />
                 );
+            },
+        },
+        {
+            title: '操作',
+            key: 'option',
+            width: '10%',
+            render: (text, record, index) => {
+                return (
+                    <Button icon={<PlusOutlined />} onClick={()=>addChilren(record)}></Button>
+              );
+
             },
         },
         {
