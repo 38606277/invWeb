@@ -239,7 +239,7 @@
       },
       {
         name: 'user.user-list',
-        path: '/transation/store',
+        path: '/transation/store/:action/:id',
         component: './inv/store/store',
       },
       {

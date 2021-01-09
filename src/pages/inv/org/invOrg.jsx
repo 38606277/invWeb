@@ -157,6 +157,10 @@ const InvOrg = () => {
             valueType: 'option',
             render: (text, record) => [
                 <a onClick={() => {
+                    setOrgPid(record.org_id)
+                    handleCreateModalVisible(true);
+                }}>新增</a>,
+                <a onClick={() => {
                     setInitData(record);
                     handleUpdateModalVisible(true);
                 }}>编辑</a>,
@@ -184,7 +188,7 @@ const InvOrg = () => {
                                 <span onClick={() => {
                                     onTreeSelect(item);
                                 }}>{item.org_name}</span>
-                                <PlusOutlined style={{ marginLeft: '10px', fontSize: '14px', color: '#1890ff' }} onClick={() => {
+                                {/* <PlusOutlined style={{ marginLeft: '10px', fontSize: '14px', color: '#1890ff' }} onClick={() => {
                                     handleCreateModalVisible(true);
                                     setOrgPid(item.org_id)
                                 }} />
@@ -194,7 +198,8 @@ const InvOrg = () => {
                                 }} />
                                 <DeleteOutlined style={{ marginLeft: '10px', fontSize: '14px', color: '#1890ff' }} onClick={() => {
                                     onDeleteClickListener([item.org_id]);
-                                }} />
+                                }}
+                                 /> */}
                             </div>)
                         }}
                     >
@@ -239,9 +244,10 @@ const InvOrg = () => {
                         pagination={{
                             showQuickJumper: true,
                         }}
-                        search={{
-                            defaultCollapsed: true
-                        }}
+                        // search={{
+                        //     defaultCollapsed: true
+                        // }}
+                        search={false}
                         dateFormatter="string"
                         toolBarRender={() => [
                             <Button key='create' type="primary" onClick={() => {

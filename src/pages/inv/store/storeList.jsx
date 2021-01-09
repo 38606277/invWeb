@@ -79,33 +79,47 @@ const storeList = () => {
     const columns = [
         {
             title: '编号',
-            dataIndex: 'transaction_id',
+            dataIndex: 'bill_id',
             valueType: 'text',
         },
         {
-            title: '类型',
-            dataIndex: 'store',
+            title: '仓库',
+            dataIndex: 'inv_org_name',
+            key: 'inv_org_id',
             valueType: 'text',
         },
         {
-            title: '创建人',
-            dataIndex: 'create_by',
+            title: '入库时间',
+            dataIndex: 'bill_date',
+            valueType: 'dateTime',
+        },
+        {
+            title: '备注',
+            dataIndex: 'remark',
             valueType: 'text',
+        },
+        {
+            title: '状态',
+            dataIndex: 'bill_status',
+            valueType: 'select',
+            valueEnum: {
+                0: { text: '新建', status: 'Warning' },
+                1: { text: '已过账', status: 'Success' }
+            },
         },
         {
             title: '创建时间',
             dataIndex: 'create_date',
-            valueType: 'date',
+            valueType: 'dateTime',
         },
         {
             title: '操作',
-            width: 180,
             key: 'option',
             valueType: 'option',
             render: (text, record) => [
-                <a key="link3" onClick={() => {
-
-                }} >编辑</a>,
+                <a onClick={() => {
+                    history.push(`/transation/store/edit/${record.bill_id}`)
+                }}>编辑</a>,
                 <a key="link4" onClick={() => { }} >删除</a>,
             ]
         },
@@ -152,7 +166,7 @@ const storeList = () => {
                 dateFormatter="string"
                 headerTitle="入库管理"
                 toolBarRender={(action, { selectedRows }) => [
-                    <Button type="primary" onClick={() => history.push('/transation/store')}>
+                    <Button type="primary" onClick={() => history.push('/transation/store/add/null')}>
                         新建
                       </Button>
                 ]}

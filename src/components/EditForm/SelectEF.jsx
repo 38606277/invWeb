@@ -1,6 +1,7 @@
 import React from 'react';
 import { Select, Form } from 'antd';
 const { Option } = Select;
+import styles from './index.less'
 
 const SelectEF = (props) => {
 
@@ -14,17 +15,19 @@ const SelectEF = (props) => {
 
     tableForm.setFieldsValue({ [formName]: text });
 
-    return (<Form.Item
-        name={formName}
-        rules={rules}
-    >
-        <Select allowClear
-            placeholder={placeholder}
-            onChange={(value) => {
-                handleFieldChange(value, name, record)
-            }}>
-            {dictData.map(item => <Option key={`${formName}_${item[keyName]}`} value={item[keyName]}>{item[valueName]}</Option>)}
-        </Select>
-    </Form.Item>)
+    return (
+        <Form.Item
+            className={styles.tableFormItem}
+            name={formName}
+            rules={rules}
+        >
+            <Select allowClear
+                placeholder={placeholder}
+                onChange={(value) => {
+                    handleFieldChange(value, name, record)
+                }}>
+                {dictData.map(item => <Option key={`${formName}_${item[keyName]}`} value={item[keyName]}>{item[valueName]}</Option>)}
+            </Select>
+        </Form.Item>)
 }
 export default SelectEF;
