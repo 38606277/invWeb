@@ -6,11 +6,13 @@ import InputSearchEF from '@/components/EditForm/InputSearchEF'
 import styles from '@/components/EditForm/index.less'
 const TableForm = forwardRef((props, ref) => {
 
-    const { primaryKey, tableForm, value, onChange } = props;
+    const { disabled, primaryKey, tableForm, value, onChange } = props;
 
     const [data, setData] = useState(value || []);//列表行数据
+    const [deleteRecordKeys, setDeleteRecordKeys] = useState([]);//删除记录
     const [deleteRecord, setDeleteRecord] = useState([]);//删除记录
     const [selectedRows, setSelectedRows] = useState([]);
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [departmentDic, setDepartmentDic] = useState([]);
 
     useEffect(() => {
@@ -32,6 +34,7 @@ const TableForm = forwardRef((props, ref) => {
 
     // 选中回调 
     const onTableChange = (selectedRowKeys, selectedRows) => {
+        setSelectedRowKeys(selectedRowKeys)
         setSelectedRows(selectedRows);
     }
 
@@ -60,8 +63,11 @@ const TableForm = forwardRef((props, ref) => {
         //获取删除记录
         getDeleteRecord() {
             return deleteRecord;
+        },
+        //获取删除记录Id
+        getDeleteRecordKeys() {
+            return deleteRecordKeys;
         }
-
     }))
 
     //新增一行
@@ -88,9 +94,12 @@ const TableForm = forwardRef((props, ref) => {
         });
         //console.log('newData', newData);
         setData(newData);
-        let newDeleteRecord = deleteRecord.concat(selectedRows);
-        setDeleteRecord(newDeleteRecord);
+
+        setDeleteRecord([...deleteRecord, ...selectedRows]);
+        setDeleteRecordKeys([...deleteRecordKeys, ...selectedRowKeys])
+
         setSelectedRows([]);
+        setSelectedRowKeys([])
 
         if (onChange) {
             onChange(newData);
@@ -151,6 +160,7 @@ const TableForm = forwardRef((props, ref) => {
             render: (text, record, index) => {
                 return (
                     <InputSearchEF
+                        disabled={disabled}
                         tableForm={tableForm}
                         text={text}
                         record={record}
@@ -162,6 +172,7 @@ const TableForm = forwardRef((props, ref) => {
                             handleFieldChange('件', 'uom', record)
                             handleFieldChange(29.8, 'price', record)
                             handleFieldChange('衬衫', 'item_name', record)
+
                         }}
 
                     />
@@ -214,6 +225,7 @@ const TableForm = forwardRef((props, ref) => {
             render: (text, record, index) => {
                 return (
                     <InputNumberEF
+                        disabled={disabled}
                         tableForm={tableForm}
                         text={text}
                         record={record}
@@ -253,6 +265,7 @@ const TableForm = forwardRef((props, ref) => {
             render: (text, record, index) => {
                 return (
                     <InputEF
+                        disabled={disabled}
                         tableForm={tableForm}
                         text={text}
                         record={record}
@@ -277,6 +290,7 @@ const TableForm = forwardRef((props, ref) => {
                     dataSource={data}
                     pagination={false}
                     rowSelection={{
+                        selectedRowKeys: selectedRowKeys,
                         type: 'checkbox',
                         onChange: onTableChange,
                     }}

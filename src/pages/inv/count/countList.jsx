@@ -162,8 +162,8 @@ const countList = () => {
             dataIndex: 'department',
             key: 'department',
             filters: true,
-            renderFormItem: (item, {}, form) => {
-          
+            renderFormItem: (item, { }, form) => {
+
 
                 return (
                     <CompanyStructure
@@ -271,7 +271,7 @@ const countList = () => {
                 }}
                 dateFormatter="string"
                 headerTitle="仓库列表"
-                // toolBarRender={}
+            // toolBarRender={}
             />
         </PageContainer>
 

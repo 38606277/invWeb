@@ -7,7 +7,7 @@ const InputSearchEF = (props) => {
 
     const { text, record, index } = props;
     const { name, rules } = props;
-    const { placeholder, handleFieldChange, onSearch } = props;
+    const { disabled, placeholder, handleFieldChange, onSearch } = props;
     const { tableForm } = props;
 
     tableForm.setFieldsValue({ [`${index}_${name}`]: text });
@@ -20,6 +20,7 @@ const InputSearchEF = (props) => {
             rules={rules}
         >
             <Search
+                disabled={disabled}
                 value={text}
                 readOnly
                 onChange={(e) => {

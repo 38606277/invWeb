@@ -8,7 +8,7 @@ const SelectEF = (props) => {
     const { text, record, index } = props;
     const { name, rules } = props;
     const { placeholder, handleFieldChange } = props;
-    const { dictData, keyName, valueName } = props;
+    const { disabled, dictData, keyName, valueName } = props;
     const { tableForm } = props;
 
     const formName = `${index}_${name}`;
@@ -21,7 +21,9 @@ const SelectEF = (props) => {
             name={formName}
             rules={rules}
         >
-            <Select allowClear
+            <Select
+                disabled={disabled}
+                allowClear
                 placeholder={placeholder}
                 onChange={(value) => {
                     handleFieldChange(value, name, record)

@@ -1,10 +1,58 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Space, message } from 'antd';
+import { Button, Space, message, Modal } from 'antd';
 import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import ProTable from '@ant-design/pro-table';
 import { PageContainer } from '@ant-design/pro-layout';
 import { history } from 'umi';
 import HttpService from '@/utils/HttpService.jsx';
+
+const { confirm } = Modal;
+
+
+//过账按钮事件
+const onUpdateClickListener = (ref, selectedRowKeys) => {
+
+    if (selectedRowKeys.length < 1) {
+        message.error('请选择需要过账的内容');
+        return;
+    }
+
+    confirm({
+        title: '温馨提示',
+        content: `您确定要过账吗？`,
+        okText: '确定',
+        cancelText: '取消',
+        okType: 'danger',
+        onOk() {
+            updateStatusByIds(ref, selectedRowKeys);
+        },
+        onCancel() {
+
+        },
+    });
+
+}
+
+
+//删除
+const updateStatusByIds = (ref, selectedRowKeys) => {
+    if (selectedRowKeys.length < 1) {
+        message.error('请选择需要过账的内容');
+        return;
+    }
+
+    HttpService.post('reportServer/invStore/updateStoreStatusByIds', JSON.stringify({ ids: selectedRowKeys.toString(), bill_status: 1 }))
+        .then(res => {
+            if (res.resultCode == "1000") {
+                //刷新
+                // 清空选中项
+                ref.current.clearSelected();
+                ref.current.reload();
+            } else {
+                message.error(res.message);
+            }
+        });
+}
 
 
 //删除按钮事件
@@ -14,7 +62,6 @@ const onDeleteClickListener = (ref, selectedRowKeys) => {
         message.error('请选择需要删除的内容');
         return;
     }
-    console.log('onDeleteClickListener', selectedRowKeys);
 
     confirm({
         title: '温馨提示',
@@ -38,14 +85,13 @@ const deleteByIds = (ref, selectedRowKeys) => {
         return;
     }
 
-    HttpService.post('reportServer/storage/deleteStorage', JSON.stringify({ ids: selectedRowKeys.toString() }))
+    HttpService.post('reportServer/invStore/deleteStoreByIds', JSON.stringify({ ids: selectedRowKeys.toString() }))
         .then(res => {
             if (res.resultCode == "1000") {
                 //刷新
                 // 清空选中项
                 ref.current.clearSelected();
                 ref.current.reload();
-
             } else {
                 message.error(res.message);
             }
@@ -72,7 +118,6 @@ const fetchData = async (params, sort, filter) => {
 
 const storeList = () => {
 
-    console.log('绘制布局')
     const ref = useRef();
 
     //定义列
@@ -131,7 +176,7 @@ const storeList = () => {
                 actionRef={ref}
                 columns={columns}
                 request={fetchData}
-                rowKey="id"
+                rowKey="bill_id"
                 rowSelection={{
                     // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
                     // 注释该行则默认不显示下拉选项
@@ -155,6 +200,8 @@ const storeList = () => {
                 tableAlertOptionRender={({ selectedRowKeys }) => (
                     <Space size={16}>
                         <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
+
+                        <a onClick={() => onUpdateClickListener(ref, selectedRowKeys)}> 批量过账</a>
                     </Space>
                 )}
                 pagination={{
@@ -175,5 +222,4 @@ const storeList = () => {
 
     );
 }
-
 export default storeList;
