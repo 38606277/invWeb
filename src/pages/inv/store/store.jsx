@@ -8,7 +8,7 @@ import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
-import './store.css';
+// import './store.css';
 
 const { Search } = Input;
 const { RangePicker } = DatePicker;

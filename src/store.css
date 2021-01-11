@@ -4,10 +4,10 @@
 
 }
 
-.tableForm .ant-table-thead > tr > th, .ant-table-tbody > tr > td, .ant-table tfoot > tr > th, .ant-table tfoot > tr > td
+ .ant-table-thead > tr > th, .ant-table-tbody > tr > td, .ant-table tfoot > tr > th, .ant-table tfoot > tr > td 
 {
     position: relative;
-    padding: 6px 6px;
+    padding: 6px 6px !important;
 }
 
 .ant-pro-card-header-border {

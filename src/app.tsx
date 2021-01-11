@@ -10,6 +10,7 @@ import { fakeAccountLogin } from './services/login';
 import defaultSettings from '../config/defaultSettings';
 import { MenuDataItem } from '@umijs/route-utils';
 import LocalStorge from '@/utils/LogcalStorge.jsx';
+import './store.css';
 
 const localStorge = new LocalStorge();
 
@@ -69,7 +70,7 @@ export async function getInitialState(): Promise<{
   //console.log('getInitialState', history.location.pathname)
   //获取当前用户信息
   const fetchUserInfo = async () => {
-    console.log('fetchUserInfo')
+    console.log('fetchUserInfo');
     try {
       // let loginRequestParams = {
       //   UserCode: '',
@@ -87,9 +88,8 @@ export async function getInitialState(): Promise<{
       // loginRequestParams.UserCode = userInfo.userCode;
       // loginRequestParams.Pwd = userInfo.Pwd;
       // const LoginInfoResult = await fakeAccountLogin(loginRequestParams);
-      // let loginInfo = LoginInfoResult.data;  
+      // let loginInfo = LoginInfoResult.data;
       //return loginInfo;
-
     } catch (error) {
       history.push({
         pathname: '/user/login',
@@ -100,14 +100,14 @@ export async function getInitialState(): Promise<{
 
   //获取菜单配置
   const getMenuConfig = async () => {
-    console.log('getMenuConfig')
+    console.log('getMenuConfig');
     try {
       let userInfo = localStorge.getStorage('userInfo');
       if (userInfo == '') {
         return [];
       }
       const menuConfig = await queryMenu(userInfo.id);
-      console.log('菜单数据：', menuConfig)
+      console.log('菜单数据：', menuConfig);
       return menuConfig.data;
     } catch (error) {
       history.push({
@@ -138,12 +138,12 @@ export async function getInitialState(): Promise<{
 }
 /**
  * 转换图标
- * @param menus 
+ * @param menus
  */
 const loopMenuItem = (menus: MenuDataItem[]): MenuDataItem[] =>
   menus.map(({ icon, children, ...item }) => {
     let newIconName = '';
-    let arr = icon.split("-");
+    let arr = icon.split('-');
 
     for (let i in arr) {
       let iconItem = arr[i];
@@ -155,16 +155,14 @@ const loopMenuItem = (menus: MenuDataItem[]): MenuDataItem[] =>
     }
 
     //    console.log('newIconName', newIconName)
-    return ({
+    return {
       ...item,
       icon: IconMap[newIconName],
       children: children && loopMenuItem(children),
-    })
+    };
   });
 
-
 export const layout: RunTimeLayoutConfig = ({ initialState }) => {
-
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
@@ -183,14 +181,14 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
       if (initialState?.menuData) {
         //console.log('initialState?.menuData', initialState?.menuData)
 
-        menuData = initialState?.menuData
+        menuData = initialState?.menuData;
         if (menuData.length == 0) {
           return menuData;
         }
 
-        return loopMenuItem(menuData)
+        return loopMenuItem(menuData);
       } else {
-        return menuData
+        return menuData;
       }
     },
     menuHeaderRender: undefined,
@@ -251,7 +249,6 @@ const errorHandler = (error: ResponseError) => {
       message: '网络异常',
     });
   }
-
 };
 
 export const request: RequestConfig = {
@@ -288,5 +285,4 @@ export const request: RequestConfig = {
       };
     },
   },
-
 };
