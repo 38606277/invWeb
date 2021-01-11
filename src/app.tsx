@@ -10,7 +10,7 @@ import { fakeAccountLogin } from './services/login';
 import defaultSettings from '../config/defaultSettings';
 import { MenuDataItem } from '@umijs/route-utils';
 import LocalStorge from '@/utils/LogcalStorge.jsx';
-import './store.css';
+import './app.css';
 
 const localStorge = new LocalStorge();
 

@@ -78,6 +78,7 @@ export default (props) => {
 
   return (
     <PageContainer
+      title="入库单"
       header={{
         extra: [
           <Button
@@ -220,6 +221,7 @@ export default (props) => {
 
       <ProCard
         title="行信息"
+        headerBordered
         collapsible
         onCollapse={(collapse) => console.log(collapse)}
         extra={[

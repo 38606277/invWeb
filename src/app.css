@@ -1,0 +1,63 @@
+
+.ant-form-item{
+    margin-bottom: 8px;
+
+}
+
+.formTable .ant-table-thead > tr > th, 
+.formTable .ant-table-tbody > tr > td, 
+.formTable .ant-table tfoot > tr > th, 
+.formTable .ant-table tfoot > tr > td 
+{
+    position: relative;
+    padding: 6px 6px !important;
+}
+
+.ant-pro-card-header-border {
+    padding-bottom: 6px;
+}
+
+.ant-page-header {
+   
+    padding: 6px 24px;
+
+}
+.ant-pro-card-title {
+    font-weight: 700  !important;
+}
+.ant-pro-card-body {
+    padding-bottom: 0px !important;
+}
+
+.ant-pro-card-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 24px 0px;
+}
+
+.ant-pro-page-container-children-content {
+    margin: 24px 24px 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0px;
+    margin-left: 0;
+}
+
+
+.ant-table-container table>thead>tr:first-child th:first-child {
+    border-top-left-radius: 2px;
+}
+.ant-table-container table>thead>tr:first-child th:first-child {
+    border-top-left-radius: 2px;
+}
+.ant-table-thead>tr>th {
+    color: rgba(0,0,0,.85);
+    font-weight: 800  !important;
+    text-align: left;
+    background: #fafafa;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background .3s ease;
+}
+.ant-pro-card-title {
+    font-weight: 800;
+}
