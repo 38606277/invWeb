@@ -78,18 +78,19 @@ export default (props) => {
 
   return (
     <PageContainer
+      ghost="true"
       title="入库单"
       header={{
         extra: [
           <Button
             disabled={disabled}
             key="submit"
-            type="primary"
+            type="danger"
             onClick={() => {
               mainForm?.submit();
             }}
           >
-            提交
+            保存入库单
           </Button>,
           <Button
             disabled={disabled}
@@ -221,7 +222,6 @@ export default (props) => {
 
       <ProCard
         title="行信息"
-        headerBordered
         collapsible
         onCollapse={(collapse) => console.log(collapse)}
         extra={[
@@ -242,7 +242,7 @@ export default (props) => {
             }}
           >
             {' '}
-            新建
+            增行
           </a>,
           <a
             disabled={disabled}
@@ -255,7 +255,7 @@ export default (props) => {
             }}
           >
             {' '}
-            删除
+            删行
           </a>,
         ]}
       >
