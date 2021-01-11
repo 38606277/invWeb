@@ -13,7 +13,7 @@ export default defineConfig({
 
   publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
   history: {
-    type: "hash"
+    type: 'hash',
   },
   hash: true,
   antd: {},
@@ -46,6 +46,15 @@ export default defineConfig({
   // Theme for antd: https://ant.design/docs/react/customize-theme-cn
   theme: {
     'primary-color': defaultSettings.primaryColor,
+    'font-size-base': '12px',
+    'badge-font-size': '12px',
+    'btn-font-size-lg': '@font-size-base',
+    'menu-dark-bg': '#00182E',
+    'menu-dark-submenu-bg': '#000B14',
+    'layout-sider-background': '#00182E',
+    'layout-body-background': '#f0f2f5',
+    'heading-color': 'rgba(0, 0, 0, 0.85)', // 标题色
+    'text-color': 'rgba(0, 0, 0, 0.65)', // 主文本色
   },
   esbuild: {},
   title: false,
@@ -105,7 +114,7 @@ export default defineConfig({
                 // npm package names are URL-safe, but some servers don't like @ symbols
                 return `npm.${packageName.replace('@', '')}`;
               },
-            }
+            },
           },
 
           // cacheGroups: {
@@ -199,7 +208,6 @@ export default defineConfig({
           //     enforce: true,
           //   },
 
-
           //   //提取antd es
           //   antd_es: {
           //     name: 'antd_es',
@@ -228,8 +236,7 @@ export default defineConfig({
           //   }
           // },
         },
-      }
+      },
     });
-  }
-
+  },
 });
