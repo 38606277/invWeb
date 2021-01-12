@@ -1,64 +1,61 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Space, Modal, message, Row, TreeSelect, Tree } from 'antd';
+import { Button, Space, message, Modal } from 'antd';
 import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import ProTable from '@ant-design/pro-table';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-layout';
 import { history } from 'umi';
-
-
 import HttpService from '@/utils/HttpService.jsx';
 
 const { confirm } = Modal;
 
-const { TreeNode } = TreeSelect;
-
-const CompanyStructure = ({ key, form }) => {
-
-    const [treeData, setTreeData] = useState([]);
-
-    useEffect(() => {
-        refreshData();
-    }, [])
-
-
-    const refreshData = () => {
-        HttpService.post('reportServer/companyStructure/getAllChildrenRecursionByCode', JSON.stringify({ parent_code: 0 }))
-            .then(res => {
-                if (res.resultCode == "1000") {
-                    setTreeData(res.data)
-                } else {
-                    message.error(res.message);
-                }
-            });
+//过账按钮事件
+const onUpdateClickListener = (ref, selectedRowKeys) => {
+    if (selectedRowKeys.length < 1) {
+        message.error('请选择需要过账的内容');
+        return;
     }
 
-    const onChange = value => {
-        form.setFieldsValue({
-            [key]: value,
-        });
-        console.log('renderFormItem onChange ',);
-    };
+    confirm({
+        title: '温馨提示',
+        content: `您确定要过账吗？`,
+        okText: '确定',
+        cancelText: '取消',
+        okType: 'danger',
+        onOk() {
+            updateStatusByIds(ref, selectedRowKeys);
+        },
+        onCancel() { },
+    });
+};
 
-    return (<TreeSelect
-        style={{ width: '100%' }}
-        dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-        treeData={treeData}
-        placeholder="Please select"
-        treeDefaultExpandAll
-        allowClear
-        onChange={onChange}
-    />);
-}
+//删除
+const updateStatusByIds = (ref, selectedRowKeys) => {
+    if (selectedRowKeys.length < 1) {
+        message.error('请选择需要过账的内容');
+        return;
+    }
 
+    HttpService.post(
+        'reportServer/invStore/updateStoreStatusByIds',
+        JSON.stringify({ ids: selectedRowKeys.toString(), bill_status: 1 }),
+    ).then((res) => {
+        if (res.resultCode == '1000') {
+            //刷新
+            // 清空选中项
+            ref.current.clearSelected();
+            ref.current.reload();
+        } else {
+            message.error(res.message);
+        }
+    });
+};
 
 //删除按钮事件
 const onDeleteClickListener = (ref, selectedRowKeys) => {
-
     if (selectedRowKeys.length < 1) {
         message.error('请选择需要删除的内容');
         return;
     }
-    console.log('onDeleteClickListener', selectedRowKeys);
 
     confirm({
         title: '温馨提示',
@@ -69,12 +66,9 @@ const onDeleteClickListener = (ref, selectedRowKeys) => {
         onOk() {
             deleteByIds(ref, selectedRowKeys);
         },
-        onCancel() {
-
-        },
+        onCancel() { },
     });
-
-}
+};
 //删除
 const deleteByIds = (ref, selectedRowKeys) => {
     if (selectedRowKeys.length < 1) {
@@ -82,19 +76,20 @@ const deleteByIds = (ref, selectedRowKeys) => {
         return;
     }
 
-    HttpService.post('reportServer/storage/deleteStorage', JSON.stringify({ ids: selectedRowKeys.toString() }))
-        .then(res => {
-            if (res.resultCode == "1000") {
-                //刷新
-                // 清空选中项
-                ref.current.clearSelected();
-                ref.current.reload();
-
-            } else {
-                message.error(res.message);
-            }
-        });
-}
+    HttpService.post(
+        'reportServer/invStore/deleteStoreByIds',
+        JSON.stringify({ ids: selectedRowKeys.toString() }),
+    ).then((res) => {
+        if (res.resultCode == '1000') {
+            //刷新
+            // 清空选中项
+            ref.current.clearSelected();
+            ref.current.reload();
+        } else {
+            message.error(res.message);
+        }
+    });
+};
 
 //获取数据
 const fetchData = async (params, sort, filter) => {
@@ -103,184 +98,130 @@ const fetchData = async (params, sort, filter) => {
     let requestParam = {
         pageNum: params.current,
         perPage: params.pageSize,
-        ...params
-    }
-    const result = await HttpService.post('reportServer/storage/listStorageByPage', JSON.stringify(requestParam));
+        ...params,
+        bill_type: 'deliver'
+    };
+    const result = await HttpService.post(
+        'reportServer/invStore/getStoreListByPage',
+        JSON.stringify(requestParam),
+    );
     console.log('result : ', result);
     return Promise.resolve({
         data: result.data.list,
         total: result.data.total,
-        success: result.resultCode == "1000"
+        success: result.resultCode == '1000',
     });
-}
+};
 
 const deliverList = () => {
-
-    console.log('绘制布局')
     const ref = useRef();
-    const [visible, setVisible] = useState(false);
-    const [initData, setInitData] = useState({});
-
 
     //定义列
     const columns = [
         {
-            title: '仓库编号',
-            dataIndex: 'num',
+            title: '编号',
+            dataIndex: 'bill_id',
             valueType: 'text',
         },
         {
-            title: '仓库名称',
-            dataIndex: 'name',
+            title: '仓库',
+            dataIndex: 'inv_org_name',
+            key: 'inv_org_id',
             valueType: 'text',
         },
         {
-            title: '租赁时间',
-            // hideInSearch: true,
-            dataIndex: 'time',
-            valueType: 'date',
+            title: '出库时间',
+            dataIndex: 'bill_date',
+            valueType: 'dateTime',
         },
         {
-            title: '仓库类型',
-            dataIndex: 'type_name',
+            title: '备注',
+            dataIndex: 'remark',
+            valueType: 'text',
+        },
+        {
+            title: '状态',
+            dataIndex: 'bill_status',
             valueType: 'select',
-            key: 'type',
-            request: async () => {
-                const result = await HttpService.post('reportServer/baseData/listBaseDataByType', JSON.stringify({
-                    type: 'storage_type'
-                }));
-
-                if (result.resultCode == '1000') {
-                    return Promise.resolve(result.data);
-                } else {
-                    message.error('数据获取失败')
-                    return Promise.resolve([]);
-                }
-            }
-        },
-        {
-            title: '所属部门',
-            dataIndex: 'department',
-            key: 'department',
-            filters: true,
-            renderFormItem: (item, {}, form) => {
-          
-
-                return (
-                    <CompanyStructure
-                        key={item.key}
-                        form={form}
-                    />
-
-                );
+            valueEnum: {
+                0: { text: '新建', status: 'Warning' },
+                1: { text: '已过账', status: 'Success' },
             },
         },
         {
-            title: '是否禁用',
-            dataIndex: 'is_disable',
-            valueType: 'text',
-            hideInSearch: true,
-            render: (text, record) => {
-                return record.is_disable == 0 ? ('否') : ('是');
-            }
-        },
-        {
-            title: '是否默认',
-            dataIndex: 'is_default',
-            valueType: 'text',
-            hideInSearch: true,
-            render: (text, record) => {
-                return record.is_default == 0 ? ('否') : ('是');
-            }
-        },
-        {
-            title: '地址',
-            dataIndex: 'address',
-            valueType: 'text',
-            hideInSearch: true,
-        },
-        {
-            title: '面积',
-            dataIndex: 'area',
-            valueType: 'text',
-            hideInSearch: true,
-        },
-        {
-            title: '联系人',
-            dataIndex: 'contacts_name',
-            valueType: 'text',
-            hideInSearch: true,
-        },
-        {
-            title: '电话',
-            dataIndex: 'contacts_tel',
-            valueType: 'text',
-            hideInSearch: true,
+            title: '创建时间',
+            dataIndex: 'create_date',
+            valueType: 'dateTime',
         },
         {
             title: '操作',
-            width: 180,
             key: 'option',
             valueType: 'option',
             render: (text, record) => [
-                <a key="link3" onClick={() => {
-                    setVisible(true);
-                    setInitData(record);
-                }} >编辑</a>,
-                <a key="link4" onClick={() => onDeleteClickListener(ref, [record.id])} >删除</a>,
-            ]
+                <a
+                    onClick={() => {
+                        history.push(`/transation/deliver/edit/${record.bill_id}`);
+                    }}
+                >
+                    编辑
+        </a>,
+                <a key="link4" onClick={() => { }}>
+                    删除
+        </a>,
+            ],
         },
     ];
 
     return (
-        <PageContainer>
-            <ProTable
-                actionRef={ref}
-                columns={columns}
-                request={fetchData}
-                rowKey="id"
-                rowSelection={{
+        // <PageContainer>
+        <ProTable
+            actionRef={ref}
+            columns={columns}
+            request={fetchData}
+            rowKey="bill_id"
+            rowSelection={
+                {
                     // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
                     // 注释该行则默认不显示下拉选项
                     //selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-                }}
-                tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
-                    <Space size={24}>
-                        <span>
-                            已选 {selectedRowKeys.length} 项
-                    <a
-                                style={{
-                                    marginLeft: 8,
-                                }}
-                                onClick={onCleanSelected}
-                            >
-                                取消选择
-                    </a>
-                        </span>
-                    </Space>
-                )}
-                tableAlertOptionRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
-                    <Space size={16}>
-                        <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
-                    </Space>
-                )}
-                pagination={{
-                    showQuickJumper: true,
-                }}
-                search={{
-                    defaultCollapsed: true
-                }}
-                dateFormatter="string"
-                headerTitle="仓库列表"
-                 toolBarRender={(action, { selectedRows }) => [
-                    <Button type="primary" onClick={() => history.push('/transation/deliver')}>
-                      新建
-                    </Button>
-                  ]}
-            />
-        </PageContainer>
-
+                }
+            }
+            tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
+                <Space size={24}>
+                    <span>
+                        已选 {selectedRowKeys.length} 项
+            <a
+                            style={{
+                                marginLeft: 8,
+                            }}
+                            onClick={onCleanSelected}
+                        >
+                            取消选择
+            </a>
+                    </span>
+                </Space>
+            )}
+            tableAlertOptionRender={({ selectedRowKeys }) => (
+                <Space size={16}>
+                    <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
+                    <a onClick={() => onUpdateClickListener(ref, selectedRowKeys)}> 批量过账</a>
+                </Space>
+            )}
+            pagination={{
+                showQuickJumper: true,
+            }}
+            search={{
+                defaultCollapsed: true,
+            }}
+            dateFormatter="string"
+            headerTitle="出库管理"
+            toolBarRender={(action, { selectedRows }) => [
+                <Button type="primary" onClick={() => history.push('/transation/deliver/add/null')}>
+                    新建
+        </Button>,
+            ]}
+        />
+        // </PageContainer>
     );
-}
-
+};
 export default deliverList;

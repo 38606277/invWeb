@@ -249,7 +249,7 @@
       },
       {
         name: 'user.user-list',
-        path: '/transation/deliver',
+        path: '/transation/deliver/:action/:id',
         component: './inv/deliver/deliver',
       },
       {

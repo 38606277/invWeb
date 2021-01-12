@@ -12,25 +12,6 @@ const TableForm = forwardRef((props, ref) => {
   const [deleteRecord, setDeleteRecord] = useState([]); //删除记录
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [departmentDic, setDepartmentDic] = useState([]);
-
-  useEffect(() => {
-    setTimeout(3000);
-    setDepartmentDic([
-      {
-        dict_id: '1',
-        dict_name: '信息部',
-      },
-      {
-        dict_id: '2',
-        dict_name: '财务部',
-      },
-      {
-        dict_id: '3',
-        dict_name: '行政部',
-      },
-    ]);
-  }, []);
 
   // 选中回调
   const onTableChange = (selectedRowKeys, selectedRows) => {
@@ -129,9 +110,13 @@ const TableForm = forwardRef((props, ref) => {
     const newData = [...data];
     const target = getRowByKey(key, newData);
 
-    console.log('amount', target['amount']);
-    console.log('price', target['price']);
-    console.log('quantity', target['quantity']);
+
+    //数量不能大于结存数量
+    if (target['balance'] < target['quantity']) {
+      message.error('输入数量不能大于结存剩余数量，请检查');
+
+      target['quantity'] = target['balance'];
+    }
 
     if (target) {
       target['amount'] = target['price'] * target['quantity'];
@@ -181,28 +166,10 @@ const TableForm = forwardRef((props, ref) => {
             onSearch={() => {
               handleFieldChange(1, 'item_id', record);
               handleFieldChange('件', 'uom', record);
+              handleFieldChange(5, 'balance', record);
               handleFieldChange(29.8, 'price', record);
               handleFieldChange('衬衫', 'item_name', record);
             }}
-          />
-        );
-      },
-    },
-
-    {
-      title: '单位',
-      dataIndex: 'uom',
-      key: 'uom',
-      render: (text, record, index) => {
-        return (
-          <InputEF
-            tableForm={tableForm}
-            text={text}
-            record={record}
-            index={record[primaryKey]}
-            name="uom"
-            disabled
-            handleFieldChange={handleFieldChange}
           />
         );
       },
@@ -223,6 +190,44 @@ const TableForm = forwardRef((props, ref) => {
             disabled
             handleFieldChange={handleFieldChange}
             onChange={calculationMoney}
+          />
+        );
+      },
+    },
+    {
+      title: '单价',
+      dataIndex: 'price',
+      key: 'price',
+      render: (text, record, index) => {
+        return (
+          <InputNumberEF
+            tableForm={tableForm}
+            text={text}
+            record={record}
+            index={record[primaryKey]}
+            name="price"
+            precision={2}
+            disabled
+            handleFieldChange={handleFieldChange}
+            onChange={calculationMoney}
+          />
+        );
+      },
+    },
+    {
+      title: '结存数量',
+      dataIndex: 'balance',
+      key: 'balance',
+      render: (text, record, index) => {
+        return (
+          <InputEF
+            tableForm={tableForm}
+            text={text}
+            record={record}
+            index={record[primaryKey]}
+            name="balance"
+            disabled
+            handleFieldChange={handleFieldChange}
           />
         );
       },

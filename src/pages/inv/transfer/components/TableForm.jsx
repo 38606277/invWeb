@@ -163,6 +163,7 @@ const TableForm = forwardRef((props, ref) => {
         );
       },
     },
+
     {
       title: '物料名称',
       dataIndex: 'item_name',
@@ -188,7 +189,6 @@ const TableForm = forwardRef((props, ref) => {
         );
       },
     },
-
     {
       title: '单位',
       dataIndex: 'uom',

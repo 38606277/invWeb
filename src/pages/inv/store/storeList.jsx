@@ -24,7 +24,7 @@ const onUpdateClickListener = (ref, selectedRowKeys) => {
     onOk() {
       updateStatusByIds(ref, selectedRowKeys);
     },
-    onCancel() {},
+    onCancel() { },
   });
 };
 
@@ -66,7 +66,7 @@ const onDeleteClickListener = (ref, selectedRowKeys) => {
     onOk() {
       deleteByIds(ref, selectedRowKeys);
     },
-    onCancel() {},
+    onCancel() { },
   });
 };
 //删除
@@ -99,6 +99,7 @@ const fetchData = async (params, sort, filter) => {
     pageNum: params.current,
     perPage: params.pageSize,
     ...params,
+    bill_type: 'store'
   };
   const result = await HttpService.post(
     'reportServer/invStore/getStoreListByPage',
@@ -112,7 +113,7 @@ const fetchData = async (params, sort, filter) => {
   });
 };
 
-const storeList = () => {
+const transferList = () => {
   const ref = useRef();
 
   //定义列
@@ -164,7 +165,7 @@ const storeList = () => {
         >
           编辑
         </a>,
-        <a key="link4" onClick={() => {}}>
+        <a key="link4" onClick={() => { }}>
           删除
         </a>,
       ],
@@ -224,4 +225,4 @@ const storeList = () => {
     // </PageContainer>
   );
 };
-export default storeList;
+export default transferList;
