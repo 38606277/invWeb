@@ -19,12 +19,15 @@
 
 .ant-page-header {
    
-    padding: 10px 20px;
+    padding: 6px 20px;
 
 }
 .ant-pro-card-title {
     font-weight: 550  !important;
+    font-size: 14px !important;
 }
+
+
 .ant-pro-card-body {
     padding: 16px !important;
 }
@@ -67,8 +70,9 @@
     transition: background .3s ease;
 }
 .ant-pro-card-title {
-    font-weight: 600;
+    font-weight: 800;
     font-size: 12px;
+    /* font-family: '微软雅黑 Regular'; */
 }
 
 
@@ -84,12 +88,34 @@
     color: #1890ff;
     font-weight: 500;
     font-size: 16px;
+    font-family: '微软雅黑 Regular';
     line-height: 32px;
+}
+
+.ant-page-header-heading-title {
+    margin-left: 12px;
+    margin-bottom: 0;
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: 600;
+    font-family: '微软雅黑 Regular';
+    font-size: 15px;
+    line-height: 32px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .ant-btn {
 
     border-radius: 2px !important;
   
+}
+.ant-pro-global-header-layout-mix {
+    background-color: #282b33;
+  
+
+}
+.ant-pro-global-header-layout-mix .anticon {
+    color: #adb0b8;;
 }
 
