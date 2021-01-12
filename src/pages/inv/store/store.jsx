@@ -7,7 +7,9 @@ import SelectOrgDailog from '@/components/Org/SelectOrgDialog';
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
+import { SaveOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import 'moment/locale/zh-cn';
+
 // import './store.css';
 
 const { Search } = Input;
@@ -86,6 +88,7 @@ export default (props) => {
             disabled={disabled}
             key="submit"
             type="danger"
+            icon={<SaveOutlined />}
             onClick={() => {
               mainForm?.submit();
             }}
@@ -153,12 +156,12 @@ export default (props) => {
         <ProCard title="基础信息" collapsible onCollapse={(collapse) => console.log(collapse)}>
           <Form.Item style={{ display: 'none' }} label="仓库Id" name="inv_org_id" />
           <Row>
-            <Col xs={24} sm={10}>
+            <Col xs={24} sm={11}>
               <Form.Item label="入库编码" name="bill_id">
                 <Input disabled={disabled} placeholde="自动生成" />
               </Form.Item>
             </Col>
-            <Col xs={24} sm={10}>
+            <Col xs={24} sm={11}>
               <Form.Item
                 label="仓库名称"
                 name="inv_org_name"
@@ -182,7 +185,7 @@ export default (props) => {
           </Row>
 
           <Row>
-            <Col xs={24} sm={10}>
+            <Col xs={24} sm={11}>
               <Form.Item
                 name="bill_date"
                 label="入库时间"
@@ -191,7 +194,7 @@ export default (props) => {
                 <DatePicker disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
               </Form.Item>
             </Col>
-            <Col xs={24} sm={10}>
+            <Col xs={24} sm={11}>
               <Form.Item
                 name="bill_status"
                 label="状态"
@@ -206,7 +209,7 @@ export default (props) => {
           </Row>
 
           <Row>
-            <Col xs={24} sm={20}>
+            <Col xs={24} sm={22}>
               <Form.Item {...formItemLayout1} label="备注" name="remark">
                 {/* <Input disabled={disabled} placeholde="自动生成" /> */}
                 <Input.TextArea
@@ -225,9 +228,9 @@ export default (props) => {
         collapsible
         onCollapse={(collapse) => console.log(collapse)}
         extra={[
-          <a
+          <Button
             disabled={disabled}
-            type="primary"
+            icon={<PlusOutlined />}
             size="small"
             onClick={() => {
               //新增一行
@@ -240,23 +243,17 @@ export default (props) => {
                 reamrk: '',
               });
             }}
-          >
-            {' '}
-            增行
-          </a>,
-          <a
+          ></Button>,
+          <Button
             disabled={disabled}
-            type="danger"
             size="small"
-            style={{ margin: '12px' }}
+            style={{ marginLeft: '6px' }}
+            icon={<MinusOutlined />}
             onClick={() => {
               //删除选中项
               tableRef.current.removeRows();
             }}
-          >
-            {' '}
-            删行
-          </a>,
+          ></Button>,
         ]}
       >
         <TableForm ref={tableRef} disabled={disabled} primaryKey="line_id" tableForm={tableForm} />

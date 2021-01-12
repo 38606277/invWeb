@@ -19,14 +19,14 @@
 
 .ant-page-header {
    
-    padding: 6px 20px;
+    padding: 10px 20px;
 
 }
 .ant-pro-card-title {
     font-weight: 550  !important;
 }
 .ant-pro-card-body {
-    padding-bottom: 0px !important;
+    padding: 16px !important;
 }
 
 .ant-pro-card-header {
@@ -37,6 +37,8 @@
 
 .ant-pro-page-container-children-content {
     margin: 0px 20px 0;
+    background: #fff;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,.1);
    
 }
 
@@ -44,8 +46,17 @@
 .ant-table-container table>thead>tr:first-child th:first-child {
     border-top-left-radius: 2px;
 }
-.ant-table-container table>thead>tr:first-child th:first-child {
-    border-top-left-radius: 2px;
+
+.ant-card{
+    margin: 0px 20px 0;
+    background: #fff;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,.1);
+}
+
+.ant-pro-table-search{
+    margin: 0px 0px 0;
+    background: #fff;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,.1);
 }
 .ant-table-thead>tr>th {
     color: rgba(0,0,0,.85);
@@ -56,5 +67,29 @@
     transition: background .3s ease;
 }
 .ant-pro-card-title {
-    font-weight: 800;
+    font-weight: 600;
+    font-size: 12px;
 }
+
+
+.ant-layout {
+    background-color: #eef0f5;
+   
+}
+
+.ant-pro-global-header-logo a h1 {
+    height: 32px;
+    margin: 0 0 0 8px;
+    margin: 0 0 0 12px;
+    color: #1890ff;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 32px;
+}
+
+.ant-btn {
+
+    border-radius: 2px !important;
+  
+}
+
