@@ -259,6 +259,11 @@
       },
       {
         name: 'user.user-list',
+        path: '/transation/transfer/:action/:id',
+        component: './inv/transfer/transfer',
+      },
+      {
+        name: 'user.user-list',
         path: '/transation/countList',
         component: './inv/count/countList',
       },

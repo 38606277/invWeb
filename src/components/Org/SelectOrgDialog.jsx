@@ -100,27 +100,29 @@ const SelectOrgDialog = (props) => {
                     onChange: selectOnChange,
                     selectedRowKeys: selectedRowKeys
                 }}
+                tableAlertRender={false}
+                tableAlertOptionRender={false}
 
-                tableAlertRender={({ selectedRows }) => {
-                    return (
-                        <Space size={24}>
-                            <span>
+                // tableAlertRender={({ selectedRows }) => {
+                //     return (
+                //         <Space size={24}>
+                //             <span>
 
-                                已选中 {selectedRows.length < 1 ? '' : selectedRows[0].org_name}
+                //                 已选中 {selectedRows.length < 1 ? '' : selectedRows[0].org_name}
 
-                            </span>
-                        </Space>
-                    )
-                }}
-                tableAlertOptionRender={({ onCleanSelected }) => (
-                    <Space size={16}>
-                        <a
-                            onClick={onCleanSelected}
-                        >
-                            取消选中
-                    </a>
-                    </Space>
-                )}
+                //             </span>
+                //         </Space>
+                //     )
+                // }}
+                // tableAlertOptionRender={({ onCleanSelected }) => (
+                //     <Space size={16}>
+                //         <a
+                //             onClick={onCleanSelected}
+                //         >
+                //             取消选中
+                //     </a>
+                //     </Space>
+                // )}
                 toolBarRender={false}
                 pagination={{
                     showQuickJumper: true,
