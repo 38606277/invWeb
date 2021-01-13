@@ -19,15 +19,43 @@ const TableForm = forwardRef((props, ref) => {
         setTimeout(3000);
         setDepartmentDic([
             {
-                dict_id: '1',
-                dict_name: "信息部",
+                dict_id: 'segment1',
+                dict_name: "segment1",
             }, {
-                dict_id: '2',
-                dict_name: "财务部",
+                dict_id: 'segment2',
+                dict_name: "segment2",
             }, {
-                dict_id: '3',
-                dict_name: "行政部",
+                dict_id: 'segment3',
+                dict_name: "segment3",
+            },{
+                dict_id: 'segment4',
+                dict_name: "segment4",
+            }, {
+                dict_id: 'segment5',
+                dict_name: "segment5",
+            }, {
+                dict_id: 'segment6',
+                dict_name: "segment6",
+            },{
+                dict_id: 'segment7',
+                dict_name: "segment7",
+            }, {
+                dict_id: 'segment8',
+                dict_name: "segment8",
+            }, {
+                dict_id: 'segment9',
+                dict_name: "segment9",
+            },{
+                dict_id: 'segment10',
+                dict_name: "segment10",
+            }, {
+                dict_id: 'attribute1',
+                dict_name: "attribute1",
+            }, {
+                dict_id: 'attribute2',
+                dict_name: "attribute2",
             }
+            
         ])
 
     }, []);
@@ -127,7 +155,7 @@ const TableForm = forwardRef((props, ref) => {
                         tableForm={tableForm}
                         text={text}
                         record={record}
-                        index={record.category_id}
+                        index={record.row_number}
                         name="row_number"
                         rules={[{ required: true, message: 'Please input your name!' }]}
                         handleFieldChange={handleFieldChange}
@@ -148,7 +176,7 @@ const TableForm = forwardRef((props, ref) => {
                         tableForm={tableForm}
                         text={text}
                         record={record}
-                        index={record.category_id}
+                        index={record.row_number}
                         name="segment_name"
                         rules={[{ required: true, message: 'Please input your workId!' }]}
                         handleFieldChange={handleFieldChange}
@@ -158,17 +186,17 @@ const TableForm = forwardRef((props, ref) => {
             },
         },
         {
-            title: 'SEGMENGT',
-            dataIndex: 'segmengt',
-            key: 'segmengt',
+            title: 'SEGMENT',
+            dataIndex: 'segment',
+            key: 'segment',
             render: (text, record, index) => {
                 return (
                   <SelectEF
                   tableForm={tableForm}
                   text={text}
                   record={record}
-                  index={record.category_id}
-                  name="segmengt"
+                  index={record.row_number}
+                  name="segment"
                   rules={[{ required: false, message: 'Please input your workId!' }]}
                   handleFieldChange={handleFieldChange}
                   dictData={departmentDic}
@@ -191,7 +219,7 @@ const TableForm = forwardRef((props, ref) => {
                     record={record}
                     index={record[primaryKey]}
                     name="dict_id"
-                    rules={[{ required: true, message: '请输入物料名称' }]}
+                    rules={[{ required: false, message: '请输入物料名称' }]}
                     handleFieldChange={handleFieldChange}
                     onSearch={() => {
                         handleFieldChange('件', 'uom', record);

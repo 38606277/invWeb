@@ -23,7 +23,7 @@ export default (props) => {
 
   useEffect(() => {
     if("null"!=props.match.params.category_id && ""!=props.match.params.category_id){
-      HttpService.post('reportServer/mdmDict/getDictByID', JSON.stringify({ category_id: props.match.params.category_id }))
+      HttpService.post('reportServer/itemCategory/getItemCategoryByID', JSON.stringify({ category_id: props.match.params.category_id }))
       .then(res => {
           if (res.resultCode == "1000") {
             setIsSelect(true);
@@ -31,11 +31,11 @@ export default (props) => {
             let lineFormV=res.data.lineForm;
             mainForm.setFieldsValue({
               category_id:mainFormV.category_id,
-              dict_code:mainFormV.dict_code,
-              dict_name:mainFormV.dict_name,
-              dict_type:mainFormV.dict_type
+              category_code:mainFormV.category_code,
+              category_name:mainFormV.category_name,
+              category_pid:mainFormV.category_pid
             });
-            setDisplayType(mainFormV.dict_type);
+           
             //初始化数据
             tableRef?.current?.initData(lineFormV);
           } else {
@@ -45,9 +45,9 @@ export default (props) => {
     }else{
       mainForm.setFieldsValue({
         category_id:"",
-        dict_code:"",
-        dict_name:"",
-        dict_type:"list"
+        category_code:"",
+        category_name:"",
+        category_pid:""
       });
     }
   },[]);
@@ -84,7 +84,7 @@ export default (props) => {
                 lineForm:tableData,
                 lineDelete:tableRef?.current?.getDeleteData()
               }
-              HttpService.post('reportServer/mdmDict/saveDict', JSON.stringify(postData))
+              HttpService.post('reportServer/itemCategory/saveItemCategory', JSON.stringify(postData))
               .then(res => {
                   if (res.resultCode == "1000") {
                       //刷新
@@ -144,8 +144,8 @@ export default (props) => {
               <Button type='primary' onClick={() => {
                 //新增一行
                 tableRef.current.addItem({
-                  category_id: `NEW_${(Math.random() * 1000000).toFixed(0)}`,
-                  row_number: '',
+                  category_id: mainForm.category_id,
+                  row_number: `NEW_${(Math.random() * 1000000).toFixed(0)}`,
                   segment: '',
                   segment_name: '',
                   dict_id: '',
@@ -164,7 +164,7 @@ export default (props) => {
         >
         <TableForm
             ref={tableRef}
-            primaryKey='category_id' 
+            primaryKey='row_number' 
             value={tableData}
             onChange={(newTableData) => {
             //onChange实时回调最新的TableData 
@@ -175,20 +175,5 @@ export default (props) => {
 
         </ProCard>
       </Form>
-      {/* <SelectOrgDailog
-        modalVisible={selectOrgDailogVisible}
-        handleOk={(selectOrg) => {
-          if (selectOrg) {
-            mainForm.setFieldsValue({
-              inv_org_id: selectOrg.org_id,
-              inv_org_name: selectOrg.org_name,
-            });
-          }
-          setSelectOrgDailogVisible(false);
-        }}
-        handleCancel={() => {
-          setSelectOrgDailogVisible(false);
-        }}
-      /> */}
     </PageContainer>);
 };

@@ -59,7 +59,7 @@ const fetchData = async (params, sort, filter) => {
         perPage: params.pageSize,
         ...params
     }
-    const result = await HttpService.post('reportServer/mdmDict/getAllPage', JSON.stringify(requestParam));
+    const result = await HttpService.post('reportServer/itemCategory/getAllPage', JSON.stringify(requestParam));
     return Promise.resolve({
         data: result.data.list,
         total: result.data.total,
