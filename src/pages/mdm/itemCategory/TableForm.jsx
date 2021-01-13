@@ -228,7 +228,26 @@ const TableForm = forwardRef((props, ref) => {
                 );
 
             },
-        }
+        },{
+            title: '行列',
+            dataIndex: 'row_or_column',
+            key: 'row_or_column',
+            width: '20%',
+            render: (text, record, index) => {
+                return (
+                    <InputEF
+                        tableForm={tableForm}
+                        text={text}
+                        record={record}
+                        index={record.row_number}
+                        name="row_or_column"
+                        rules={[{ required: true, message: '请输入行或列!' }]}
+                        handleFieldChange={handleFieldChange}
+                        placeholder={"请输入行或列"}
+                    />
+                );
+            },
+        },
     ];
 
  

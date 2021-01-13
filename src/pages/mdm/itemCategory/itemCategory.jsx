@@ -149,7 +149,7 @@ export default (props) => {
                   segment: '',
                   segment_name: '',
                   dict_id: '',
-                  row_or_column: '',
+                  row_or_column: 'row',
                   editable: true,
                   isNew: true,
                 });
