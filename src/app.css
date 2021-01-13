@@ -64,11 +64,13 @@
 .ant-table-thead>tr>th {
     color: rgba(0,0,0,.85);
     font-weight: 800  !important;
-    text-align: left;
-    background: #fafafa;
+    text-align: center !important;
+    background: #f2f5fc !important;
     border-bottom: 1px solid #f0f0f0;
     transition: background .3s ease;
 }
+
+
 .ant-pro-card-title {
     font-weight: 800;
     font-size: 12px;
@@ -118,4 +120,12 @@
 .ant-pro-global-header-layout-mix .anticon {
     color: #adb0b8;;
 }
+.ant-menu {
+    font-size: 13px !important;
+}
 
+.ant-btn-danger {
+    color: #fff;
+    background: #c7000b;
+    border-color: #c7000b;
+}
