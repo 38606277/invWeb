@@ -1,31 +1,8 @@
 //选择仓库的对话框
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Space, message, Tree, Row, Col, Modal } from 'antd';
-import ProTable from '@ant-design/pro-table';
+import { Button, Space, message, Tree, Row, Col, Modal, Table } from 'antd';
 import HttpService from '@/utils/HttpService.jsx';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-
-
-// 获取数据
-const fetchData = async (params, sort, filter) => {
-    console.log('getByKeyword', params, sort, filter);
-
-    const requestParam = {
-        path: '-1-',
-        pageNum: params.current,
-        perPage: params.pageSize,
-        ...params
-
-    }
-
-    const result = await HttpService.post('reportServer/invOrg/getByKeyword', JSON.stringify(requestParam));
-    console.log('result : ', result);
-    return Promise.resolve({
-        data: result.data,
-        total: result.data.length,
-        success: result.resultCode === "1000"
-    });
-}
 
 
 const columns = [
@@ -40,10 +17,6 @@ const columns = [
         dataIndex: 'org_type',
         key: 'org_type',
         valueType: 'text',
-        valueEnum: {
-            1: '仓库',
-            2: '门店'
-        }
     },
     {
         title: '地址',
@@ -51,82 +24,79 @@ const columns = [
         key: 'address',
         valueType: 'text',
     },
-
     {
         title: '联系人',
         dataIndex: 'contacts',
         key: 'contacts',
         valueType: 'text',
-    },
+    }
 ];
-
 
 const SelectOrgDialog = (props) => {
 
     const { modalVisible, handleOk, handleCancel } = props;
-    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-    const [selectOrg, setSelectOrg] = useState({});
+    const [checkKeys, setCheckKeys] = useState([]);
+    const [checkRows, setCheckRows] = useState([]);
+    const [treeData, setTreeData] = useState([]);
+
+    const selectType = props?.selectType || 'radio';
+
+    //初始化数据
+    useEffect(() => {
+        getAllChildrenRecursionById("0");
+    }, [])
 
 
-    const selectOnChange = (selectedKeys, selectedRows) => {
-        setSelectedRowKeys(selectedKeys);
-        if (0 < selectedRows.length) {
-            let org = selectedRows[0];
-            setSelectOrg(org);
-        } else {
-            setSelectOrg({});
-        }
+    //重置选中状态
+    useEffect(() => {
+        setCheckKeys([]);
+        setCheckRows([]);
+    }, modalVisible)
+
+
+    // 获取数据
+    const getAllChildrenRecursionById = (mOrgPid) => {
+        HttpService.post('reportServer/invOrg/getAllChildrenRecursionById', JSON.stringify({ org_pid: mOrgPid }))
+            .then(res => {
+                if (res.resultCode === "1000") {
+                    setTreeData(res.data)
+                } else {
+                    message.error(res.message);
+                }
+            });
     }
+
+
     return (
         <Modal title="选择仓库" visible={modalVisible} onOk={() => {
-            handleOk(selectOrg)
+            if (0 < checkKeys.length) {
+                if (selectType === 'radio') {
+                    handleOk(checkRows[0], checkKeys[0])
+                } else {
+                    handleOk(checkRows, checkKeys)
+                }
+            } else {
+                handleCancel();
+            }
         }} onCancel={handleCancel}>
-            <ProTable
-                onRow={record => {
-                    return {
-                        // 点击行
-                        onClick: event => {
-                            setSelectedRowKeys([record.org_id]);
-                            setSelectOrg(record)
-                        },
-                    };
-                }}
-                headerTitle="仓库列表"
+
+            <Table
                 columns={columns}
-                request={fetchData}
-                rowKey="org_id"
                 rowSelection={{
-                    type: 'radio',
-                    onChange: selectOnChange,
-                    selectedRowKeys: selectedRowKeys
+                    type: selectType,
+                    onChange: (selectedRowKeys, selectedRows) => {
+                        // console.log('selectedRowKeys - ', selectedRowKeys)
+                        // console.log('selectedRows - ', selectedRows)
+                        setCheckKeys(selectedRowKeys);
+                        setCheckRows(selectedRows);
+                    }
                 }}
-
-                tableAlertRender={({ selectedRows }) => {
-                    return (
-                        <Space size={24}>
-                            <span>
-
-                                已选中 {selectedRows.length < 1 ? '' : selectedRows[0].org_name}
-
-                            </span>
-                        </Space>
-                    )
+                dataSource={treeData}
+                pagination={false}
+                expandable={{
+                    defaultExpandAllRows: true,
+                    expandRowByClick: true
                 }}
-                tableAlertOptionRender={({ onCleanSelected }) => (
-                    <Space size={16}>
-                        <a
-                            onClick={onCleanSelected}
-                        >
-                            取消选中
-                    </a>
-                    </Space>
-                )}
-                toolBarRender={false}
-                pagination={{
-                    showQuickJumper: true,
-                }}
-                search={false}
-                dateFormatter="string"
             />
 
         </Modal>

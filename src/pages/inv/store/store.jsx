@@ -158,7 +158,7 @@ export default (props) => {
           <Row>
             <Col xs={24} sm={11}>
               <Form.Item label="入库编码" name="bill_id">
-                <Input disabled={disabled} placeholde="自动生成" />
+                <Input disabled placeholde="自动生成" />
               </Form.Item>
             </Col>
             <Col xs={24} sm={11}>

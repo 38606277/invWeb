@@ -99,6 +99,7 @@ const fetchData = async (params, sort, filter) => {
         pageNum: params.current,
         perPage: params.pageSize,
         ...params,
+        bill_type: 'transfer'
     };
     const result = await HttpService.post(
         'reportServer/invStore/getStoreListByPage',
@@ -123,16 +124,45 @@ const deliverList = () => {
             valueType: 'text',
         },
         {
-            title: '仓库',
+            title: '调出仓库',
             dataIndex: 'inv_org_name',
             key: 'inv_org_id',
             valueType: 'text',
         },
         {
-            title: '入库时间',
+            title: '调出日期',
             dataIndex: 'bill_date',
-            valueType: 'dateTime',
+            key: 'bill_date',
+            valueType: 'text',
         },
+        {
+            title: '调出经办人',
+            dataIndex: 'inv_user',
+            key: 'inv_user_id',
+            valueType: 'text',
+        },
+
+        {
+            title: '调入仓库',
+            dataIndex: 'target_inv_org_name',
+            key: 'target_inv_org_id',
+            valueType: 'text',
+        },
+        {
+            title: '调入日期',
+            dataIndex: 'target_inv_date',
+            key: 'target_inv_date',
+            valueType: 'text',
+        },
+        {
+            title: '调入经办人',
+            dataIndex: 'target_inv_user_name',
+            key: 'target_inv_user_id',
+            valueType: 'text',
+        },
+
+
+
         {
             title: '备注',
             dataIndex: 'remark',
@@ -159,7 +189,7 @@ const deliverList = () => {
             render: (text, record) => [
                 <a
                     onClick={() => {
-                        history.push(`/transation/store/edit/${record.bill_id}`);
+                        history.push(`/transation/transfer/edit/${record.bill_id}`);
                     }}
                 >
                     编辑
@@ -215,7 +245,7 @@ const deliverList = () => {
             dateFormatter="string"
             headerTitle="出库管理"
             toolBarRender={(action, { selectedRows }) => [
-                <Button type="primary" onClick={() => history.push('/transation/store/add/null')}>
+                <Button type="primary" onClick={() => history.push('/transation/transfer/add/null')}>
                     新建
         </Button>,
             ]}

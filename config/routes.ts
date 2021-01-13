@@ -259,6 +259,11 @@
       },
       {
         name: 'user.user-list',
+        path: '/transation/transfer/:action/:id',
+        component: './inv/transfer/transfer',
+      },
+      {
+        name: 'user.user-list',
         path: '/transation/countList',
         component: './inv/count/countList',
       },
@@ -288,6 +293,11 @@
         name: 'user.user-list',
         path: '/mdm/itemCategory/itemCategoryList',
         component: './mdm/itemCategory/itemCategoryList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/mdm/itemCategory/itemCategory/:category_id',
+        component: './mdm/itemCategory/itemCategory',
       },
     ],
   },
