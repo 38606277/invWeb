@@ -5,6 +5,7 @@ import InputEF from '@/components/EditForm/InputEF';
 import SelectEF from '@/components/EditForm/SelectEF';
 import InputSearchEF from '@/components/EditForm/InputSearchEF';
 import styles2 from '@/components/EditForm/index.less';
+import SelectDictDailog from '@/components/Dict/SelectDictDialog';
 
 const TableForm = forwardRef((props, ref) => {
 
@@ -14,6 +15,8 @@ const TableForm = forwardRef((props, ref) => {
     const [selectedRows, setSelectedRows] = useState([]);
     const [deleteRecord, setDeleteRecord] = useState([]);//删除记录
     const [departmentDic, setDepartmentDic] = useState([]);
+    const [selectDictDailogVisible, setSelectDictDailogVisible] = useState(false);
+    const [rowId, setRowId] = useState([]);
 
     useEffect(() => {
         setTimeout(3000);
@@ -143,12 +146,35 @@ const TableForm = forwardRef((props, ref) => {
         }
     };
 
+
+    const handleFieldChangeSelect = (
+        filedValue,
+        fieldName,
+        filedValue1,
+        fieldName1,
+        record,
+    ) => {
+        console.log("List");
+        let key = record[primaryKey];
+        const newData = [...(data)];
+        const target = getRowByKey(key, newData);
+        if (target) {
+            // target[fieldName] = filedValue;
+            // target[fieldName1] = filedValue1;
+            setData(newData);
+        }
+        if (onChange) {
+            onChange(newData);
+        }
+    };
+
     const columns = [
         {
             title: '行号',
             dataIndex: 'row_number',
             key: 'row_number',
-            width: '20%',
+            className:styles.columnshow,
+            //  width: '0%',
             render: (text, record, index) => {
                 return (
                     <InputEF
@@ -157,7 +183,7 @@ const TableForm = forwardRef((props, ref) => {
                         record={record}
                         index={record.row_number}
                         name="row_number"
-                        rules={[{ required: true, message: 'Please input your name!' }]}
+                        rules={[{ required: false, message: 'Please input your name!' }]}
                         handleFieldChange={handleFieldChange}
                         placeholder={"请输入行号"}
                     />
@@ -169,7 +195,6 @@ const TableForm = forwardRef((props, ref) => {
             title: '类别名称',
             dataIndex: 'segment_name',
             key: 'segment_name',
-            width: '20%',
             render: (text, record, index) => {
                 return (
                     <InputEF
@@ -197,7 +222,7 @@ const TableForm = forwardRef((props, ref) => {
                   record={record}
                   index={record.row_number}
                   name="segment"
-                  rules={[{ required: false, message: 'Please input your workId!' }]}
+                  rules={[{ required: true, message: 'Please input your workId!' }]}
                   handleFieldChange={handleFieldChange}
                   dictData={departmentDic}
                   keyName={'dict_id'}
@@ -211,6 +236,7 @@ const TableForm = forwardRef((props, ref) => {
             title: '字典项',
             dataIndex: 'dict_id',
             key: 'dict_id',
+            className:styles.columnshow,
             render: (text, record, index) => {
                 return (
                     <InputSearchEF
@@ -221,9 +247,40 @@ const TableForm = forwardRef((props, ref) => {
                     name="dict_id"
                     rules={[{ required: false, message: '请输入物料名称' }]}
                     handleFieldChange={handleFieldChange}
-                    onSearch={() => {
-                        handleFieldChange('件', 'uom', record);
-                    }}
+                    onClick={() => {
+                        setRowId(record)
+                        setSelectDictDailogVisible(true);
+                      }}
+                      onSearch={() => {
+                        setRowId(record)
+                        setSelectDictDailogVisible(true);
+                      }}
+                    />
+                );
+
+            },
+        },{
+            title: '字典项',
+            dataIndex: 'dict_name',
+            key: 'dict_name',
+            render: (text, record, index) => {
+                return (
+                    <InputSearchEF
+                    tableForm={tableForm}
+                    text={text}
+                    record={record}
+                    index={record[primaryKey]}
+                    name="dict_name"
+                    rules={[{ required: false, message: '请输入物料名称' }]}
+                    handleFieldChange={handleFieldChange}
+                    onClick={() => {
+                        setRowId(record)
+                        setSelectDictDailogVisible(true);
+                      }}
+                      onSearch={() => {
+                        setRowId(record)
+                        setSelectDictDailogVisible(true);
+                      }}
                     />
                 );
 
@@ -232,7 +289,6 @@ const TableForm = forwardRef((props, ref) => {
             title: '行列',
             dataIndex: 'row_or_column',
             key: 'row_or_column',
-            width: '20%',
             render: (text, record, index) => {
                 return (
                     <InputEF
@@ -265,6 +321,27 @@ const TableForm = forwardRef((props, ref) => {
                     rowSelection={{
                         type: 'checkbox',
                         onChange: onTableChange,
+                    }}
+                />
+                <SelectDictDailog
+                    modalVisible={selectDictDailogVisible}
+                    handleOk={(selectDict) => {
+                        if (selectDict) {
+                            console.log(selectDict);
+                            rowId.dict_id=selectDict.dict_id;
+                            rowId.dict_name=selectDict.dict_name;
+                            // handleFieldChangeSelect('dict_id',selectDict.dict_id,'dict_name',selectDict.dict_name,rowId);
+                            // mainForm.setFieldsValue({
+                            // inv_org_id: selectDict.dict_id,
+                            // inv_org_name: selectDict.dict_name,
+                            // });
+                        }
+                        setRowId("");
+                        setSelectDictDailogVisible(false);
+                    }}
+                    handleCancel={() => {
+                        setRowId("");
+                        setSelectDictDailogVisible(false);
                     }}
                 />
             </Form>

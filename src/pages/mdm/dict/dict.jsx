@@ -7,6 +7,7 @@ import TreeTableForm from './TreeTableForm';
 import FormItem from 'antd/lib/form/FormItem';
 import HttpService from '../../../utils/HttpService';
 import { history } from 'umi';
+import { PlusOutlined,MinusOutlined } from '@ant-design/icons';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -156,7 +157,7 @@ export default (props) => {
           onCollapse={(collapse) => console.log(collapse)}
           extra={
             [
-              <Button type='primary' onClick={() => {
+              <Button onClick={() => {
                 //新增一行
                 tableRef.current.addItem({
                   value_id: `NEW_${(Math.random() * 1000000).toFixed(0)}`,
@@ -167,12 +168,12 @@ export default (props) => {
                   editable: true,
                   isNew: true,
                 });
-              }}> 新建
+              }} icon={<PlusOutlined />}>
               </Button>,
-              <Button type='danger' style={{ margin: '12px' }} onClick={() => {
+              <Button style={{ margin: '12px' }} onClick={() => {
                 //删除选中项
                 tableRef.current.removeRows();
-              }}> 删除</Button>
+              }} icon={<MinusOutlined />}></Button>
             ]
           }
         >
