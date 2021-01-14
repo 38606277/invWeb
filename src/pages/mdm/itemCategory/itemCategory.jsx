@@ -24,6 +24,7 @@ export default (props) => {
  
 
   useEffect(() => {
+    console.log(props.match.params);
     if("null"!=props.match.params.category_id && ""!=props.match.params.category_id){
       HttpService.post('reportServer/itemCategory/getItemCategoryByID', JSON.stringify({ category_id: props.match.params.category_id }))
       .then(res => {
@@ -49,8 +50,9 @@ export default (props) => {
         category_id:"",
         category_code:"",
         category_name:"",
-        category_pid:""
+        category_pid:props.match.params.category_pid=="null"?"":props.match.params.category_pid
       });
+      console.log(mainForm);
     }
   },[]);
 
@@ -110,6 +112,9 @@ export default (props) => {
             <Col lg={6} md={12} sm={24}>
               <Form.Item name="category_id" style={{display:'none'}}>
                 <Input id='category_id' name='category_id' value={mainForm.category_id} />
+                </Form.Item>
+                <Form.Item name="category_pid" style={{display:'none'}}>
+                <Input id='category_pid' name='category_pid' value={mainForm.category_pid} />
                 </Form.Item>
               <Form.Item
                 label="类别编码"

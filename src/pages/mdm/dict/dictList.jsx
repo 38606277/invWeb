@@ -100,7 +100,6 @@ const dictList = () => {
     ];
 
     return (
-        <PageContainer>
             <ProTable
                 actionRef={ref}
                 columns={columns}
@@ -145,7 +144,6 @@ const dictList = () => {
                     </Button>
                   ]}
             />
-        </PageContainer>
 
     );
 }
