@@ -23,8 +23,7 @@ const loginOut = async () => {
   const { redirect } = query;
   // Note: There may be security issues, please note
   if (window.location.pathname !== '/user/login' && !redirect) {
-
-    localStorge.removeStorage('userInfo')
+    localStorge.removeStorage('userInfo');
     history.replace({
       pathname: '/user/login',
       search: stringify({
@@ -52,11 +51,9 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
       }
       if (key == 'center') {
         let userId = localStorge.getStorage('userInfo').id;
-        console.log('center', userId)
+        console.log('center', userId);
         history.push({ pathname: `/user/userInfo/${userId}` });
       }
-
-
     },
     [],
   );
@@ -107,8 +104,11 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
   return (
     <HeaderDropdown overlay={menuHeaderDropdown}>
       <span className={`${styles.action} ${styles.account}`}>
-        <Avatar size="small" className={styles.avatar} src={currentUser.icon} alt="avatar" />
-        <span className={`${styles.name} anticon`}>{currentUser.userCode}</span>
+        {/* <Avatar size="small" className={styles.avatar} src={currentUser.icon} alt="avatar" /> */}
+        <UserOutlined />
+        <span style={{ marginLeft: '3px' }} className={`${styles.name} anticon`}>
+          {currentUser.userCode}
+        </span>
       </span>
     </HeaderDropdown>
   );

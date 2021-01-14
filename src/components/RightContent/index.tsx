@@ -22,7 +22,6 @@ const GlobalHeaderRight: React.FC<{}> = () => {
     return null;
   }
 
-
   const { navTheme, layout } = initialState.settings;
   let className = styles.right;
 
@@ -50,9 +49,9 @@ const GlobalHeaderRight: React.FC<{}> = () => {
             value: 'Pro Layout',
           },
         ]}
-      // onSearch={value => {
-      //   console.log('input', value);
-      // }}
+        // onSearch={value => {
+        //   console.log('input', value);
+        // }}
       />
       <HeaderDropdown
         overlay={
@@ -79,12 +78,12 @@ const GlobalHeaderRight: React.FC<{}> = () => {
         </span>
       </HeaderDropdown>
       <Avatar menu={true} />
-
+      {/* 
       {REACT_APP_ENV && (
         <span>
           <Tag color={ENVTagColor[REACT_APP_ENV]}>{REACT_APP_ENV}</Tag>
         </span>
-      )}
+      )} */}
       <SelectLang className={styles.action} />
     </Space>
   );
