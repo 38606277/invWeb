@@ -12,77 +12,17 @@ const { confirm } = Modal;
 
 
 
-//删除按钮事件
-const onDeleteClickListener = (selectedRowKeys) => {
-    if (selectedRowKeys.length < 1) {
-        message.error('请选择需要删除的内容');
-        return;
-    }
-    confirm({
-        title: '温馨提示',
-        content: `您确定要删除吗？`,
-        okText: '确定',
-        cancelText: '取消',
-        okType: 'danger',
-        onOk() {
-            // deleteByIds(selectedRowKeys);
-        },
-        onCancel() {
 
-        },
-    });
-
-}
-//删除
-const deleteByIds = ( selectedRowKeys) => {
-    if (selectedRowKeys.length < 1) {
-        message.error('请选择需要删除的内容');
-        return;
-    }
-    HttpService.post('reportServer/mdmItemgory/deleteItemgoryById', JSON.stringify({ category_id: selectedRowKeys.toString() }))
-        .then(res => {
-            if (res.resultCode == "1000") {
-                //刷新
-                // 清空选中项
-                fetchData({current:0,pageSize:10},"","");
-            } else {
-                message.error(res.message);
-            }
-        });
-}
-
-//获取数据
-const fetchData = async (params, sort, filter) => {
-    console.log('getByKeyword', params, sort, filter);
-    // current: 1, pageSize: 20
-    let requestParam = {
-        startIndex: params.current,
-        perPage: params.pageSize,
-        ...params
-    }
-    const result = await HttpService.post('reportServer/itemCategory/getAllPage', JSON.stringify(requestParam));
-    return Promise.resolve({
-        data: result.data.list,
-        total: result.data.total,
-        success: result.resultCode == "1000"
-    });
-}
-const onTreeSelect = (item) => {
-    console.log(item);
-    // if (currentPath !== item.item) {
-    //     setCurrentPath(item.path)
-    // }
-}
 const itemCategoryList = () => {
 
     const ref = useRef();
     const [visible, setVisible] = useState(false);
     const [initData, setInitData] = useState({});
     const [treeData, setTreeData] = useState([]);
-    const [catPid, setCatPid] = useState();// 用于编辑赋初始值
+    const [catId, setCatId] = useState('-1');// 用于编辑赋初始值
 
-    const getAllChildrenRecursionById = (mOrgPid) => {
-        HttpService.post('reportServer/itemCategory/getAllList')
+    const getAllChildrenRecursionById = (catId) => {
+        HttpService.post('reportServer/itemCategory/getAllList',JSON.stringify({"category_pid":catId}))
             .then(res => {
                 if (res.resultCode === "1000") {
                     setTreeData(res.data)
@@ -93,11 +33,72 @@ const itemCategoryList = () => {
     }
     
     const refreshData = () => {
-        getAllChildrenRecursionById("0");
+        getAllChildrenRecursionById("-1");
     }
     useEffect(() => {
         refreshData();
     }, [])
+
+    //删除按钮事件
+    const onDeleteClickListener = (selectedRowKeys) => {
+        if (selectedRowKeys.length < 1) {
+            message.error('请选择需要删除的内容');
+            return;
+        }
+        confirm({
+            title: '温馨提示',
+            content: `您确定要删除吗？`,
+            okText: '确定',
+            cancelText: '取消',
+            okType: 'danger',
+            onOk() {
+                 deleteByIds(selectedRowKeys);
+            },
+            onCancel() {
+
+            },
+        });
+
+    }
+    //删除
+    const deleteByIds = ( selectedRowKeys) => {
+        if (selectedRowKeys.length < 1) {
+            message.error('请选择需要删除的内容');
+            return;
+        }
+        HttpService.post('reportServer/itemCategory/deleteItemCategoryById', JSON.stringify({ category_id: selectedRowKeys.toString() }))
+            .then(res => {
+                if (res.resultCode == "1000") {
+                    //刷新
+                    // 清空选中项
+                    fetchData({current:0,pageSize:10,"category_pid":catId},"","");
+                } else {
+                    message.error(res.message);
+                }
+            });
+    }
+
+    //获取数据
+    const fetchData = async (params, sort, filter) => {
+        let requestParam = {
+            startIndex: params.current,
+            perPage: params.pageSize,
+            ...params
+        }
+        const result = await HttpService.post('reportServer/itemCategory/getAllPage', JSON.stringify(requestParam));
+        return Promise.resolve({
+            data: result.data.list,
+            total: result.data.total,
+            success: result.resultCode == "1000"
+        });
+        // 刷新
+        ref.current.reload();
+    }
+    const onTreeSelect = (item) => {
+        if (catId !== item.item) {
+            setCatId(item.category_id);
+        }
+    }
     //定义列
     const columns = [
         {
@@ -131,7 +132,7 @@ const itemCategoryList = () => {
         <Row style={{ marginTop: '16px' }}>
                 <Col xs={24} sm={6}>
                     <Tree
-                        defaultExpandAll={true}
+                        defaultExpandAll
                         style={{ width: "100%", minHeight: "450px", padding: "24px" }}
                         showLine
                         treeData={treeData}
@@ -152,6 +153,7 @@ const itemCategoryList = () => {
                         columns={columns}
                         request={fetchData}
                         rowKey="id"
+                        params={{ category_pid: catId }}
                         rowSelection={{
                             // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
                             // 注释该行则默认不显示下拉选项

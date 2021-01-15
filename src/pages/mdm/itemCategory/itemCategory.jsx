@@ -50,7 +50,7 @@ export default (props) => {
         category_id:"",
         category_code:"",
         category_name:"",
-        category_pid:props.match.params.category_pid=="null"?"":props.match.params.category_pid
+        category_pid:props.match.params.category_pid=="null"?"-1":props.match.params.category_pid
       });
       console.log(mainForm);
     }
