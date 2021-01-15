@@ -36,7 +36,7 @@ const updateStatusByIds = (ref, selectedRowKeys) => {
     }
 
     HttpService.post(
-        'reportServer/invStore/updateStoreStatusByIds',
+        'reportServer/invOnHand/getItemOnHandByPage',
         JSON.stringify({ ids: selectedRowKeys.toString(), bill_status: 1 }),
     ).then((res) => {
         if (res.resultCode == '1000') {
@@ -99,10 +99,9 @@ const fetchData = async (params, sort, filter) => {
         pageNum: params.current,
         perPage: params.pageSize,
         ...params,
-        bill_type: 'transfer'
     };
     const result = await HttpService.post(
-        'reportServer/invStore/getStoreListByPage',
+        'reportServer/invOnHand/getItemOnHandOrgByPage',
         JSON.stringify(requestParam),
     );
     console.log('result : ', result);
@@ -113,66 +112,24 @@ const fetchData = async (params, sort, filter) => {
     });
 };
 
-const deliverList = () => {
+const onHandList = () => {
     const ref = useRef();
 
     //定义列
     const columns = [
         {
-            title: '编号',
-            dataIndex: 'bill_id',
-            valueType: 'text',
+            title: '仓库名称',
+            dataIndex: 'org_name',
         },
         {
-            title: '调出仓库',
-            dataIndex: 'inv_org_name',
-            key: 'inv_org_id',
-            valueType: 'text',
+            title: '物料数量',
+            dataIndex: 'item_count',
+            key: 'item_count',
         },
         {
-            title: '调出日期',
-            dataIndex: 'bill_date',
-            key: 'bill_date',
-            valueType: 'text',
-        },
-        {
-            title: '调出经办人',
-            dataIndex: 'operator_name',
-            key: 'operator',
-            valueType: 'text',
-        },
-
-        {
-            title: '调入仓库',
-            dataIndex: 'target_inv_org_name',
-            key: 'target_inv_org_id',
-            valueType: 'text',
-        },
-
-        {
-            title: '调入经办人',
-            dataIndex: 'target_operator_name',
-            key: 'target_operator',
-            valueType: 'text',
-        },
-        {
-            title: '备注',
-            dataIndex: 'remark',
-            valueType: 'text',
-        },
-        {
-            title: '状态',
-            dataIndex: 'bill_status',
-            valueType: 'select',
-            valueEnum: {
-                0: { text: '新建', status: 'Warning' },
-                1: { text: '运输中', status: 'Success' },
-            },
-        },
-        {
-            title: '创建时间',
-            dataIndex: 'create_date',
-            valueType: 'dateTime',
+            title: '物料价值',
+            dataIndex: 'item_price',
+            key: 'item_price',
         },
         {
             title: '操作',
@@ -181,16 +138,11 @@ const deliverList = () => {
             render: (text, record) => [
                 <a
                     onClick={() => {
-                        history.push(`/transation/transfer/readOnly/${record.bill_id}`);
+                        history.push(`/transation/onHand/edit/${record.org_id}`);
                     }}
                 >
-                    查看详情
-        </a>,
-                <a key="link4" onClick={() => {
-                    onDeleteClickListener(ref, [record.bill_id])
-                }}>
-                    删除
-        </a>,
+                    编辑
+                </a>
             ],
         },
     ];
@@ -201,7 +153,7 @@ const deliverList = () => {
             actionRef={ref}
             columns={columns}
             request={fetchData}
-            rowKey="bill_id"
+            rowKey="org_id"
             rowSelection={
                 {
                     // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
@@ -227,7 +179,7 @@ const deliverList = () => {
             tableAlertOptionRender={({ selectedRowKeys }) => (
                 <Space size={16}>
                     <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
-                    <a onClick={() => onUpdateClickListener(ref, selectedRowKeys)}> 批量确认</a>
+                    {/* <a onClick={() => onUpdateClickListener(ref, selectedRowKeys)}> 批量过账</a> */}
                 </Space>
             )}
             pagination={{
@@ -237,14 +189,14 @@ const deliverList = () => {
                 defaultCollapsed: true,
             }}
             dateFormatter="string"
-            headerTitle="调拨管理"
+            headerTitle="仓库存量"
             toolBarRender={(action, { selectedRows }) => [
-                <Button type="primary" onClick={() => history.push('/transation/transfer/add/null')}>
-                    新建
-        </Button>,
+                //         <Button type="primary" onClick={() => history.push('/transation/deliver/add/null')}>
+                //             新建
+                // </Button>,
             ]}
         />
         // </PageContainer>
     );
 };
-export default deliverList;
+export default onHandList;

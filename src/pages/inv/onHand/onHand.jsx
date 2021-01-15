@@ -23,12 +23,12 @@ const formItemLayout1 = {
     wrapperCol: { span: 20 },
 };
 
-const deliver = (props) => {
+const onHand = (props) => {
     const tableRef = useRef();
     const [tableForm] = Form.useForm();
     const [mainForm] = Form.useForm();
     const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
-    const [action, setAction] = useState(props?.match?.params?.action || add);
+    const [action, setAction] = useState(props?.match?.params?.action || 'add');
     const [id, setId] = useState(props?.match?.params?.id || -1);
     const [disabled, setDisabled] = useState(false);
 
@@ -59,7 +59,7 @@ const deliver = (props) => {
     useEffect(() => {
         if (action === 'edit') {
             //初始化编辑数据
-            HttpService.post('reportServer/invStore/getStoreById', JSON.stringify({ bill_id: id })).then(
+            HttpService.post('reportServer/invOnHand/getItemOnHandByPage', JSON.stringify({ bill_id: id })).then(
                 (res) => {
                     if (res.resultCode == '1000') {
                         setDisabled(res?.data?.mainData?.bill_status === 1);
@@ -79,7 +79,7 @@ const deliver = (props) => {
     return (
         <PageContainer
             ghost="true"
-            title="出库单"
+            title="仓库存量"
             header={{
                 extra: [
                     <Button
@@ -91,7 +91,7 @@ const deliver = (props) => {
                             mainForm?.submit();
                         }}
                     >
-                        保存出库单
+                        保存仓库存量
           </Button>,
                     <Button
                         disabled={disabled}
@@ -189,7 +189,7 @@ const deliver = (props) => {
                                 label="出库时间"
                                 rules={[{ required: true, message: '请选择出库时间' }]}
                             >
-                                <DatePicker style={{ width: "100%" }} disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
+                                <DatePicker disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
                             </Form.Item>
                         </Col>
                         <Col xs={24} sm={10}>
@@ -274,4 +274,4 @@ const deliver = (props) => {
         </PageContainer>
     );
 };
-export default deliver;
+export default onHand;

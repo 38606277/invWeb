@@ -3,7 +3,7 @@ import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import TableForm from './components/TableForm';
-import SelectOrgDailog from '@/components/Org/SelectOrgDialog';
+import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
@@ -29,7 +29,7 @@ export default (props) => {
   const tableRef = useRef();
   const [tableForm] = Form.useForm();
   const [mainForm] = Form.useForm();
-  const [selectOrgDailogVisible, setSelectOrgDailogVisible] = useState(false);
+  const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
   const [action, setAction] = useState(props?.match?.params?.action || add);
   const [id, setId] = useState(props?.match?.params?.id || -1);
   const [disabled, setDisabled] = useState(false);
@@ -174,10 +174,10 @@ export default (props) => {
                   readOnly={true}
                   enterButton
                   onClick={() => {
-                    setSelectOrgDailogVisible(true);
+                    setSelectOrgDialogVisible(true);
                   }}
                   onSearch={() => {
-                    setSelectOrgDailogVisible(true);
+                    setSelectOrgDialogVisible(true);
                   }}
                 />
               </Form.Item>
@@ -191,7 +191,7 @@ export default (props) => {
                 label="入库时间"
                 rules={[{ required: true, message: '请选择入库时间' }]}
               >
-                <DatePicker disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
+                <DatePicker style={{ width: "100%" }} disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
               </Form.Item>
             </Col>
             <Col xs={24} sm={11}>
@@ -258,8 +258,8 @@ export default (props) => {
       >
         <TableForm ref={tableRef} disabled={disabled} primaryKey="line_id" tableForm={tableForm} />
       </ProCard>
-      <SelectOrgDailog
-        modalVisible={selectOrgDailogVisible}
+      <SelectOrgDialog
+        modalVisible={selectOrgDialogVisible}
         handleOk={(selectOrg) => {
           if (selectOrg) {
             mainForm.setFieldsValue({
@@ -267,10 +267,10 @@ export default (props) => {
               inv_org_name: selectOrg.org_name,
             });
           }
-          setSelectOrgDailogVisible(false);
+          setSelectOrgDialogVisible(false);
         }}
         handleCancel={() => {
-          setSelectOrgDailogVisible(false);
+          setSelectOrgDialogVisible(false);
         }}
       />
     </PageContainer>

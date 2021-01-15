@@ -267,6 +267,16 @@
         path: '/transation/countList',
         component: './inv/count/countList',
       },
+      {
+        name: 'user.user-list',
+        path: '/transation/onHandList',
+        component: './inv/onHand/onHandList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/transation/onHand/:action/:id/',
+        component: './inv/onHand/onHand',
+      },
     ],
   },
 

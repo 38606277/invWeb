@@ -1,9 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
+import { message, Form, Button, Row, Col, Select, Input, DatePicker, Steps } from 'antd';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import TableForm from './components/TableForm';
-import SelectOrgDailog from '@/components/Org/SelectOrgDialog';
+import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
+import SelectUserDialog from '@/components/User/SelectUserDialog';
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
@@ -13,6 +14,7 @@ import 'moment/locale/zh-cn';
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 const { Option } = Select;
+const { Step } = Steps;
 
 const formItemLayout2 = {
     labelCol: { span: 8 },
@@ -27,11 +29,15 @@ const transfer = (props) => {
     const tableRef = useRef();
     const [tableForm] = Form.useForm();
     const [mainForm] = Form.useForm();
-    const [selectOrgDailogVisible, setSelectOrgDailogVisible] = useState(false);
+    const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
+    const [selectUserDialogVisible, setSelectUserDialogVisible] = useState(false);
     const [action, setAction] = useState(props?.match?.params?.action || add);
     const [id, setId] = useState(props?.match?.params?.id || -1);
     const [disabled, setDisabled] = useState(false);
     const [selectStroeFiledName, setSelectStroeFiledName] = useState('');
+    const [selectUserFiledName, setSelectUserFiledName] = useState('');
+
+    const [mainData, setMainData] = useState({});
 
     const save = (params) => {
         HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
@@ -58,17 +64,25 @@ const transfer = (props) => {
     };
 
     useEffect(() => {
-        if (action === 'edit') {
+
+        if (action === 'edit' || action === 'readOnly') {
             //初始化编辑数据
             HttpService.post('reportServer/invStore/getStoreById', JSON.stringify({ bill_id: id })).then(
                 (res) => {
                     if (res.resultCode == '1000') {
-                        setDisabled(res?.data?.mainData?.bill_status === 1);
-                        mainForm.setFieldsValue({
+                        if (action === 'readOnly') {
+                            setDisabled(true);
+                        } else {
+
+                            setDisabled(res?.data?.mainData?.bill_status === 1);
+                        }
+                        let mainD = {
                             ...res.data.mainData,
-                            bill_date: moment(res.data.mainData.bill_date),
-                        });
+                            bill_date: moment(res.data.mainData.bill_date)
+                        }
+                        mainForm.setFieldsValue(mainD);
                         tableRef?.current?.initData(res.data.linesData);
+                        setMainData(mainD);
                     } else {
                         message.error(res.message);
                     }
@@ -80,7 +94,7 @@ const transfer = (props) => {
     return (
         <PageContainer
             ghost="true"
-            title="出库单"
+            title="调拨单"
             header={{
                 extra: [
                     <Button
@@ -92,7 +106,7 @@ const transfer = (props) => {
                             mainForm?.submit();
                         }}
                     >
-                        保存出库单
+                        保存调拨单
           </Button>,
                     <Button
                         disabled={disabled}
@@ -107,9 +121,11 @@ const transfer = (props) => {
                 ],
             }}
         >
+
             <Form
                 {...formItemLayout2}
                 form={mainForm}
+                initialValues={{ ship_method: "1" }}
                 onFinish={async (fieldsValue) => {
                     //验证tableForm
                     tableForm
@@ -156,6 +172,8 @@ const transfer = (props) => {
                 <ProCard title="基础信息" collapsible onCollapse={(collapse) => console.log(collapse)}>
                     <Form.Item style={{ display: 'none' }} label="调出仓库id" name="inv_org_id" />
                     <Form.Item style={{ display: 'none' }} label="调入仓库id" name="target_inv_org_id" />
+                    <Form.Item style={{ display: 'none' }} label="调出经办人id" name="operator" />
+                    <Form.Item style={{ display: 'none' }} label="调入经办人id" name="target_operator" />
                     <Row>
                         <Col xs={24} sm={10}>
                             <Form.Item label="调拨编码"
@@ -183,11 +201,11 @@ const transfer = (props) => {
                                     enterButton
                                     onClick={() => {
                                         setSelectStroeFiledName('inv_org')
-                                        setSelectOrgDailogVisible(true);
+                                        setSelectOrgDialogVisible(true);
                                     }}
                                     onSearch={() => {
                                         setSelectStroeFiledName('inv_org')
-                                        setSelectOrgDailogVisible(true);
+                                        setSelectOrgDialogVisible(true);
                                     }}
                                 />
                             </Form.Item>
@@ -207,11 +225,11 @@ const transfer = (props) => {
                                     enterButton
                                     onClick={() => {
                                         setSelectStroeFiledName('target_inv_org')
-                                        setSelectOrgDailogVisible(true);
+                                        setSelectOrgDialogVisible(true);
                                     }}
                                     onSearch={() => {
                                         setSelectStroeFiledName('target_inv_org')
-                                        setSelectOrgDailogVisible(true);
+                                        setSelectOrgDialogVisible(true);
                                     }}
                                 />
                             </Form.Item>
@@ -220,36 +238,13 @@ const transfer = (props) => {
                     </Row>
 
 
-                    <Row>
-
-                        <Col xs={24} sm={10}>
-                            <Form.Item
-                                label="调出日期"
-                                name="bill_date"
-                                rules={[{ required: true, message: '请选择调出日期' }]}
-                            >
-                                <DatePicker disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
-                            </Form.Item>
-                        </Col>
-
-                        <Col xs={24} sm={10}>
-                            <Form.Item
-                                label="调入日期"
-                                name="target_inv_org_date"
-                                rules={[{ required: true, message: '请选择调入日期' }]}
-                            >
-                                <DatePicker disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
-                            </Form.Item>
-                        </Col>
-
-                    </Row>
 
                     <Row>
 
                         <Col xs={24} sm={10}>
                             <Form.Item
                                 label="调出经办人"
-                                name="inv_org_user"
+                                name="operator_name"
                             // rules={[{ required: true, message: '请选择调出经办人' }]}
                             >
                                 <Search
@@ -259,10 +254,12 @@ const transfer = (props) => {
                                     readOnly={true}
                                     enterButton
                                     onClick={() => {
-                                        //setSelectOrgDailogVisible(true);
+                                        setSelectUserFiledName('operator')
+                                        setSelectUserDialogVisible(true);
                                     }}
                                     onSearch={() => {
-                                        //setSelectOrgDailogVisible(true);
+                                        setSelectUserFiledName('operator')
+                                        setSelectUserDialogVisible(true);
                                     }}
                                 />
                             </Form.Item>
@@ -271,7 +268,7 @@ const transfer = (props) => {
                         <Col xs={24} sm={10}>
                             <Form.Item
                                 label="调入经办人"
-                                name="target_inv_org_user"
+                                name="target_operator_name"
                             //  rules={[{ required: true, message: '请选择调入经办人' }]}
                             >
                                 <Search
@@ -281,12 +278,29 @@ const transfer = (props) => {
                                     readOnly={true}
                                     enterButton
                                     onClick={() => {
-                                        //setSelectOrgDailogVisible(true);
+                                        setSelectUserFiledName('target_operator')
+                                        setSelectUserDialogVisible(true);
                                     }}
                                     onSearch={() => {
-                                        //setSelectOrgDailogVisible(true);
+                                        setSelectUserFiledName('target_operator')
+                                        setSelectUserDialogVisible(true);
                                     }}
                                 />
+                            </Form.Item>
+                        </Col>
+
+                    </Row>
+
+                    <Row>
+
+                        <Col xs={24} sm={10}>
+                            <Form.Item
+
+                                label="调出日期"
+                                name="bill_date"
+                                rules={[{ required: true, message: '请选择调出日期' }]}
+                            >
+                                <DatePicker style={{ width: "100%" }} disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
                             </Form.Item>
                         </Col>
 
@@ -305,6 +319,60 @@ const transfer = (props) => {
                         </Col>
                     </Row>
                 </ProCard>
+
+                {(mainData?.bill_status || 0) != 0 ? (<ProCard title="流程进度" collapsible onCollapse={(collapse) => console.log(collapse)}>
+                    <Steps progressDot current={mainData.bill_status} style={{ padding: "0px 80px" }}>
+                        <Step title="调拨出库" description={mainData?.operator_name} />
+                        <Step title="运输中" description="顺丰" />
+                        <Step title="调拨入库" description={mainData?.target_operator_name} />
+                    </Steps>
+
+                </ProCard>) : <></>}
+
+
+                <ProCard title="物流信息" collapsible onCollapse={(collapse) => console.log(collapse)}>
+
+                    <Row>
+                        <Col xs={24} sm={10}>
+                            <Form.Item label="运输方式"
+                                name="ship_method"
+
+                            >
+                                <Select onChange={(value) => {
+                                }}>
+                                    <Option value="1">自主运输</Option>
+                                    <Option value="2">第三方运输</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <Row >
+                        <Col xs={24} sm={10}>
+                            <Form.Item
+                                label="物流厂商"
+                                name="ship_corp"
+                            >
+                                <Select >
+                                    <Option value="1">顺丰物流</Option>
+                                    <Option value="2">京东物流</Option>
+                                    <Option value="3">中通物流</Option>
+                                    <Option value="4">圆通物流</Option>
+                                    <Option value="5">申通物流</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={10}>
+                            <Form.Item label="物流单号"
+                                name="ship_number"
+                            >
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                </ProCard>
+
             </Form>
 
             <ProCard
@@ -342,8 +410,8 @@ const transfer = (props) => {
             >
                 <TableForm ref={tableRef} disabled={disabled} primaryKey="line_id" tableForm={tableForm} />
             </ProCard>
-            <SelectOrgDailog
-                modalVisible={selectOrgDailogVisible}
+            <SelectOrgDialog
+                modalVisible={selectOrgDialogVisible}
                 handleOk={(selectOrg) => {
                     if (selectOrg) {
                         mainForm.setFieldsValue({
@@ -351,10 +419,27 @@ const transfer = (props) => {
                             [`${selectStroeFiledName}_name`]: selectOrg.org_name,
                         });
                     }
-                    setSelectOrgDailogVisible(false);
+                    setSelectOrgDialogVisible(false);
                 }}
                 handleCancel={() => {
-                    setSelectOrgDailogVisible(false);
+                    setSelectOrgDialogVisible(false);
+                }}
+            />
+
+            <SelectUserDialog
+                modalVisible={selectUserDialogVisible}
+                handleOk={(selectUser) => {
+                    console.log('SelectUserDialog', selectUser)
+                    if (selectUser) {
+                        mainForm.setFieldsValue({
+                            [`${selectUserFiledName}`]: selectUser.id,
+                            [`${selectUserFiledName}_name`]: selectUser.userName,
+                        });
+                    }
+                    setSelectUserDialogVisible(false);
+                }}
+                handleCancel={() => {
+                    setSelectUserDialogVisible(false);
                 }}
             />
         </PageContainer>

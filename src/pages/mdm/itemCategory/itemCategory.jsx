@@ -18,43 +18,43 @@ export default (props) => {
   const [tableData, setTableData] = useState([]);
   const [query, setQuery] = useState('redux');
   const [displayType, setDisplayType] = useState('list');
-  const [isSelect,setIsSelect] = useState(false);
-  const [selectOrgDailogVisible, setSelectOrgDailogVisible] = useState(false);
+  const [isSelect, setIsSelect] = useState(false);
+  const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
 
   useEffect(() => {
-    if("null"!=props.match.params.category_id && ""!=props.match.params.category_id){
+    if ("null" != props.match.params.category_id && "" != props.match.params.category_id) {
       HttpService.post('reportServer/itemCategory/getItemCategoryByID', JSON.stringify({ category_id: props.match.params.category_id }))
-      .then(res => {
+        .then(res => {
           if (res.resultCode == "1000") {
             setIsSelect(true);
-            let mainFormV=res.data.mainForm;
-            let lineFormV=res.data.lineForm;
+            let mainFormV = res.data.mainForm;
+            let lineFormV = res.data.lineForm;
             mainForm.setFieldsValue({
-              category_id:mainFormV.category_id,
-              category_code:mainFormV.category_code,
-              category_name:mainFormV.category_name,
-              category_pid:mainFormV.category_pid
+              category_id: mainFormV.category_id,
+              category_code: mainFormV.category_code,
+              category_name: mainFormV.category_name,
+              category_pid: mainFormV.category_pid
             });
-           
+
             //初始化数据
             tableRef?.current?.initData(lineFormV);
           } else {
-              message.error(res.message);
+            message.error(res.message);
           }
-      });
-    }else{
+        });
+    } else {
       mainForm.setFieldsValue({
-        category_id:"",
-        category_code:"",
-        category_name:"",
-        category_pid:""
+        category_id: "",
+        category_code: "",
+        category_name: "",
+        category_pid: ""
       });
     }
-  },[]);
+  }, []);
 
-  const selectChage = (e) =>{
+  const selectChage = (e) => {
     setDisplayType(e);
-    if(mainForm.getFieldValue('category_id')=="" || mainForm.getFieldValue('category_id')=="null"){
+    if (mainForm.getFieldValue('category_id') == "" || mainForm.getFieldValue('category_id') == "null") {
       tableRef?.current?.initData([]);
     }
   }
@@ -67,7 +67,7 @@ export default (props) => {
               console.log('mainForm', mainForm)
               mainForm?.submit()
             }}>提交</Button>,
-            <Button key="back" onClick={()=>history.push('/mdm/itemCategory/itemCategoryList')}>返回</Button>,
+            <Button key="back" onClick={() => history.push('/mdm/itemCategory/itemCategoryList')}>返回</Button>,
           ]
         }
       }
@@ -79,21 +79,21 @@ export default (props) => {
           tableForm.validateFields()
             .then(() => {
               //验证成功
-              let postData={
+              let postData = {
                 ...values,
-                lineForm:tableData,
-                lineDelete:tableRef?.current?.getDeleteData()
+                lineForm: tableData,
+                lineDelete: tableRef?.current?.getDeleteData()
               }
               HttpService.post('reportServer/itemCategory/saveItemCategory', JSON.stringify(postData))
-              .then(res => {
+                .then(res => {
                   if (res.resultCode == "1000") {
-                      //刷新
-                      message.success('提交成功');
-                      history.push("/mdm/itemCategory/itemCategoryList");
+                    //刷新
+                    message.success('提交成功');
+                    history.push("/mdm/itemCategory/itemCategoryList");
                   } else {
-                      message.error(res.message);
+                    message.error(res.message);
                   }
-              });
+                });
             })
             .catch(errorInfo => {
               //验证失败
@@ -106,9 +106,9 @@ export default (props) => {
           onCollapse={(collapse) => console.log(collapse)}>
           <Row gutter={16}>
             <Col lg={6} md={12} sm={24}>
-              <Form.Item name="category_id" style={{display:'none'}}>
+              <Form.Item name="category_id" style={{ display: 'none' }}>
                 <Input id='category_id' name='category_id' value={mainForm.category_id} />
-                </Form.Item>
+              </Form.Item>
               <Form.Item
                 label="类别编码"
                 name="category_code"
@@ -129,7 +129,7 @@ export default (props) => {
                 />
               </Form.Item>
             </Col>
-           
+
           </Row>
         </ProCard>
 
@@ -162,15 +162,15 @@ export default (props) => {
             ]
           }
         >
-        <TableForm
+          <TableForm
             ref={tableRef}
-            primaryKey='row_number' 
+            primaryKey='row_number'
             value={tableData}
             onChange={(newTableData) => {
-            //onChange实时回调最新的TableData 
-            //手动获取方式 tableRef?.current?.getTableData()，可以节省onChange方法
-            setTableData(newTableData);
-            }} 
+              //onChange实时回调最新的TableData 
+              //手动获取方式 tableRef?.current?.getTableData()，可以节省onChange方法
+              setTableData(newTableData);
+            }}
             tableForm={tableForm} />
 
         </ProCard>
