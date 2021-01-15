@@ -6,6 +6,8 @@ import TableForm from './TableForm';
 import FormItem from 'antd/lib/form/FormItem';
 import HttpService from '../../../utils/HttpService';
 import { history } from 'umi';
+import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
+
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -18,10 +20,14 @@ export default (props) => {
   const [tableData, setTableData] = useState([]);
   const [query, setQuery] = useState('redux');
   const [displayType, setDisplayType] = useState('list');
+
   const [isSelect, setIsSelect] = useState(false);
   const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
 
+
+
   useEffect(() => {
+    console.log(props.match.params);
     if ("null" != props.match.params.category_id && "" != props.match.params.category_id) {
       HttpService.post('reportServer/itemCategory/getItemCategoryByID', JSON.stringify({ category_id: props.match.params.category_id }))
         .then(res => {
@@ -44,11 +50,14 @@ export default (props) => {
         });
     } else {
       mainForm.setFieldsValue({
+
         category_id: "",
         category_code: "",
         category_name: "",
-        category_pid: ""
+        category_pid: props.match.params.category_pid == "null" ? "-1" : props.match.params.category_pid
+
       });
+      console.log(mainForm);
     }
   }, []);
 
@@ -108,7 +117,12 @@ export default (props) => {
             <Col lg={6} md={12} sm={24}>
               <Form.Item name="category_id" style={{ display: 'none' }}>
                 <Input id='category_id' name='category_id' value={mainForm.category_id} />
+
               </Form.Item>
+              <Form.Item name="category_pid" style={{ display: 'none' }}>
+                <Input id='category_pid' name='category_pid' value={mainForm.category_pid} />
+              </Form.Item>
+
               <Form.Item
                 label="类别编码"
                 name="category_code"
@@ -141,7 +155,7 @@ export default (props) => {
           onCollapse={(collapse) => console.log(collapse)}
           extra={
             [
-              <Button type='primary' onClick={() => {
+              <Button onClick={() => {
                 //新增一行
                 tableRef.current.addItem({
                   category_id: mainForm.category_id,
@@ -149,16 +163,17 @@ export default (props) => {
                   segment: '',
                   segment_name: '',
                   dict_id: '',
+                  dict_name: '',
                   row_or_column: 'row',
                   editable: true,
                   isNew: true,
                 });
-              }}> 新建
+              }} icon={<PlusOutlined />}>
               </Button>,
-              <Button type='danger' style={{ margin: '12px' }} onClick={() => {
+              <Button style={{ margin: '12px' }} onClick={() => {
                 //删除选中项
                 tableRef.current.removeRows();
-              }}> 删除</Button>
+              }} icon={<MinusOutlined />}></Button>
             ]
           }
         >
@@ -172,8 +187,8 @@ export default (props) => {
               setTableData(newTableData);
             }}
             tableForm={tableForm} />
-
         </ProCard>
-      </Form>
-    </PageContainer>);
+      </Form >
+
+    </PageContainer >);
 };

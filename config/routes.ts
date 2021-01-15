@@ -306,7 +306,7 @@
       },
       {
         name: 'user.user-list',
-        path: '/mdm/itemCategory/itemCategory/:category_id',
+        path: '/mdm/itemCategory/itemCategory/:category_pid/:category_id',
         component: './mdm/itemCategory/itemCategory',
       },
     ],
