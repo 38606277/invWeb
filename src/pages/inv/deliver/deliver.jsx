@@ -7,7 +7,7 @@ import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
-import { SaveOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
+import { SaveOutlined, PlusOutlined, MinusOutlined, RightOutlined } from '@ant-design/icons';
 import 'moment/locale/zh-cn';
 
 const { Search } = Input;
@@ -31,6 +31,11 @@ const deliver = (props) => {
     const [action, setAction] = useState(props?.match?.params?.action || add);
     const [id, setId] = useState(props?.match?.params?.id || -1);
     const [disabled, setDisabled] = useState(false);
+
+
+    const [mainCollapsed, setMainCollapsed] = useState(false);
+    const [linesCollapsed, setLinesCollapsed] = useState(false);
+
 
     const save = (params) => {
         HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
@@ -151,7 +156,17 @@ const deliver = (props) => {
                         });
                 }}
             >
-                <ProCard title="基础信息" collapsible onCollapse={(collapse) => console.log(collapse)}>
+                <ProCard title="基础信息" collapsed={mainCollapsed} onCollapse={(collapse) => console.log(collapse)}
+                    extra={
+                        <RightOutlined
+                            rotate={!mainCollapsed ? 90 : undefined}
+                            onClick={() => {
+                                setMainCollapsed(!mainCollapsed);
+                            }}
+                        />
+                    }
+
+                >
                     <Form.Item style={{ display: 'none' }} label="仓库Id" name="inv_org_id" />
                     <Row>
                         <Col xs={24} sm={10}>
@@ -223,7 +238,7 @@ const deliver = (props) => {
 
             <ProCard
                 title="行信息"
-                collapsible
+                collapsed={linesCollapsed}
                 onCollapse={(collapse) => console.log(collapse)}
                 extra={[
                     <Button
@@ -252,6 +267,13 @@ const deliver = (props) => {
                             tableRef.current.removeRows();
                         }}
                     ></Button>,
+                    <RightOutlined
+                        style={{ marginLeft: '6px' }}
+                        rotate={!linesCollapsed ? 90 : undefined}
+                        onClick={() => {
+                            setLinesCollapsed(!linesCollapsed);
+                        }}
+                    />
                 ]}
             >
                 <TableForm ref={tableRef} disabled={disabled} primaryKey="line_id" tableForm={tableForm} />
