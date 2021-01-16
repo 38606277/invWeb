@@ -48,7 +48,7 @@ const transfer = (props) => {
     const save = (params) => {
         HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
             if (res.resultCode == '1000') {
-                history.push(`/transation/transferList`);
+                history.push(`/transation/transferOutList`);
                 message.success(res.message);
             } else {
                 message.error(res.message);
@@ -60,7 +60,7 @@ const transfer = (props) => {
         HttpService.post('reportServer/invStore/updateStoreById', JSON.stringify(params)).then(
             (res) => {
                 if (res.resultCode == '1000') {
-                    history.push(`/transation/transferList`);
+                    history.push(`/transation/transferOutList`);
                     message.success(res.message);
                 } else {
                     message.error(res.message);
@@ -366,7 +366,7 @@ const transfer = (props) => {
                                 name="ship_method"
 
                             >
-                                <Select onChange={(value) => {
+                                <Select disabled={disabled} onChange={(value) => {
                                 }}>
                                     <Option value="1">自主运输</Option>
                                     <Option value="2">第三方运输</Option>
@@ -381,7 +381,7 @@ const transfer = (props) => {
                                 label="物流厂商"
                                 name="ship_corp"
                             >
-                                <Select >
+                                <Select disabled={disabled}>
                                     <Option value="1">顺丰物流</Option>
                                     <Option value="2">京东物流</Option>
                                     <Option value="3">中通物流</Option>
@@ -390,11 +390,11 @@ const transfer = (props) => {
                                 </Select>
                             </Form.Item>
                         </Col>
-                        <Col xs={24} sm={10}>
+                        <Col xs={24} sm={10} >
                             <Form.Item label="物流单号"
                                 name="ship_number"
                             >
-                                <Input />
+                                <Input disabled={disabled} />
                             </Form.Item>
                         </Col>
                     </Row>

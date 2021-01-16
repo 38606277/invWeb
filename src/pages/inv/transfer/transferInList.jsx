@@ -31,13 +31,13 @@ const onUpdateClickListener = (ref, selectedRowKeys) => {
 //删除
 const updateStatusByIds = (ref, selectedRowKeys) => {
     if (selectedRowKeys.length < 1) {
-        message.error('请选择需要过账的内容');
+        message.error('请选择需要确认的内容');
         return;
     }
 
     HttpService.post(
         'reportServer/invStore/updateStoreStatusByIds',
-        JSON.stringify({ ids: selectedRowKeys.toString() }),
+        JSON.stringify({ ids: selectedRowKeys.toString(), bill_status: 2 }),
     ).then((res) => {
         if (res.resultCode == '1000') {
             //刷新
@@ -99,7 +99,8 @@ const fetchData = async (params, sort, filter) => {
         pageNum: params.current,
         perPage: params.pageSize,
         ...params,
-        bill_type: 'count'
+        bill_type: 'transfer',
+        sub_type: 'transferIn'
     };
     const result = await HttpService.post(
         'reportServer/invStore/getStoreListByPage',
@@ -113,7 +114,7 @@ const fetchData = async (params, sort, filter) => {
     });
 };
 
-const countList = () => {
+const transferInList = () => {
     const ref = useRef();
 
     //定义列
@@ -124,21 +125,40 @@ const countList = () => {
             valueType: 'text',
         },
         {
-            title: '盘查仓库',
+            title: '调出仓库',
             dataIndex: 'inv_org_name',
             key: 'inv_org_id',
             valueType: 'text',
         },
         {
-            title: '盘点人',
-            dataIndex: 'operator_name',
-            key: 'inv_org_id',
+            title: '调出日期',
+            dataIndex: 'bill_date',
+            key: 'bill_date',
             valueType: 'text',
         },
         {
-            title: '盘点时间',
-            dataIndex: 'bill_date',
-            key: 'bill_date',
+            title: '调出经办人',
+            dataIndex: 'operator_name',
+            key: 'operator',
+            valueType: 'text',
+        },
+
+        {
+            title: '调入仓库',
+            dataIndex: 'target_inv_org_name',
+            key: 'target_inv_org_id',
+            valueType: 'text',
+        },
+
+        {
+            title: '调入经办人',
+            dataIndex: 'target_operator_name',
+            key: 'target_operator',
+            valueType: 'text',
+        },
+        {
+            title: '备注',
+            dataIndex: 'remark',
             valueType: 'text',
         },
         {
@@ -146,8 +166,9 @@ const countList = () => {
             dataIndex: 'bill_status',
             valueType: 'select',
             valueEnum: {
-                0: { text: '未盘', status: 'Warning' },
-                1: { text: '已盘', status: 'Success' },
+                0: { text: '新建', status: 'Warning' },
+                1: { text: '运输中', status: 'Success' },
+                2: { text: '完成', status: 'Success' },
             },
         },
         {
@@ -162,12 +183,14 @@ const countList = () => {
             render: (text, record) => [
                 <a
                     onClick={() => {
-                        history.push(`/transation/count/edit/${record.bill_id}`);
+                        history.push(`/transation/transfer/readOnly/${record.bill_id}`);
                     }}
                 >
-                    盘查
+                    查看详情
         </a>,
-                <a key="link4" onClick={() => { }}>
+                <a key="link4" onClick={() => {
+                    onDeleteClickListener(ref, [record.bill_id])
+                }}>
                     删除
         </a>,
             ],
@@ -206,7 +229,7 @@ const countList = () => {
             tableAlertOptionRender={({ selectedRowKeys }) => (
                 <Space size={16}>
                     <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
-                    <a onClick={() => onUpdateClickListener(ref, selectedRowKeys)}> 批量过账</a>
+                    <a onClick={() => onUpdateClickListener(ref, selectedRowKeys)}> 批量确认</a>
                 </Space>
             )}
             pagination={{
@@ -216,9 +239,9 @@ const countList = () => {
                 defaultCollapsed: true,
             }}
             dateFormatter="string"
-            headerTitle="盘点管理"
+            headerTitle="调拨入库"
             toolBarRender={(action, { selectedRows }) => [
-                <Button type="primary" onClick={() => history.push('/transation/count/add/null')}>
+                <Button type="primary" onClick={() => history.push('/transation/transfer/add/null')}>
                     新建
         </Button>,
             ]}
@@ -226,4 +249,4 @@ const countList = () => {
         // </PageContainer>
     );
 };
-export default countList;
+export default transferInList;

@@ -254,8 +254,13 @@
       },
       {
         name: 'user.user-list',
-        path: '/transation/transferList',
-        component: './inv/transfer/transferList',
+        path: '/transation/transferOutList',
+        component: './inv/transfer/transferOutList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/transation/transferInList',
+        component: './inv/transfer/transferInList',
       },
       {
         name: 'user.user-list',
@@ -266,6 +271,11 @@
         name: 'user.user-list',
         path: '/transation/countList',
         component: './inv/count/countList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/transation/count/:action/:id',
+        component: './inv/count/count',
       },
       {
         name: 'user.user-list',

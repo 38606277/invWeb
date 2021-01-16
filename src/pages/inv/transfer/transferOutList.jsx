@@ -8,16 +8,16 @@ import HttpService from '@/utils/HttpService.jsx';
 
 const { confirm } = Modal;
 
-//过账按钮事件
+//确认按钮事件
 const onUpdateClickListener = (ref, selectedRowKeys) => {
     if (selectedRowKeys.length < 1) {
-        message.error('请选择需要过账的内容');
+        message.error('请选择需要确认的内容');
         return;
     }
 
     confirm({
         title: '温馨提示',
-        content: `您确定要过账吗？`,
+        content: `您确定要确认吗？`,
         okText: '确定',
         cancelText: '取消',
         okType: 'danger',
@@ -31,7 +31,7 @@ const onUpdateClickListener = (ref, selectedRowKeys) => {
 //删除
 const updateStatusByIds = (ref, selectedRowKeys) => {
     if (selectedRowKeys.length < 1) {
-        message.error('请选择需要过账的内容');
+        message.error('请选择需要确认的内容');
         return;
     }
 
@@ -99,7 +99,8 @@ const fetchData = async (params, sort, filter) => {
         pageNum: params.current,
         perPage: params.pageSize,
         ...params,
-        bill_type: 'transfer'
+        bill_type: 'transfer',
+        sub_type: 'transferOut'
     };
     const result = await HttpService.post(
         'reportServer/invStore/getStoreListByPage',
@@ -113,7 +114,7 @@ const fetchData = async (params, sort, filter) => {
     });
 };
 
-const deliverList = () => {
+const transferOutList = () => {
     const ref = useRef();
 
     //定义列
@@ -167,6 +168,7 @@ const deliverList = () => {
             valueEnum: {
                 0: { text: '新建', status: 'Warning' },
                 1: { text: '运输中', status: 'Success' },
+                2: { text: '完成', status: 'Success' },
             },
         },
         {
@@ -237,7 +239,7 @@ const deliverList = () => {
                 defaultCollapsed: true,
             }}
             dateFormatter="string"
-            headerTitle="调拨管理"
+            headerTitle="调拨出库"
             toolBarRender={(action, { selectedRows }) => [
                 <Button type="primary" onClick={() => history.push('/transation/transfer/add/null')}>
                     新建
@@ -247,4 +249,4 @@ const deliverList = () => {
         // </PageContainer>
     );
 };
-export default deliverList;
+export default transferOutList;

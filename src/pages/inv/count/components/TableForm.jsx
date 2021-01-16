@@ -3,6 +3,7 @@ import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'rea
 import InputEF from '@/components/EditForm/InputEF';
 import InputNumberEF from '@/components/EditForm/InputNumberEF';
 import InputSearchEF from '@/components/EditForm/InputSearchEF';
+import SelectEF from '@/components/EditForm/SelectEF';
 import styles from '@/components/EditForm/index.less';
 const TableForm = forwardRef((props, ref) => {
   const { disabled, primaryKey, tableForm, value, onChange } = props;
@@ -105,28 +106,6 @@ const TableForm = forwardRef((props, ref) => {
     }
   };
 
-  const calculationMoney = (filedValue, fieldName, record) => {
-    let key = record[primaryKey];
-    const newData = [...data];
-    const target = getRowByKey(key, newData);
-
-
-    //数量不能大于结存数量
-    if (target['balance'] < target['quantity']) {
-      message.error('输入数量不能大于结存剩余数量，请检查');
-
-      target['quantity'] = target['balance'];
-    }
-
-    if (target) {
-      target['amount'] = target['price'] * target['quantity'];
-      setData(newData);
-    }
-    if (onChange) {
-      onChange(newData);
-    }
-  };
-
   const columns = [
     {
       title: '物料id',
@@ -155,7 +134,6 @@ const TableForm = forwardRef((props, ref) => {
       render: (text, record, index) => {
         return (
           <InputSearchEF
-            disabled={disabled}
             tableForm={tableForm}
             text={text}
             record={record}
@@ -166,9 +144,10 @@ const TableForm = forwardRef((props, ref) => {
             onSearch={() => {
               handleFieldChange(1, 'item_id', record);
               handleFieldChange('件', 'uom', record);
-              handleFieldChange(5, 'balance', record);
+              handleFieldChange(5, 'quantity', record);
               handleFieldChange(29.8, 'price', record);
               handleFieldChange('衬衫', 'item_name', record);
+              handleFieldChange(5 * 29.8, 'amount', record);
             }}
           />
         );
@@ -207,25 +186,7 @@ const TableForm = forwardRef((props, ref) => {
             precision={2}
             disabled
             handleFieldChange={handleFieldChange}
-            onChange={calculationMoney}
-          />
-        );
-      },
-    },
-    {
-      title: '结存数量',
-      dataIndex: 'balance',
-      key: 'balance',
-      render: (text, record, index) => {
-        return (
-          <InputEF
-            tableForm={tableForm}
-            text={text}
-            record={record}
-            index={record[primaryKey]}
-            name="balance"
-            disabled
-            handleFieldChange={handleFieldChange}
+
           />
         );
       },
@@ -236,16 +197,13 @@ const TableForm = forwardRef((props, ref) => {
       key: 'quantity',
       render: (text, record, index) => {
         return (
-          <InputNumberEF
-            disabled={disabled}
+          <InputEF
             tableForm={tableForm}
             text={text}
             record={record}
             index={record[primaryKey]}
             name="quantity"
-            onChange={calculationMoney}
-            rules={[{ required: true, message: '请输入数量' }]}
-            precision={0}
+            disabled
             handleFieldChange={handleFieldChange}
           />
         );
@@ -257,15 +215,43 @@ const TableForm = forwardRef((props, ref) => {
       key: 'amount',
       render: (text, record, index) => {
         return (
-          <InputNumberEF
+          <InputEF
             tableForm={tableForm}
             text={text}
             record={record}
             index={record[primaryKey]}
             name="amount"
-            precision={2}
             disabled
             handleFieldChange={handleFieldChange}
+          />
+        );
+      },
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      width: '10%',
+      render: (text, record, index) => {
+        return (
+          <SelectEF
+            disabled={!disabled}
+            tableForm={tableForm}
+            text={text}
+            record={record}
+            index={record[primaryKey]}
+            name="status"
+            rules={[{ required: true, message: '盘查状态' }]}
+            precision={0}
+            handleFieldChange={handleFieldChange}
+            dictData={[
+              { id: 1, value: '未盘' },
+              { id: 2, value: '盘亏' },
+              { id: 3, value: '盘盈' }
+            ]}
+            keyName='id'
+            valueName='value'
+
           />
         );
       },
