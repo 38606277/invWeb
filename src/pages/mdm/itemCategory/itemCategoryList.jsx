@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Space, Modal, message, Row, TreeSelect, Tree, Col } from 'antd';
-import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
+import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined,PlusCircleOutlined,FormOutlined ,MinusCircleOutlined } from '@ant-design/icons';
 import ProTable from '@ant-design/pro-table';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import { history } from 'umi';
@@ -117,13 +117,13 @@ const itemCategoryList = () => {
             key: 'option',
             valueType: 'option',
             render: (text, record) => [
-                <Button type="primary" onClick={() => history.push('/mdm/itemCategory/itemCategory/'+`${record.category_id}`+'/null')}>
-                      添加
+                <Button shape="circle" onClick={() => history.push('/mdm/itemCategory/itemCategory/'+`${record.category_id}`+'/null')}
+                 icon={<PlusCircleOutlined />}>
                 </Button>,
-                <Button type="primary" onClick={() => history.push('/mdm/itemCategory/itemCategory/'+`${record.category_id}`+'/'+`${record.category_id}`)}>
-                      编辑
+                <Button shape="circle" onClick={() => history.push('/mdm/itemCategory/itemCategory/'+`${record.category_id}`+'/'+`${record.category_id}`)}
+                 icon={<FormOutlined />}>
                     </Button>,
-                <Button onClick={() => onDeleteClickListener([record.category_id])} >删除</Button>,
+                <Button shape="circle" danger onClick={() => onDeleteClickListener([record.category_id])} icon={<MinusCircleOutlined />}></Button>,
             ]
         },
     ];

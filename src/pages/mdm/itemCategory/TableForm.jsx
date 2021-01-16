@@ -15,11 +15,12 @@ const TableForm = forwardRef((props, ref) => {
     const [selectedRows, setSelectedRows] = useState([]);
     const [deleteRecord, setDeleteRecord] = useState([]);//删除记录
     const [departmentDic, setDepartmentDic] = useState([]);
+    const [rowcolumn, setRowcolumn] = useState([]);
     const [selectDictDailogVisible, setSelectDictDailogVisible] = useState(false);
     const [rowId, setRowId] = useState([]);
 
     useEffect(() => {
-        setTimeout(3000);
+       
         setDepartmentDic([
             {
                 dict_id: 'segment1',
@@ -59,7 +60,11 @@ const TableForm = forwardRef((props, ref) => {
                 dict_name: "attribute2",
             }
             
-        ])
+        ]);
+        setRowcolumn([
+            {"rowcolId":"row","rowcolname":"行"},
+            {"rowcolId":"column","rowcolname":"列"},
+        ]);
 
     }, []);
 
@@ -192,7 +197,7 @@ const TableForm = forwardRef((props, ref) => {
 
         },
         {
-            title: '类别名称',
+            title: '属性名称',
             dataIndex: 'segment_name',
             key: 'segment_name',
             render: (text, record, index) => {
@@ -203,9 +208,9 @@ const TableForm = forwardRef((props, ref) => {
                         record={record}
                         index={record.row_number}
                         name="segment_name"
-                        rules={[{ required: true, message: 'Please input your workId!' }]}
+                        rules={[{ required: true, message: '请输入属性名称!' }]}
                         handleFieldChange={handleFieldChange}
-                        placeholder={"请输入工号"}
+                        placeholder={"请输入属性名称"}
                     />
                 );
             },
@@ -222,18 +227,18 @@ const TableForm = forwardRef((props, ref) => {
                   record={record}
                   index={record.row_number}
                   name="segment"
-                  rules={[{ required: true, message: 'Please input your workId!' }]}
+                  rules={[{ required: true, message: '请选择数据SEGMENT!' }]}
                   handleFieldChange={handleFieldChange}
                   dictData={departmentDic}
                   keyName={'dict_id'}
                   valueName={'dict_name'}
-                  placeholder={"请输入工号"}
+                  placeholder={"请选择数据SEGMENT"}
                 />
               );
 
             },
         },{
-            title: '字典项',
+            title: '字典',
             dataIndex: 'dict_id',
             key: 'dict_id',
             className:styles.columnshow,
@@ -245,7 +250,7 @@ const TableForm = forwardRef((props, ref) => {
                     record={record}
                     index={record[primaryKey]}
                     name="dict_id"
-                    rules={[{ required: false, message: '请输入物料名称' }]}
+                    rules={[{ required: false, message: '请选择数据字典' }]}
                     handleFieldChange={handleFieldChange}
                     onClick={() => {
                         setRowId(record)
@@ -271,7 +276,7 @@ const TableForm = forwardRef((props, ref) => {
                     record={record}
                     index={record[primaryKey]}
                     name="dict_name"
-                    rules={[{ required: false, message: '请输入物料名称' }]}
+                    rules={[{ required: true, message: '请选择字典' }]}
                     handleFieldChange={handleFieldChange}
                     onClick={() => {
                         setRowId(record)
@@ -291,16 +296,19 @@ const TableForm = forwardRef((props, ref) => {
             key: 'row_or_column',
             render: (text, record, index) => {
                 return (
-                    <InputEF
-                        tableForm={tableForm}
-                        text={text}
-                        record={record}
-                        index={record.row_number}
-                        name="row_or_column"
-                        rules={[{ required: true, message: '请输入行或列!' }]}
-                        handleFieldChange={handleFieldChange}
-                        placeholder={"请输入行或列"}
-                    />
+                    <SelectEF
+                    tableForm={tableForm}
+                    text={text}
+                    record={record}
+                    index={record.row_number}
+                    name="row_or_column"
+                    rules={[{ required: true, message: '请选择行或列!' }]}
+                    handleFieldChange={handleFieldChange}
+                    dictData={rowcolumn}
+                    keyName={'rowcolId'}
+                    valueName={'rowcolname'}
+                    placeholder={"请选择行或列"}
+                  />
                 );
             },
         },
