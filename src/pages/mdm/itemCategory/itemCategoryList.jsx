@@ -135,6 +135,7 @@ const itemCategoryList = () => {
                         defaultExpandAll
                         style={{ width: "100%", minHeight: "450px", padding: "24px" }}
                         showLine
+                        expandedKeys={["-1"]}
                         treeData={treeData}
                         titleRender={(item) => {
                             return (<div style={{ width: "100%" }} key={item.category_id}>
