@@ -10,21 +10,22 @@ import HttpService from '@/utils/HttpService.jsx';
 
 const { confirm } = Modal;
 
-
-
-
 const itemList = () => {
 
     const ref = useRef();
     const [visible, setVisible] = useState(false);
     const [initData, setInitData] = useState({});
     const [treeData, setTreeData] = useState([]);
+    const [columnData, setColumnData] = useState([]);
     const [catId, setCatId] = useState('-1');// 用于编辑赋初始值
 
     const getAllChildrenRecursionById = (catId) => {
         HttpService.post('reportServer/itemCategory/getAllList',JSON.stringify({"category_pid":catId}))
             .then(res => {
                 if (res.resultCode === "1000") {
+                    if(null!=res.data){
+                        onTreeSelect(res.data[0].children[0]);
+                    }
                     setTreeData(res.data)
                 } else {
                     message.error(res.message);
@@ -91,42 +92,48 @@ const itemList = () => {
             total: result.data.total,
             success: result.resultCode == "1000"
         });
-        // 刷新
-        ref.current.reload();
     }
     const onTreeSelect = (item) => {
+        console.log(item);
+        const outlist = [];
         if (catId !== item.item) {
             setCatId(item.category_id);
+            let params = {
+                "category_id":item.category_id
+            }
+            HttpService.post('reportServer/itemCategory/getAllPageById', JSON.stringify(params))
+            .then(res => {
+                if (res.resultCode == "1000") {
+                    const resultlist=res.data;
+                    resultlist.map((item, index) => {
+                        let json = {
+                            key: item.segment.toUpperCase(), title: item.segment_name, dataIndex: item.segment.toUpperCase(),
+                            valueType:'text'
+                        };
+                        outlist.push(json);
+                    });
+                   let option= {
+                        title: '操作',
+                        width: 180,
+                        key: 'option',
+                        valueType: 'option',
+                        render: (text, record) => [
+                            
+                            <Button shape="circle" onClick={() => history.push('/mdm/item/item/'+`${record.category_id}`+'/'+`${record.item_id}`)}
+                            icon={<FormOutlined />}>
+                                </Button>,
+                            <Button shape="circle" danger  onClick={() => onDeleteClickListener([record.item_id])} icon={<MinusCircleOutlined />}></Button>,
+                        ]
+                    }
+                    outlist.push(option);
+                    setColumnData(outlist);
+                    
+                } else {
+                    message.error(res.message);
+                }
+            })
         }
     }
-    //定义列
-    const columns = [
-        {
-            title: '编码',
-            dataIndex: 'category_code',
-            valueType: 'text',
-        },
-        {
-            title: '名称',
-            dataIndex: 'category_name',
-            valueType: 'text',
-        },
-        {
-            title: '操作',
-            width: 180,
-            key: 'option',
-            valueType: 'option',
-            render: (text, record) => [
-                <Button shape="circle" onClick={() => history.push('/mdm/itemCategory/itemCategory/'+`${record.category_id}`+'/null')}
-                icon={<PlusCircleOutlined />}>
-                </Button>,
-                <Button shape="circle" onClick={() => history.push('/mdm/itemCategory/itemCategory/'+`${record.category_id}`+'/'+`${record.category_id}`)}
-                icon={<FormOutlined />}>
-                    </Button>,
-                <Button shape="circle" danger  onClick={() => onDeleteClickListener([record.category_id])} icon={<MinusCircleOutlined />}></Button>,
-            ]
-        },
-    ];
 
     return (
         <Row style={{ marginTop: '16px' }}>
@@ -135,6 +142,7 @@ const itemList = () => {
                         defaultExpandAll
                         style={{ width: "100%", minHeight: "450px", padding: "24px" }}
                         showLine
+                        expandedKeys={["-1"]}
                         treeData={treeData}
                         titleRender={(item) => {
                             return (<div style={{ width: "100%" }} key={item.category_id}>
@@ -150,7 +158,7 @@ const itemList = () => {
                 <Col xs={24} sm={17}>
                     <ProTable
                         actionRef={ref}
-                        columns={columns}
+                        columns={columnData}
                         request={fetchData}
                         rowKey="id"
                         params={{ category_pid: catId }}
@@ -188,7 +196,7 @@ const itemList = () => {
                         dateFormatter="string"
                         headerTitle="物料类别列表"
                         toolBarRender={(action, { selectedRows }) => [
-                            <Button type="primary" onClick={() => history.push('/mdm/itemCategory/itemCategory/null/null')}>
+                            <Button type="primary" onClick={() => history.push('/mdm/item/item/'+catId+'/null')}>
                             新建
                             </Button>
                         ]}

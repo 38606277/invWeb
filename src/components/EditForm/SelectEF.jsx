@@ -28,7 +28,7 @@ const SelectEF = (props) => {
                 onChange={(value) => {
                     handleFieldChange(value, name, record)
                 }}>
-                {dictData.map(item => <Option key={`${formName}_${item[keyName]}`} value={item[keyName]}>{item[valueName]}</Option>)}
+                {dictData==null?[]:dictData.map(item => <Option key={`${formName}_${item[keyName]}`} value={item[keyName]}>{item[valueName]}</Option>)}
             </Select>
         </Form.Item>)
 }
