@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Space, Modal, message, Row, TreeSelect, Tree, Col } from 'antd';
-import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined,PlusCircleOutlined,FormOutlined ,MinusCircleOutlined } from '@ant-design/icons';
+import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined,PlusCircleOutlined,FormOutlined ,MinusCircleOutlined,CloseCircleOutlined } from '@ant-design/icons';
 import ProTable from '@ant-design/pro-table';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import { history } from 'umi';
@@ -123,10 +123,10 @@ const itemList = () => {
                         valueType: 'option',
                         render: (text, record) => [
                             
-                            <Button shape="circle" onClick={() => history.push('/mdm/item/item/'+`${record.category_id}`+'/'+`${record.item_id}`)}
-                            icon={<FormOutlined />}>
-                                </Button>,
-                            <Button shape="circle" danger  onClick={() => onDeleteClickListener([record.item_id])} icon={<MinusCircleOutlined />}></Button>,
+                            // <Button shape="circle" onClick={() => history.push('/mdm/item/item/'+`${record.category_id}`+'/'+`${record.item_id}`)}
+                            // icon={<FormOutlined />}>
+                            //     </Button>,
+                            <Button shape="circle" danger type="text" onClick={() => onDeleteClickListener([record.item_id])} icon={<CloseCircleOutlined />}></Button>,
                         ]
                     }
                     outlist.push(option);
