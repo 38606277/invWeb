@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
-import ProCard from '@ant-design/pro-card';
+import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import TableForm from './components/TableForm';
 import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
 import HttpService from '@/utils/HttpService.jsx';
@@ -34,8 +34,6 @@ export default (props) => {
   const [id, setId] = useState(props?.match?.params?.id || -1);
   const [disabled, setDisabled] = useState(false);
 
-  const [mainCollapsed, setMainCollapsed] = useState(false);
-  const [linesCollapsed, setLinesCollapsed] = useState(false);
 
   const save = (params) => {
     HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
@@ -156,16 +154,8 @@ export default (props) => {
             });
         }}
       >
-        <ProCard
-          collapsed={mainCollapsed}
-          title="基础信息" onCollapse={(collapse) => console.log(collapse)}
-          extra={
-            <RightOutlined
-              rotate={!mainCollapsed ? 90 : undefined}
-              onClick={() => {
-                setMainCollapsed(!mainCollapsed);
-              }}
-            />}
+        <ProCardCollapse
+          title="基础信息"
         >
           <Form.Item style={{ display: 'none' }} label="仓库Id" name="inv_org_id" />
           <Row>
@@ -233,13 +223,11 @@ export default (props) => {
               </Form.Item>
             </Col>
           </Row>
-        </ProCard>
+        </ProCardCollapse>
       </Form>
 
-      <ProCard
+      <ProCardCollapse
         title="行信息"
-        collapsed={linesCollapsed}
-        onCollapse={(collapse) => console.log(collapse)}
         extra={[
           <Button
             disabled={disabled}
@@ -266,18 +254,11 @@ export default (props) => {
               //删除选中项
               tableRef.current.removeRows();
             }}
-          ></Button>,
-          <RightOutlined
-            style={{ marginLeft: '6px' }}
-            rotate={!linesCollapsed ? 90 : undefined}
-            onClick={() => {
-              setLinesCollapsed(!linesCollapsed);
-            }}
-          />
+          ></Button>
         ]}
       >
         <TableForm ref={tableRef} disabled={disabled} primaryKey="line_id" tableForm={tableForm} />
-      </ProCard>
+      </ProCardCollapse>
       <SelectOrgDialog
         modalVisible={selectOrgDialogVisible}
         handleOk={(selectOrg) => {

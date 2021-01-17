@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
-import ProCard from '@ant-design/pro-card';
+import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import TableForm from './components/TableForm';
 import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
 import HttpService from '@/utils/HttpService.jsx';
@@ -151,7 +151,7 @@ const onHand = (props) => {
                         });
                 }}
             >
-                <ProCard title="基础信息" collapsible onCollapse={(collapse) => console.log(collapse)}>
+                <ProCardCollapse title="基础信息">
                     <Form.Item style={{ display: 'none' }} label="仓库Id" name="inv_org_id" />
                     <Row>
                         <Col xs={24} sm={10}>
@@ -218,13 +218,11 @@ const onHand = (props) => {
                             </Form.Item>
                         </Col>
                     </Row>
-                </ProCard>
+                </ProCardCollapse>
             </Form>
 
-            <ProCard
+            <ProCardCollapse
                 title="行信息"
-                collapsible
-                onCollapse={(collapse) => console.log(collapse)}
                 extra={[
                     <Button
                         disabled={disabled}
@@ -255,7 +253,7 @@ const onHand = (props) => {
                 ]}
             >
                 <TableForm ref={tableRef} disabled={disabled} primaryKey="line_id" tableForm={tableForm} />
-            </ProCard>
+            </ProCardCollapse>
             <SelectOrgDialog
                 modalVisible={selectOrgDialogVisible}
                 handleOk={(selectOrg) => {
