@@ -112,12 +112,11 @@ const transfer = (props) => {
                         disabled={disabled}
                         key="reset"
                         onClick={() => {
-                            mainForm?.resetFields();
-                            tableForm?.resetFields();
+                            history.goBack();
                         }}
                     >
-                        重置
-          </Button>,
+                        返回
+          </Button>
                 ],
             }}
         >

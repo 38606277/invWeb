@@ -100,11 +100,10 @@ export default (props) => {
             disabled={disabled}
             key="reset"
             onClick={() => {
-              mainForm?.resetFields();
-              tableForm?.resetFields();
+              history.goBack();
             }}
           >
-            重置
+            返回
           </Button>,
         ],
       }}
