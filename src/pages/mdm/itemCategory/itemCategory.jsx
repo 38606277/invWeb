@@ -73,7 +73,6 @@ export default (props) => {
         {
           extra: [
             <Button key="submit" type='primary' onClick={() => {
-              console.log('mainForm', mainForm)
               mainForm?.submit()
             }}>提交</Button>,
             <Button key="back" onClick={() => history.push('/mdm/itemCategory/itemCategoryList')}>返回</Button>,

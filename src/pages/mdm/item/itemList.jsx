@@ -67,12 +67,12 @@ const itemList = () => {
             message.error('请选择需要删除的内容');
             return;
         }
-        HttpService.post('reportServer/itemCategory/deleteItemCategoryById', JSON.stringify({ category_id: selectedRowKeys.toString() }))
+        HttpService.post('reportServer/item/deleteItemById', JSON.stringify({ item_id: selectedRowKeys.toString() }))
             .then(res => {
                 if (res.resultCode == "1000") {
                     //刷新
                     // 清空选中项
-                    fetchData({current:0,pageSize:10,"category_pid":catId},"","");
+                    fetchData({current:0,pageSize:10,"item_category_pid":catId},"","");
                 } else {
                     message.error(res.message);
                 }
