@@ -191,7 +191,7 @@ const itemList = () => {
                             defaultCollapsed: true
                         }}
                         dateFormatter="string"
-                        headerTitle="物料类别列表"
+                        headerTitle="物料管理列表"
                         toolBarRender={(action, { selectedRows }) => [
                             <Button type="primary" onClick={() => history.push('/mdm/item/item/'+catId+'/null')}>
                             新建
