@@ -79,22 +79,25 @@ const dictList = () => {
             title: '编码',
             dataIndex: 'dict_code',
             valueType: 'text',
+            align:"center"
         },
         {
             title: '名称',
             dataIndex: 'dict_name',
             valueType: 'text',
+            align:"center"
         },
         {
             title: '操作',
             width: 180,
             key: 'option',
             valueType: 'option',
+            align:"center",
             render: (text, record) => [
-                <Button type="primary" onClick={() => history.push('/mdm/dict/dict/'+`${record.dict_id}`)}>
+                <Button type="text" onClick={() => history.push('/mdm/dict/dict/'+`${record.dict_id}`)}>
                       编辑
                     </Button>,
-                <Button onClick={() => onDeleteClickListener([record.dict_id])} >删除</Button>,
+                <Button type="text" danger onClick={() => onDeleteClickListener([record.dict_id])} >删除</Button>,
             ]
         },
     ];

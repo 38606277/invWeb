@@ -105,25 +105,28 @@ const itemCategoryList = () => {
             title: '编码',
             dataIndex: 'category_code',
             valueType: 'text',
+            align:"center"
         },
         {
             title: '名称',
             dataIndex: 'category_name',
             valueType: 'text',
+            align:"center"
         },
         {
             title: '操作',
             width: 180,
             key: 'option',
             valueType: 'option',
+            align:"center",
             render: (text, record) => [
-                <Button shape="circle" onClick={() => history.push('/mdm/itemCategory/itemCategory/'+`${record.category_id}`+'/null')}
+                <Button shape="circle" type="text" onClick={() => history.push('/mdm/itemCategory/itemCategory/'+`${record.category_id}`+'/null')}
                  icon={<PlusCircleOutlined />}>
                 </Button>,
-                <Button shape="circle" onClick={() => history.push('/mdm/itemCategory/itemCategory/'+`${record.category_id}`+'/'+`${record.category_id}`)}
+                <Button shape="circle" type="text" onClick={() => history.push('/mdm/itemCategory/itemCategory/'+`${record.category_id}`+'/'+`${record.category_id}`)}
                  icon={<FormOutlined />}>
                     </Button>,
-                <Button shape="circle" danger onClick={() => onDeleteClickListener([record.category_id])} icon={<MinusCircleOutlined />}></Button>,
+                <Button shape="circle" danger type="text" onClick={() => onDeleteClickListener([record.category_id])} icon={<MinusCircleOutlined />}></Button>,
             ]
         },
     ];
@@ -135,6 +138,7 @@ const itemCategoryList = () => {
                         defaultExpandAll
                         style={{ width: "100%", minHeight: "450px", padding: "24px" }}
                         showLine
+                        
                         treeData={treeData}
                         titleRender={(item) => {
                             return (<div style={{ width: "100%" }} key={item.category_id}>
