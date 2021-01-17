@@ -18,11 +18,9 @@ export default (props) => {
   const [mainForm] = Form.useForm();
   const tableRef = useRef();
   const [tableData, setTableData] = useState([]);
-  const [query, setQuery] = useState('redux');
-  const [displayType, setDisplayType] = useState('list');
   const [catId, setCatId] = useState();
+  const [catName, setCatName] = useState();
   const [columnData, setColumnData] = useState([]);
-  const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
 
   useEffect(() => {
     const outlist = [];
@@ -31,7 +29,7 @@ export default (props) => {
         let params = {
             "category_id":props.match.params.category_id
         }
-        HttpService.post('reportServer/itemCategory/getAllPageByIdForLine', JSON.stringify(params))
+        HttpService.post('reportServer/itemCategory/getAllPageById', JSON.stringify(params))
         .then(res => {
             if (res.resultCode == "1000") {
                 const resultlist=res.data;
@@ -40,13 +38,14 @@ export default (props) => {
                 message.error(res.message);
             }
         })
-        HttpService.post('reportServer/itemCategory/getItemCategoryByID', 
-        JSON.stringify({ category_id: props.match.params.category_id }))
+        HttpService.post('reportServer/item/getAllPageByCategoryId', 
+        JSON.stringify({ item_category_id: props.match.params.category_id }))
         .then(res => {
           if (res.resultCode == "1000") {
             
             let mainFormV = res.data.mainForm;
             let lineFormV = res.data.lineForm;
+            setCatName(mainFormV.category_name);
             mainForm.setFieldsValue({
               category_id: mainFormV.category_id,
               category_code: mainFormV.category_code,
@@ -60,24 +59,10 @@ export default (props) => {
             message.error(res.message);
           }
         });
-    } else {
-      mainForm.setFieldsValue({
-
-        category_id: "",
-        category_code: "",
-        category_name: "",
-        category_pid: props.match.params.category_pid == "null" ? "-1" : props.match.params.category_pid
-
-      });
     }
   }, []);
 
-  const selectChage = (e) => {
-    setDisplayType(e);
-    if (mainForm.getFieldValue('category_id') == "" || mainForm.getFieldValue('category_id') == "null") {
-      tableRef?.current?.initData([]);
-    }
-  }
+
   return (
     <PageContainer
       header={
@@ -100,22 +85,21 @@ export default (props) => {
             .then(() => {
               //验证成功
               let postData = {
-                ...values,
                 lineForm: tableData,
                 lineDelete: tableRef?.current?.getDeleteData()
               }
-              HttpService.post('reportServer/itemCategory/saveItemCategory', JSON.stringify(postData))
+              console.log(postData)
+              HttpService.post('reportServer/item/saveItem', JSON.stringify(postData))
                 .then(res => {
                   if (res.resultCode == "1000") {
                     //刷新
                     message.success('提交成功');
-                    history.push("/mdm/itemCategory/itemCategoryList");
+                    history.push("/mdm/item/itemList");
                   } else {
                     message.error(res.message);
                   }
                 });
-            })
-            .catch(errorInfo => {
+            }).catch(errorInfo => {
               //验证失败
               message.error('提交失败');
             });
@@ -126,17 +110,11 @@ export default (props) => {
           onCollapse={(collapse) => console.log(collapse)}>
           <Row gutter={16}>
             <Col lg={6} md={12} sm={24}>
-              <Form.Item name="category_id" style={{ display: 'none' }}>
-                <Input id='category_id' name='category_id' value={mainForm.category_id} />
-
-              </Form.Item>
-              <Form.Item name="category_pid" style={{ display: 'none' }}>
-                <Input id='category_pid' name='category_pid' value={mainForm.category_pid} />
-              </Form.Item>
               <Form.Item
                 label="类别编码"
                 name="category_code"
-              ><Input id='category_code' name='category_code' value={mainForm.category_code}   readOnly={true}/>
+              >
+                  <Input id='category_code' name='category_code' value={mainForm.category_code} style={{border:'0px'}}  readOnly={true}/>
               </Form.Item>
             </Col>
             <Col xl={{ span: 6, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
@@ -146,7 +124,7 @@ export default (props) => {
               >
                 <Input
                 value={mainForm.category_name}
-                  style={{ width: '100%' }}
+                  style={{ width: '100%',border:'0px'}}
                   readOnly={true}
                 />
               </Form.Item>
@@ -165,17 +143,19 @@ export default (props) => {
             [
               <Button onClick={() => {
                 //新增一行
-                tableRef.current.addItem({
-                  category_id: mainForm.category_id,
-                  row_number: `NEW_${(Math.random() * 1000000).toFixed(0)}`,
-                  segment: '',
-                  segment_name: '',
-                  dict_id: '',
-                  dict_name: '',
-                  row_or_column: 'row',
-                  editable: true,
-                  isNew: true,
+                const newObj={
+                    item_id: `NEW_${(Math.random() * 1000000).toFixed(0)}`,
+                    item_category_id:catId,
+                    item_description:catName,
+                    editable: true,
+                    isNew: true,
+                  };
+               // console.log(columnData);
+                columnData.map((itemss,index)=>{
+                    const keyV=itemss.segment.toLowerCase();
+                    newObj[keyV]="";
                 });
+                tableRef.current.addItem(newObj);
               }} icon={<PlusOutlined />}>
               </Button>,
               <Button style={{ margin: '12px' }} onClick={() => {
@@ -187,7 +167,7 @@ export default (props) => {
         >
           <TableForm
             ref={tableRef}
-            primaryKey='row_number'
+            primaryKey='item_id'
             value={tableData}
             columnData={columnData}
             onChange={(newTableData) => {

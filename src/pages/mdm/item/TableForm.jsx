@@ -22,16 +22,19 @@ const TableForm = forwardRef((props, ref) => {
     const outlists=[];
     columnData==null?"":columnData.map((item, index) => {
         let json = {
-            key: item.segment.toUpperCase(), title: item.segment_name, dataIndex: item.segment.toUpperCase(),
-            valueType:'text'
-            ,render: (text, record, index) => {
+            key: item.segment.toLowerCase(), 
+            title: item.segment_name, 
+            dataIndex: item.segment.toLowerCase(),
+            valueType:'text',
+            align:"center",
+            render: (text, record, index) => {
                 return (
                     <SelectEF
                         tableForm={tableForm}
                         text={text}
                         record={record}
                         index={record[primaryKey]}
-                        name={item.segment.toUpperCase()}
+                        name={item.segment.toLowerCase()}
                         rules={[{ required: true, message: "请选择"+item.segment_name }]}
                         handleFieldChange={handleFieldChange}
                         dictData={item.dictList}

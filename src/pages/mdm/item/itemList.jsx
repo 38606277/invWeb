@@ -86,7 +86,7 @@ const itemList = () => {
             perPage: params.pageSize,
             ...params
         }
-        const result = await HttpService.post('reportServer/itemCategory/getAllPage', JSON.stringify(requestParam));
+        const result = await HttpService.post('reportServer/item/getAllPage', JSON.stringify(requestParam));
         return Promise.resolve({
             data: result.data.list,
             total: result.data.total,
@@ -107,8 +107,11 @@ const itemList = () => {
                     const resultlist=res.data;
                     resultlist.map((item, index) => {
                         let json = {
-                            key: item.segment.toUpperCase(), title: item.segment_name, dataIndex: item.segment.toUpperCase(),
-                            valueType:'text'
+                            key: item.segment.toLowerCase(), 
+                            title: item.segment_name, 
+                            dataIndex: item.segment.toLowerCase(),
+                            valueType:'text',
+                            align:"center"
                         };
                         outlist.push(json);
                     });
@@ -116,6 +119,7 @@ const itemList = () => {
                         title: '操作',
                         width: 180,
                         key: 'option',
+                        align:"center",
                         valueType: 'option',
                         render: (text, record) => [
                             
@@ -142,7 +146,7 @@ const itemList = () => {
                         defaultExpandAll
                         style={{ width: "100%", minHeight: "450px", padding: "24px" }}
                         showLine
-                        expandedKeys={["-1"]}
+                       
                         treeData={treeData}
                         titleRender={(item) => {
                             return (<div style={{ width: "100%" }} key={item.category_id}>
@@ -161,7 +165,8 @@ const itemList = () => {
                         columns={columnData}
                         request={fetchData}
                         rowKey="id"
-                        params={{ category_pid: catId }}
+                        align="center"
+                        params={{ item_category_id: catId }}
                         rowSelection={{
                             // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
                             // 注释该行则默认不显示下拉选项
@@ -169,16 +174,8 @@ const itemList = () => {
                         }}
                         tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
                             <Space size={24}>
-                                <span>
-                                    已选 {selectedRowKeys.length} 项
-                            <a
-                                        style={{
-                                            marginLeft: 8,
-                                        }}
-                                        onClick={onCleanSelected}
-                                    >
-                                        取消选择
-                            </a>
+                                <span>  已选 {selectedRowKeys.length} 项
+                                    <a style={{ marginLeft: 8 }} onClick={onCleanSelected}>取消选择</a>
                                 </span>
                             </Space>
                         )}
