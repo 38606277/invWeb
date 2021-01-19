@@ -87,11 +87,7 @@ export default (props) => {
                 setCatName(mainFormV.category_name);
                 mainForm.setFieldsValue(mainFormV);
                 mainForm.setFieldsValue({
-                  // item_category_id: mainFormV.category_id,
-                  // category_code: mainFormV.category_code,
-                  item_category_name: mainFormV.category_name,
-                  // item_id: mainFormV.item_id,
-                  // segment1:mainFormV.segment1,
+                  item_category_name: mainFormV.category_name
                 });
               
               } else {
@@ -113,26 +109,21 @@ export default (props) => {
     .then(res => {
         if (res.resultCode == "1000") {
             const resultlist=res.data.list;
-            
-            console.log(resultlist);
             //条件列两两一组进行组合，作为一行显示
             const inlist=[];
             var k = Math.ceil(resultlist.length / 2);
             var j = 0;
             for (var i = 1; i <= k; i++) {
-                var arr = new Array();
-                for (j; j < i * 2; j++) {
-                    if (undefined != resultlist[j]) {
-                        
-                            arr.push(resultlist[j]);
-                       
-                    }
+              var arr = new Array();
+              for (j; j < i * 2; j++) {
+                if (undefined != resultlist[j]) {
+                  arr.push(resultlist[j]);
                 }
-                if (arr.length > 0) {
-                    inlist.push(arr);
-                }
+              }
+              if (arr.length > 0) {
+                  inlist.push(arr);
+              }
             }
-            console.log(inlist);
             setColumnData(inlist);
         } else {
             message.error(res.message);
@@ -222,7 +213,7 @@ export default (props) => {
           collapsible
           onCollapse={(collapse) => console.log(collapse)}>
           <Row gutter={24}>
-          <Col xl={{ span: 6, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
               <Form.Item name="item_id" style={{display:'none'}}>
                 <Input id='item_id' name='item_id' value={mainForm.item_id} />
               </Form.Item>
@@ -237,10 +228,11 @@ export default (props) => {
 
               </Form.Item>
             </Col>
-            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
               <Form.Item
                 label="类别名称"
                 name="item_category_name"
+                rules={[{ required: true, message: '请选择类别名称' }]}
               >
                 <Search
                     placeholder="请选择分类"
@@ -257,12 +249,11 @@ export default (props) => {
                 />
               </Form.Item>
             </Col>
-
+            
           </Row>
           <Row gutter={24} >
-          <Col xl={{ span: 14, offset: 2 }} lg={{ span: 8 }} md={{ span: 24 }} sm={24}>
+            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
               <Form.Item
-               {...formItemLayout1} 
                 label="商品描述"
                 name="item_description"
               >
@@ -270,6 +261,15 @@ export default (props) => {
                 id='item_description' name='item_description'
                   style={{ width: '100%'}}
                 />
+              </Form.Item>
+            </Col>
+            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+              <Form.Item
+                label="单位"
+                name="uom"
+                rules={[{ required: true, message: '请输入单位' }]}
+              >
+                  <Input id='uom' name='uom' />
               </Form.Item>
             </Col>
           </Row>
