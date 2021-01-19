@@ -311,7 +311,7 @@
       },
       {
         name: 'user.user-list',
-        path: '/mdm/item/itemList',
+        path: '/mdm/item/itemList/:category_id',
         component: './mdm/item/itemList',
       },
       {
