@@ -14,6 +14,14 @@ import StandardFormRow from '@/components/StandardFormRow';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Search } = Input;
+const formItemLayout2 = {
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
+};
+const formItemLayout1 = {
+  labelCol: { span: 4 },
+  wrapperCol: { span: 20 },
+};
 
 export default (props) => {
 
@@ -132,11 +140,8 @@ export default (props) => {
     })
   }
   const handleFieldChange = ( vale, record) => {
-      console.log(record);
-      console.log(vale);
       const valName='item_description';
       let vas= mainForm.getFieldValue('item_description');
-      console.log(vas);
       if(undefined==vas){
         vas="";
       }
@@ -145,10 +150,8 @@ export default (props) => {
           vas=vas==""?item.value_name:vas+"-"+item.value_name;
         }
       })
-      console.log(vas);
       mainForm.setFieldsValue({[valName]:vas});
       mainForm.setFieldsValue({[record.segment]:vale});
-      console.log(mainForm.getFieldValue());
   }
   const inColumn =columnData.map((item, index) => {
     const rc =item.map((record, index) => { 
@@ -188,6 +191,7 @@ export default (props) => {
       }
     >
       <Form
+      {...formItemLayout2}
         form={mainForm}
         onFinish={async (values) => {
           //验证tableForm
@@ -239,7 +243,7 @@ export default (props) => {
                 name="item_category_name"
               >
                 <Search
-                    placeholder="请选择盘点人"
+                    placeholder="请选择分类"
                     allowClear
                     readOnly={true}
                     enterButton
@@ -255,9 +259,10 @@ export default (props) => {
             </Col>
 
           </Row>
-          <Row gutter={24}>
+          <Row gutter={24} >
           <Col xl={{ span: 14, offset: 2 }} lg={{ span: 8 }} md={{ span: 24 }} sm={24}>
               <Form.Item
+               {...formItemLayout1} 
                 label="商品描述"
                 name="item_description"
               >
