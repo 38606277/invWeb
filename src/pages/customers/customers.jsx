@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
+import { message, Form, Button, Row, Col, Select, Input, DatePicker,Cascader  } from 'antd';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import FormItem from 'antd/lib/form/FormItem';
@@ -19,11 +19,7 @@ const formItemLayout2 = {
 export default (props) => {
 
   const [mainForm] = Form.useForm();
-  const tableRef = useRef();
-  const [tableData, setTableData] = useState([]);
-  const [catId, setCatId] = useState();
-  const [catName, setCatName] = useState();
-  const [columnData, setColumnData] = useState([]);
+  const [options, setOptions] = useState([]);
   const [selectItemCategoryDialogVisible, setSelectItemCategoryDialogVisible] = useState(false);
 
   const [names, setName] = useState();
@@ -31,7 +27,6 @@ export default (props) => {
   useEffect(() => {
     const outlist = [];
     if ("null" != props.match.params.customer_id && "" != props.match.params.customer_id && "null" != props.match.params.customer_id) {
-        setCatId(props.match.params.customer_id);
         let params = {
             "customer_id":props.match.params.customer_id
         }
@@ -46,7 +41,7 @@ export default (props) => {
                   customer_bank: datainfo.customer_bank,
                   customer_link: datainfo.customer_link,
                   customer_type: datainfo.customer_type,
-                  area_id: datainfo.area_id,
+                  area_id: datainfo.area_id.split(','),
                   bank_name: datainfo.bank_name,
                   bank_account_num: datainfo.bank_account_num,
                   area_name:datainfo.bank_account_num
@@ -70,13 +65,57 @@ export default (props) => {
         area_name:""
       });
     }
+    loadAreaData('CHN');
   }, []);
 
+  
+ const loadAreaData = (code) => {
+    let param = {
+        parentCode: code,
+        maxLevel: 3
+    }
+    HttpService.post('/reportServer/customers/getArea',param).then(response => {
+        if (response.resultCode == "1000") {
+            setOptions(response.data)
+            console.log(response)
+        }
+        else {
+            message.error(response.message);
+        }
 
-  const handleFieldChange = ( vale, record) => {
-      const valName='item_description';
-      mainForm.setFieldsValue({[valName]:vas});
+    }, errMsg => {
+      message.error(errMsg);
+    });
+}
+
+  const handleFieldChange = ( value, selectedOptions) => {
+    console.log(selectedOptions);
+    console.log(value.join(","));
+      // const valName='area_id';
+      // const val=value.join(",");
+      mainForm.setFieldsValue({'area_id':value});
+     //loadData(selectedOptions);
   }
+  const  loadData = selectedOptions => {
+      const targetOption = selectedOptions[selectedOptions.length - 1];
+      let param = {
+          parentCode: targetOption.value,
+          maxLevel: 3
+      }
+      targetOption.loading = true;
+      HttpService.post('/reportServer/customers/getArea',param).then(response => {
+          if (response.resultCode == "1000") {
+              targetOption.children = response.data;
+              targetOption.loading = false;
+              setOptions([...options]);
+          }
+          else {
+              message.error(response.message);
+          }
+      }, errMsg => {
+        message.error(errMsg);
+      });
+  };
 
   return (
     <PageContainer
@@ -179,15 +218,21 @@ export default (props) => {
               </Form.Item>
             </Col>
             <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
-              <Form.Item name="area_id" style={{ display: 'none' }}>
+              {/* <Form.Item name="area_id" style={{ display: 'none' }}>
                 <Input id='area_id' name='area_id' value={mainForm.area_id} />
-              </Form.Item>
+              </Form.Item> */}
               <Form.Item
                 label="区域"
-                name="area_name"
+                name="area_id"
                 rules={[{ required: true, message: '请选择区域' }]}
               >
-                <Search
+                <Cascader
+                    options={options}
+                    loadData={loadData}
+                    onChange={handleFieldChange}
+                    changeOnSelect
+                />
+                {/* <Search
                     placeholder="请选择区域"
                     allowClear
                     readOnly={true}
@@ -199,7 +244,7 @@ export default (props) => {
 
                       setSelectItemCategoryDialogVisible(true);
                     }}
-                />
+                /> */}
               </Form.Item>
             </Col>
 
