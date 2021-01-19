@@ -10,7 +10,7 @@ import HttpService from '@/utils/HttpService.jsx';
 
 const { confirm } = Modal;
 
-const itemList = () => {
+const itemList = (props) => {
 
     const ref = useRef();
     const [visible, setVisible] = useState(false);
@@ -18,6 +18,7 @@ const itemList = () => {
     const [treeData, setTreeData] = useState([]);
     const [columnData, setColumnData] = useState([]);
     const [catId, setCatId] = useState('-1');// 用于编辑赋初始值
+    const [checkVal , setCheckVal] = useState([]);
 
     const getAllChildrenRecursionById = (catId) => {
         HttpService.post('reportServer/itemCategory/getAllList',JSON.stringify({"category_pid":catId}))
@@ -65,6 +66,12 @@ const itemList = () => {
         setColumnData(columns);
     }
     useEffect(() => {
+        if ("null" != props.match.params.category_id && "" != props.match.params.category_id) {
+            setCatId(props.match.params.category_id);
+            onTreeSelect(props.match.params.category_id);
+            setCheckVal([]);
+            setCheckVal([props.match.params.category_id]);
+        }
         refreshData();
     }, [])
 
@@ -121,8 +128,7 @@ const itemList = () => {
             success: result.resultCode == "1000"
         });
     }
-    const onTreeSelect = (item) => {
-        console.log(item);
+    const onTreeSelect = (category_id) => {
         const outlist = [{
             title: '描述',
             dataIndex: 'item_description',
@@ -130,10 +136,10 @@ const itemList = () => {
             align:"center"
         }];
         setColumnData([]);
-        if (catId !== item.item) {
-            setCatId(item.category_id);
+        if (catId !== category_id) {
+            setCatId();
             let params = {
-                "category_id":item.category_id
+                "category_id":category_id
             }
             HttpService.post('reportServer/itemCategory/getAllPageById', JSON.stringify(params))
             .then(res => {
@@ -173,9 +179,10 @@ const itemList = () => {
         }
     }
     const onChangeOption = (value, selectedOptions) => {
+        setCheckVal();
         console.log(value);
-        console.log(selectedOptions);
-        onTreeSelect(selectedOptions[selectedOptions.length-1]);
+            setCheckVal(value);
+        onTreeSelect(selectedOptions[selectedOptions.length-1]["category_id"]);
       }
     
       const exdefault={
@@ -187,13 +194,14 @@ const itemList = () => {
         <div style={{ marginTop: '16px' }}>
             <Row>
                 <Col xs={24} sm={24}>
-               物料类别： <Cascader 
-               options={treeData} 
-               placeholder="请选择类别" 
-               onChange={onChangeOption} 
-               changeOnSelect
-               allowClear={false} 
-               fieldNames={exdefault}/>
+                    物料类别： <Cascader 
+                    options={treeData} 
+                    placeholder="请选择类别" 
+                    onChange={onChangeOption} 
+                    value={checkVal}
+                    changeOnSelect
+                    allowClear={false} 
+                    fieldNames={exdefault}/>
                </Col>
                </Row>
                <Row>

@@ -182,7 +182,7 @@ export default (props) => {
               console.log('mainForm', mainForm)
               mainForm?.submit()
             }}>提交</Button>,
-            <Button key="back" onClick={() => history.push('/mdm/item/itemList')}>返回</Button>,
+            <Button key="back" onClick={() => history.push('/mdm/item/itemList/'+catId)}>返回</Button>,
           ]
         }
       }
@@ -203,7 +203,7 @@ export default (props) => {
                   if (res.resultCode == "1000") {
                     //刷新
                     message.success('提交成功');
-                    history.push("/mdm/item/itemList");
+                    history.push("/mdm/item/itemList/"+catId);
                   } else {
                     message.error(res.message);
                   }
