@@ -327,6 +327,22 @@
     ],
   },
   {
+    name: 'customers',
+    path: '/customers',
+    routes: [
+      {
+        name: 'user.user-list',
+        path: '/customers/customersList',
+        component: './customers/customersList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/customers/customers/:customer_id',
+        component: './customers/customers',
+      },
+    ]
+  },
+  {
     name: 'user.user-list',
     path: '/inv/org',
     component: './inv/org/InvOrg',
