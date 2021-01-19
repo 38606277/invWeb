@@ -1,3 +1,4 @@
+import { message } from 'antd';
 export default class LocalStorage {
     // 跳转登录
     doLogin() {
@@ -39,7 +40,15 @@ export default class LocalStorage {
         }
         // 其他不支持的类型
         else {
-            alert('该类型不能用于本地存储');
+            //alert('该类型不能用于本地存储');
+            message.destroy();
+            message.warning({
+                content: '该类型不能用于本地存储',
+                className: 'custom-class',
+                style: {
+                    marginTop: '15vh',
+                },
+            }, 5);
         }
     }
     // 取出本地存储内容
@@ -47,14 +56,22 @@ export default class LocalStorage {
         let data = window.localStorage.getItem(name);
 
         if (data && name != "lasurl") {
-            let exp = 1000 * 60 * 5 * 60;//1000*60*5*60
+            let exp = 1000 * 6 * 5 * 60;//1000*60*5*60
             let dataObj = JSON.parse(data);
             let t = new Date().getTime() - dataObj.time;
             if (t > exp) {
                 window.localStorage.removeItem(name);
                 let lasturl = window.location.href.split('#')[1] || '';
                 window.localStorage.setItem('lasurl', lasturl);
-                alert('登录信息已过期，请重新登录！');
+               // alert('登录信息已过期，请重新登录！');
+                message.destroy();
+                message.warning({
+                    content: '登录信息已过期，请重新登录',
+                    className: 'custom-class',
+                    style: {
+                      marginTop: '15vh',
+                    },
+                  }, 5);
                 return '';
             } else {
                 //console.log("data="+dataObj.data);
