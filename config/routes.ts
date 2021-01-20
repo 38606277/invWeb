@@ -326,7 +326,7 @@
       },
       {
         name: 'user.user-list',
-        path: '/mdm/item/itemList',
+        path: '/mdm/item/itemList/:category_id',
         component: './mdm/item/itemList',
       },
       {
@@ -340,6 +340,22 @@
         component: './mdm/itemCategory/itemCategory',
       },
     ],
+  },
+  {
+    name: 'customers',
+    path: '/customers',
+    routes: [
+      {
+        name: 'user.user-list',
+        path: '/customers/customersList',
+        component: './customers/customersList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/customers/customers/:customer_id',
+        component: './customers/customers',
+      },
+    ]
   },
   {
     name: 'user.user-list',
