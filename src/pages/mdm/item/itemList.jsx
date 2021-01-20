@@ -137,7 +137,6 @@ const itemList = (props) => {
         }];
         setColumnData([]);
         if (catId !== category_id) {
-            setCatId();
             let params = {
                 "category_id":category_id
             }
@@ -180,9 +179,10 @@ const itemList = (props) => {
     }
     const onChangeOption = (value, selectedOptions) => {
         setCheckVal();
-        console.log(value);
-            setCheckVal(value);
-        onTreeSelect(selectedOptions[selectedOptions.length-1]["category_id"]);
+        setCheckVal(value);
+        const catidd=selectedOptions[selectedOptions.length-1]["category_id"];
+        setCatId(catidd)
+        onTreeSelect(catidd);
       }
     
       const exdefault={

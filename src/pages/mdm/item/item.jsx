@@ -33,8 +33,7 @@ export default (props) => {
   const [catName, setCatName] = useState();
   const [columnData, setColumnData] = useState([]);
   const [selectItemCategoryDialogVisible, setSelectItemCategoryDialogVisible] = useState(false);
-
-  const [names, setName] = useState();
+  const [names, setNames] = useState({});
 
   useEffect(() => {
     const outlist = [];
@@ -131,18 +130,26 @@ export default (props) => {
     })
   }
   const handleFieldChange = ( vale, record) => {
+      const valnames = record.segment;
       const valName='item_description';
-      let vas= mainForm.getFieldValue('item_description');
-      if(undefined==vas){
-        vas="";
-      }
+      let vas="";
       record.dictList.map((item,index)=>{
         if(item.value_id===vale){
-          vas=vas==""?item.value_name:vas+"-"+item.value_name;
+          vas=item.value_name;
         }
       })
-      mainForm.setFieldsValue({[valName]:vas});
-      mainForm.setFieldsValue({[record.segment]:vale});
+      names[valnames]==undefined?"":vas;
+      names[valnames]=vas;
+      setNames(names);
+      let vvv="";
+      for (var key in names){
+        vvv=vvv+"-"+names[key];
+      }
+      if(vvv.length>1){
+        vvv=vvv.substring(1,vvv.length);
+      }
+      mainForm.setFieldsValue({[valName]:vvv});
+      mainForm.setFieldsValue({[valnames]:vale});
   }
   const inColumn =columnData.map((item, index) => {
     const rc =item.map((record, index) => { 
