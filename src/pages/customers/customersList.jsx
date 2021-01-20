@@ -99,7 +99,7 @@ const customersList = () => {
         },
         {
             title: '区域',
-            dataIndex: 'area_id',
+            dataIndex: 'area_name',
             valueType: 'text',
             align:"center"
         },

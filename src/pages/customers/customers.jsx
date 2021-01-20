@@ -6,11 +6,10 @@ import FormItem from 'antd/lib/form/FormItem';
 import HttpService from '../../utils/HttpService';
 import { history } from 'umi';
 import { PlusOutlined, MinusOutlined, ConsoleSqlOutlined } from '@ant-design/icons';
-import SelectItemCategoryDialog from '@/components/itemCategory/SelectItemCategoryDialog';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
-const { Search } = Input;
+
 const formItemLayout2 = {
   labelCol: { span: 8 },
   wrapperCol: { span: 16 },
@@ -20,7 +19,6 @@ export default (props) => {
 
   const [mainForm] = Form.useForm();
   const [options, setOptions] = useState([]);
-  const [selectItemCategoryDialogVisible, setSelectItemCategoryDialogVisible] = useState(false);
 
   const [names, setName] = useState();
 
@@ -38,13 +36,12 @@ export default (props) => {
                   customer_id: datainfo.customer_id,
                   customer_name: datainfo.customer_name,
                   customer_address: datainfo.customer_address,
-                  customer_bank: datainfo.customer_bank,
                   customer_link: datainfo.customer_link,
                   customer_type: datainfo.customer_type,
-                  area_id: datainfo.area_id.split(','),
+                  area_id: datainfo.area_id,
                   bank_name: datainfo.bank_name,
                   bank_account_num: datainfo.bank_account_num,
-                  area_name:datainfo.bank_account_num
+                  area_name:datainfo.area_name==null?"":datainfo.area_name.split(",")
                 });
                  
             } else {
@@ -56,7 +53,6 @@ export default (props) => {
         customer_id: "",
         customer_name: "",
         customer_address: "",
-        customer_bank: "",
         customer_link: "",
         customer_type: "",
         area_id: "",
@@ -69,31 +65,32 @@ export default (props) => {
   }, []);
 
   
- const loadAreaData = (code) => {
-    let param = {
-        parentCode: code,
-        maxLevel: 3
-    }
-    HttpService.post('/reportServer/customers/getArea',param).then(response => {
-        if (response.resultCode == "1000") {
-            setOptions(response.data)
-            console.log(response)
-        }
-        else {
-            message.error(response.message);
-        }
+  const loadAreaData = (code) => {
+      let param = {
+          parentCode: code,
+          maxLevel: 3
+      }
+      HttpService.post('/reportServer/customers/getArea',param).then(response => {
+          if (response.resultCode == "1000") {
+              setOptions(response.data)
+              console.log(response)
+          }
+          else {
+              message.error(response.message);
+          }
+      }, errMsg => {
+        message.error(errMsg);
+      });
+  }
 
-    }, errMsg => {
-      message.error(errMsg);
-    });
-}
 
   const handleFieldChange = ( value, selectedOptions) => {
     console.log(selectedOptions);
-    console.log(value.join(","));
+    const valuess=value==undefined?"":value[value.length-1];
+    console.log(valuess);
       // const valName='area_id';
       // const val=value.join(",");
-      mainForm.setFieldsValue({'area_id':value});
+     mainForm.setFieldsValue({'area_id':valuess});
      //loadData(selectedOptions);
   }
   const  loadData = selectedOptions => {
@@ -158,8 +155,6 @@ export default (props) => {
               message.error('提交失败');
             });
         }} >
-
-
           <Row gutter={24}>
           <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
               <Form.Item name="customer_id" style={{display:'none'}}>
@@ -186,16 +181,7 @@ export default (props) => {
 
           </Row>
           <Row gutter={24}>
-          <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
              
-              <Form.Item
-                label="银行"
-                name="customer_bank"
-                rules={[{ required: true, message: '请输入银行名称' }]}
-              >
-                  <Input id='customer_bank' name='customer_bank' />
-              </Form.Item>
-            </Col>
             <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
               <Form.Item
                 label="联系人"
@@ -205,9 +191,6 @@ export default (props) => {
                 <Input id='customer_link' name='customer_link' />
               </Form.Item>
             </Col>
-
-          </Row>
-          <Row gutter={24}>
           <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
               <Form.Item
                 label="类型"
@@ -217,13 +200,15 @@ export default (props) => {
                   <Input id='customer_type' name='customer_type' />
               </Form.Item>
             </Col>
+            </Row>
+          <Row gutter={24}>
             <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
-              {/* <Form.Item name="area_id" style={{ display: 'none' }}>
+            <Form.Item name="area_id" style={{display:'none'}}>
                 <Input id='area_id' name='area_id' value={mainForm.area_id} />
-              </Form.Item> */}
+              </Form.Item>
               <Form.Item
                 label="区域"
-                name="area_id"
+                name="area_name"
                 rules={[{ required: true, message: '请选择区域' }]}
               >
                 <Cascader
@@ -232,25 +217,10 @@ export default (props) => {
                     onChange={handleFieldChange}
                     changeOnSelect
                 />
-                {/* <Search
-                    placeholder="请选择区域"
-                    allowClear
-                    readOnly={true}
-                    enterButton
-                    onClick={() => {
-                      setSelectItemCategoryDialogVisible(true);
-                    }}
-                    onSearch={() => {
-
-                      setSelectItemCategoryDialogVisible(true);
-                    }}
-                /> */}
               </Form.Item>
             </Col>
 
-          </Row>
-
-          <Row gutter={24}>
+         
           <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
               <Form.Item
                 label="银行名称"
@@ -260,6 +230,9 @@ export default (props) => {
                   <Input id='bank_name' name='bank_name' />
               </Form.Item>
             </Col>
+          </Row>
+
+          <Row gutter={24}>
             <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
               <Form.Item
                 label="银行账号"
@@ -270,24 +243,6 @@ export default (props) => {
               </Form.Item>
             </Col>
           </Row>
-        
-        
       </Form >
-      <SelectItemCategoryDialog
-                modalVisible={selectItemCategoryDialogVisible}
-                handleOk={(selectitemCategory) => {
-                    console.log('selectItemCategoryDialog', selectitemCategory)
-                    if (selectitemCategory) {
-                        mainForm.setFieldsValue({
-                          area_id: selectitemCategory.category_id,
-                          area_name: selectitemCategory.category_name,
-                        });
-                    }
-                    setSelectItemCategoryDialogVisible(false);
-                }}
-                handleCancel={() => {
-                  setSelectItemCategoryDialogVisible(false);
-                }}
-            />
     </PageContainer >);
 };
