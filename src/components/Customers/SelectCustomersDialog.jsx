@@ -47,14 +47,12 @@ const SelectCustomersDialog = (props) => {
     const fetchData = async (params, sort, filter) => {
 
         const requestParam = {
-            pageNum: params.current,
+            startIndex: params.current,
             perPage: params.pageSize,
             customer_name: '',
             customer_address: '',
             customer_link: '',
-            customer_type: '',
-            ...params
-
+            customer_type: ''
         }
 
         const result = await HttpService.post('/reportServer/customers/getAllPage',JSON.stringify(requestParam));
@@ -62,7 +60,7 @@ const SelectCustomersDialog = (props) => {
         return Promise.resolve({
             data: result.data.list,
             total: result.data.total,
-            success: result.status === 0
+            success: result.resultCode === "1000"
         });
     }
 
@@ -108,7 +106,7 @@ const SelectCustomersDialog = (props) => {
                                     setCheckRows([record])
                                 } else {
                                     //有取消的情况
-                                    if (isCheck(record.id)) { // 选中则移除
+                                    if (isCheck(record.customer_id)) { // 选中则移除
                                         //移除key
                                         const newCheckKeys = checkKeys.filter((item) => {
                                             return item !== record.customer_id;
