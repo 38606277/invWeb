@@ -113,8 +113,18 @@ const fetchData = async (params, sort, filter) => {
   });
 };
 
-const transferList = () => {
+const getTypeName = (type) => {
+  console.log('type:', type)
+  if (type === 'other') {
+    return '其他入库';
+  } else if (type == 'buy') {
+    return '采购入库';
+  }
+  return '其他入库';
+}
+const transferList = (props) => {
   const ref = useRef();
+  const type = props?.match?.params?.type || 'other';
 
   //定义列
   const columns = [
@@ -215,7 +225,7 @@ const transferList = () => {
         defaultCollapsed: true,
       }}
       dateFormatter="string"
-      headerTitle="入库管理"
+      headerTitle={getTypeName(type)}
       toolBarRender={(action, { selectedRows }) => [
         <Button type="primary" onClick={() => history.push('/transation/store/add/null')}>
           新建

@@ -164,10 +164,10 @@ const TableForm = forwardRef((props, ref) => {
             rules={[{ required: true, message: '请输入物料名称' }]}
             handleFieldChange={handleFieldChange}
             onSearch={() => {
-              handleFieldChange(1, 'item_id', record);
+              handleFieldChange(5, 'item_id', record);
               handleFieldChange('件', 'uom', record);
-              handleFieldChange(5, 'balance', record);
-              handleFieldChange(29.8, 'price', record);
+              handleFieldChange(10, 'balance', record);
+              handleFieldChange(10, 'price', record);
               handleFieldChange('衬衫', 'item_name', record);
             }}
           />

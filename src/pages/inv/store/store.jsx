@@ -30,15 +30,16 @@ export default (props) => {
   const [tableForm] = Form.useForm();
   const [mainForm] = Form.useForm();
   const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
-  const [action, setAction] = useState(props?.match?.params?.action || add);
+  const [action, setAction] = useState(props?.match?.params?.action || 'add');
   const [id, setId] = useState(props?.match?.params?.id || -1);
   const [disabled, setDisabled] = useState(false);
 
+  const type = props?.match?.params?.type || 'other';
 
   const save = (params) => {
     HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
       if (res.resultCode == '1000') {
-        history.push(`/transation/storeList`);
+        history.goBack();
         message.success(res.message);
       } else {
         message.error(res.message);
@@ -50,7 +51,7 @@ export default (props) => {
     HttpService.post('reportServer/invStore/updateStoreById', JSON.stringify(params)).then(
       (res) => {
         if (res.resultCode == '1000') {
-          history.push(`/transation/storeList`);
+          history.goBack();
           message.success(res.message);
         } else {
           message.error(res.message);

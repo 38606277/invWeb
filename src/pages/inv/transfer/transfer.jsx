@@ -5,11 +5,15 @@ import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import TableForm from './components/TableForm';
 import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
 import SelectUserDialog from '@/components/User/SelectUserDialog';
+import DictSelect from '@/components/Select/DictSelect';
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
 import { SaveOutlined, PlusOutlined, MinusOutlined, RightOutlined } from '@ant-design/icons';
 import 'moment/locale/zh-cn';
+
+import LocalStorge from '@/utils/LogcalStorge.jsx';
+const localStorge = new LocalStorge();
 
 const { Search } = Input;
 const { RangePicker } = DatePicker;
@@ -31,18 +35,24 @@ const transfer = (props) => {
     const [mainForm] = Form.useForm();
     const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
     const [selectUserDialogVisible, setSelectUserDialogVisible] = useState(false);
-    const [action, setAction] = useState(props?.match?.params?.action || add);
-    const [id, setId] = useState(props?.match?.params?.id || -1);
+
     const [disabled, setDisabled] = useState(false);
+
+
     const [selectStroeFiledName, setSelectStroeFiledName] = useState('');
     const [selectUserFiledName, setSelectUserFiledName] = useState('');
 
     const [mainData, setMainData] = useState({});
 
+    const type = props?.match?.params?.type || 'out';
+    const action = props?.match?.params?.action || 'add';
+    const id = props?.match?.params?.id || -1;
+
+
     const save = (params) => {
         HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
             if (res.resultCode == '1000') {
-                history.push(`/transation/transferOutList`);
+                history.goBack();
                 message.success(res.message);
             } else {
                 message.error(res.message);
@@ -54,7 +64,7 @@ const transfer = (props) => {
         HttpService.post('reportServer/invStore/updateStoreById', JSON.stringify(params)).then(
             (res) => {
                 if (res.resultCode == '1000') {
-                    history.push(`/transation/transferOutList`);
+                    history.goBack();
                     message.success(res.message);
                 } else {
                     message.error(res.message);
@@ -64,18 +74,12 @@ const transfer = (props) => {
     };
 
     useEffect(() => {
-
-        if (action === 'edit' || action === 'readOnly') {
+        if (action === 'edit') {
+            setDisabled(true)
             //初始化编辑数据
             HttpService.post('reportServer/invStore/getStoreById', JSON.stringify({ bill_id: id })).then(
                 (res) => {
                     if (res.resultCode == '1000') {
-                        if (action === 'readOnly') {
-                            setDisabled(true);
-                        } else {
-
-                            setDisabled(res?.data?.mainData?.bill_status === 1);
-                        }
                         let mainD = {
                             ...res.data.mainData,
                             bill_date: moment(res.data.mainData.bill_date)
@@ -97,6 +101,7 @@ const transfer = (props) => {
             title="调拨单"
             header={{
                 extra: [
+
                     <Button
                         disabled={disabled}
                         key="submit"
@@ -107,9 +112,9 @@ const transfer = (props) => {
                         }}
                     >
                         保存调拨单
-          </Button>,
+                </Button>,
                     <Button
-                        disabled={disabled}
+
                         key="reset"
                         onClick={() => {
                             history.goBack();
@@ -168,6 +173,16 @@ const transfer = (props) => {
                         });
                 }}
             >
+
+                {(mainData?.bill_status || 0) != 0 ? (<ProCardCollapse title="流程进度" >
+                    <Steps progressDot current={mainData.bill_status} style={{ padding: "0px 80px" }}>
+                        <Step title="调拨出库" description={mainData?.operator_name} />
+                        <Step title="运输中" description="顺丰" />
+                        <Step title="调拨入库" description={mainData?.target_operator_name} />
+                    </Steps>
+
+                </ProCardCollapse>) : <></>}
+
                 <ProCardCollapse title="基础信息"
                 >
                     <Form.Item style={{ display: 'none' }} label="调出仓库id" name="inv_org_id" />
@@ -320,16 +335,6 @@ const transfer = (props) => {
                     </Row>
                 </ProCardCollapse>
 
-                {(mainData?.bill_status || 0) != 0 ? (<ProCardCollapse title="流程进度" >
-                    <Steps progressDot current={mainData.bill_status} style={{ padding: "0px 80px" }}>
-                        <Step title="调拨出库" description={mainData?.operator_name} />
-                        <Step title="运输中" description="顺丰" />
-                        <Step title="调拨入库" description={mainData?.target_operator_name} />
-                    </Steps>
-
-                </ProCardCollapse>) : <></>}
-
-
                 <ProCardCollapse title="物流信息" >
 
                     <Row>
@@ -353,13 +358,9 @@ const transfer = (props) => {
                                 label="物流厂商"
                                 name="ship_corp"
                             >
-                                <Select disabled={disabled}>
-                                    <Option value="1">顺丰物流</Option>
-                                    <Option value="2">京东物流</Option>
-                                    <Option value="3">中通物流</Option>
-                                    <Option value="4">圆通物流</Option>
-                                    <Option value="5">申通物流</Option>
-                                </Select>
+
+                                <DictSelect disabled={disabled} dictCode="ship_corp" />
+
                             </Form.Item>
                         </Col>
                         <Col xs={24} sm={10} >

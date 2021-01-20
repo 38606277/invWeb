@@ -104,6 +104,7 @@ const Login: React.FC<{}> = () => {
           goto();
 
         } else {
+          console.log('登录失败', loginResult)
           // 如果失败去设置用户错误信息
           setUserLoginState(loginResult);
         }
@@ -117,6 +118,9 @@ const Login: React.FC<{}> = () => {
     setSubmitting(false);
   };
   const { LOGINRESULT } = userLoginState;
+
+  console.log('userLoginState', userLoginState)
+  console.log('LOGINRESULT', LOGINRESULT)
 
   return (
     <div className={styles.container}>
@@ -165,13 +169,14 @@ const Login: React.FC<{}> = () => {
 
             {LOGINRESULT === 'InvalidUser' && (
               <LoginMessage
-                content={intl.formatMessage({
-                  id: 'pages.login.accountLogin.errorMessage',
-                  defaultMessage: '账户或密码错误',
-                })}
+                content="账户或密码错误"
               />
             )}
-
+            {LOGINRESULT === 'Exception' && (
+              <LoginMessage
+                content="登录异常"
+              />
+            )}
             <ProFormText
               name="UserCode"
               fieldProps={{

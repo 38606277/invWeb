@@ -234,7 +234,7 @@
     routes: [
       {
         name: 'user.user-list',
-        path: '/transation/storeList',
+        path: '/transation/storeList/:type',
         component: './inv/store/storeList',
       },
       {
@@ -254,17 +254,12 @@
       },
       {
         name: 'user.user-list',
-        path: '/transation/transferOutList',
-        component: './inv/transfer/transferOutList',
+        path: '/transation/transferList/:type',
+        component: './inv/transfer/transferList',
       },
       {
         name: 'user.user-list',
-        path: '/transation/transferInList',
-        component: './inv/transfer/transferInList',
-      },
-      {
-        name: 'user.user-list',
-        path: '/transation/transfer/:action/:id',
+        path: '/transation/transfer/:type/:action/:id',
         component: './inv/transfer/transfer',
       },
       {
@@ -289,6 +284,26 @@
       },
     ],
   },
+
+  {
+    name: 'order',
+    path: '/order',
+    routes: [
+      {
+        name: 'user.user-list',
+        path: '/order/poList',
+        component: './order/po/poList',
+        exact: true,
+      },
+      {
+        name: 'user.user-list',
+        path: '/order/po/:action/:id',
+        component: './order/po/po',
+        exact: true,
+      }
+    ],
+  },
+
 
   {
     name: 'mdm',

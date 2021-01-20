@@ -129,10 +129,6 @@ const TableForm = forwardRef((props, ref) => {
     const newData = [...data];
     const target = getRowByKey(key, newData);
 
-    console.log('amount', target['amount']);
-    console.log('price', target['price']);
-    console.log('quantity', target['quantity']);
-
     if (target) {
       target['amount'] = target['price'] * target['quantity'];
       setData(newData);
@@ -179,9 +175,9 @@ const TableForm = forwardRef((props, ref) => {
             rules={[{ required: true, message: '请输入物料名称' }]}
             handleFieldChange={handleFieldChange}
             onSearch={() => {
-              handleFieldChange(1, 'item_id', record);
+              handleFieldChange(5, 'item_id', record);
               handleFieldChange('件', 'uom', record);
-              handleFieldChange(29.8, 'price', record);
+              handleFieldChange(20, 'price', record);
               handleFieldChange('衬衫', 'item_name', record);
             }}
           />
