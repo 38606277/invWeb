@@ -126,6 +126,7 @@ const poList = (props) => {
             title: '订单编号',
             dataIndex: 'hand_code',
             valueType: 'text',
+            render: (_) => <a>{_}</a>,
         },
         {
             title: '订单类型',
@@ -146,6 +147,7 @@ const poList = (props) => {
         {
             title: '生效日期',
             dataIndex: 'po_date',
+            valueType: 'dateTimeRange'
 
         },
         {
@@ -161,12 +163,11 @@ const poList = (props) => {
         {
             title: '订单状态',
             dataIndex: 'status',
-
         },
         {
             title: '合同编号',
             dataIndex: 'contract_code',
-
+            render: (_) => <a>{_}</a>,
         },
         {
             title: '合同名称',
@@ -186,21 +187,22 @@ const poList = (props) => {
         {
             title: '创建时间',
             dataIndex: 'create_date',
-            valueType: 'dateTime',
+            valueType: 'dateTimeRange'
         },
         {
             title: '操作',
             key: 'option',
             valueType: 'option',
             render: (text, record) => [
-                <a
-                    onClick={() => {
-                        history.push(`/order/po/edit/${record.bill_id}`);
-                    }}
+                <a onClick={() => {
+                    history.push(`/order/po/edit/${record.po_header_id}`);
+                }}
                 >
                     编辑
         </a>,
-                <a key="link4" onClick={() => { }}>
+                <a onClick={() => {
+                    onDeleteClickListener(ref, [record.po_header_id])
+                }}>
                     删除
         </a>,
             ],
@@ -212,7 +214,7 @@ const poList = (props) => {
             actionRef={ref}
             columns={columns}
             request={fetchData}
-            rowKey="bill_id"
+            rowKey="po_header_id"
             rowSelection={
                 {
                     // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom

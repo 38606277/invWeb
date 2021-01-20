@@ -165,7 +165,7 @@ const deliverList = () => {
                 >
                     编辑
         </a>,
-                <a key="link4" onClick={() => { }}>
+                <a onClick={() => { onDeleteClickListener(ref, [record.bill_id]) }}>
                     删除
         </a>,
             ],

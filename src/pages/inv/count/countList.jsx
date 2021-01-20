@@ -5,6 +5,9 @@ import ProTable from '@ant-design/pro-table';
 import { PageContainer } from '@ant-design/pro-layout';
 import { history } from 'umi';
 import HttpService from '@/utils/HttpService.jsx';
+import LocalStorge from '@/utils/LogcalStorge.jsx';
+
+const localStorge = new LocalStorge();
 
 const { confirm } = Modal;
 
@@ -101,6 +104,10 @@ const fetchData = async (params, sort, filter) => {
         ...params,
         bill_type: 'count'
     };
+
+    let userInfo = localStorge.getStorage('userInfo');
+    requestParam.operator = userInfo.id;
+
     const result = await HttpService.post(
         'reportServer/invStore/getStoreListByPage',
         JSON.stringify(requestParam),
@@ -165,11 +172,11 @@ const countList = () => {
                         history.push(`/transation/count/edit/${record.bill_id}`);
                     }}
                 >
-                    盘查
-        </a>,
-                <a key="link4" onClick={() => { }}>
+                    {record.bill_status == 0 ? '盘查' : '查看详情'}
+                </a>,
+                <a onClick={() => { onDeleteClickListener(ref, [record.bill_id]) }}>
                     删除
-        </a>,
+                </a>,
             ],
         },
     ];

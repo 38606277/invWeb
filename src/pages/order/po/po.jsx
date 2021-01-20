@@ -8,6 +8,7 @@ import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import TableForm_A from '@/components/EditFormA/TableForm_A';
 import SelectUserDialog from '@/components/User/SelectUserDialog';
+import SelectCustomersDialog from '@/components/Customers/SelectCustomersDialog';
 import DictSelect from '@/components/Select/DictSelect';
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
@@ -40,12 +41,25 @@ const po = (props) => {
 
     const [selectUserDialogVisible, setSelectUserDialogVisible] = useState(false);
     const [selectUserFiledName, setSelectUserFiledName] = useState('');
+    const [selectCustomersDialogVisible, setSelectCustomersDialogVisible] = useState(false);
+    const [selectCustomersFiledName, setSelectCustomersFiledName] = useState('');
 
     //行数据的列
     const columns = [
         {
             title: '物料id',
             dataIndex: 'item_id',
+            hide: true,
+            renderParams: {
+                formItemParams: {
+                    rules: [{ required: false, message: '请选择物料' }]
+                },
+                widgetParams: { disabled: true }
+            }
+        },
+        {
+            title: '行类型id',
+            dataIndex: 'line_type_id',
             hide: true,
             renderParams: {
                 formItemParams: {
@@ -63,10 +77,12 @@ const po = (props) => {
                     rules: [{ required: true, message: '请选择物料' }]
                 },
                 widgetParams: {
+                    widgetParams: { disabled: disabled },
                     onSearch: (name, record) => {
                         console.log('onSearch')
                         tableRef.current.handleObjChange(
                             {
+                                line_type_id: 1,
                                 item_id: 5,
                                 item_name: '衬衫',
                                 category_id: 1,
@@ -88,7 +104,8 @@ const po = (props) => {
             renderParams: {
                 formItemParams: {
                     rules: [{ required: false, message: '请选择物料' }]
-                }
+                },
+                widgetParams: { disabled: true },
             }
         },
         {
@@ -161,7 +178,7 @@ const po = (props) => {
                 widgetParams: {
                     dictData: [
                         {
-                            keyName: '0',
+                            keyName: 0,
                             valueName: '接收'
                         },
                         {
@@ -196,7 +213,7 @@ const po = (props) => {
 
 
     const save = (params) => {
-        HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
+        HttpService.post('reportServer/po/createPo', JSON.stringify(params)).then((res) => {
             if (res.resultCode == '1000') {
                 history.goBack();
                 message.success(res.message);
@@ -207,7 +224,7 @@ const po = (props) => {
     };
 
     const update = (params) => {
-        HttpService.post('reportServer/invStore/updateStoreById', JSON.stringify(params)).then(
+        HttpService.post('reportServer/po/updatePoById', JSON.stringify(params)).then(
             (res) => {
                 if (res.resultCode == '1000') {
                     history.goBack();
@@ -222,13 +239,13 @@ const po = (props) => {
     useEffect(() => {
         if (action === 'edit') {
             //初始化编辑数据
-            HttpService.post('reportServer/invStore/getStoreById', JSON.stringify({ bill_id: id })).then(
+            HttpService.post('reportServer/po/getPoById', JSON.stringify({ po_header_id: id })).then(
                 (res) => {
                     if (res.resultCode == '1000') {
-                        setDisabled(res?.data?.mainData?.bill_status === 1);
+                        setDisabled(res?.data?.mainData?.status == 1);
                         mainForm.setFieldsValue({
                             ...res.data.mainData,
-                            bill_date: moment(res.data.mainData.bill_date),
+                            po_date: moment(res.data.mainData.po_date),
                         });
                         tableRef?.current?.initData(res.data.linesData);
                     } else {
@@ -282,10 +299,8 @@ const po = (props) => {
 
                             const values = {
                                 ...fieldsValue,
-                                bill_date: fieldsValue['bill_date'].format('YYYY-MM-DD HH:mm:ss'),
+                                po_date: fieldsValue['po_date'].format('YYYY-MM-DD HH:mm:ss'),
                             };
-
-                            values.bill_type = 'store';
 
                             if (action === 'edit') {
                                 let deleteRecordKeys = tableRef.current.getDeleteRecordKeys();
@@ -300,6 +315,7 @@ const po = (props) => {
                                     deleteData: deleteIds.toString(), // 删除项
                                 });
                             } else {
+                                values.status = 1;
                                 save({
                                     mainData: values,
                                     linesData: tableData,
@@ -373,12 +389,18 @@ const po = (props) => {
                                             vendor_id: 1,
                                             vendor_name: '张三羊毛批发厂'
                                         })
+
+                                        // setSelectCustomersFiledName('vendor')
+                                        // setSelectCustomersDialogVisible(true);
                                     }}
                                     onSearch={() => {
                                         mainForm.setFieldsValue({
                                             vendor_id: 1,
                                             vendor_name: '张三羊毛批发厂'
                                         })
+
+                                        // setSelectCustomersFiledName('vendor')
+                                        // setSelectCustomersDialogVisible(true);
                                     }}
                                 />
                             </Form.Item>
@@ -386,18 +408,20 @@ const po = (props) => {
                     </Row>
                     <Row>
                         <Col xs={24} sm={11}>
-                            <Form.Item label="收单地点" name="bill_to_location"
+                            <Form.Item label="收单地点"
+                                name="bill_to_location"
                                 rules={[{ required: true, message: '请输入收单地点' }]}>
-                                <Input />
+                                <Input disabled={disabled} />
                             </Form.Item>
                         </Col>
                         <Col xs={24} sm={11}>
                             <Form.Item
                                 label="收货地点"
                                 name="ship_to_location"
+
                                 rules={[{ required: true, message: '请输入收货地点' }]}
                             >
-                                <Input />
+                                <Input disabled={disabled} />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -439,7 +463,7 @@ const po = (props) => {
                     <Row>
                         <Col xs={24} sm={11}>
                             <Form.Item label="合同文件" name="contract_file">
-                                <Input />
+                                <Input disabled={disabled} />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -481,12 +505,8 @@ const po = (props) => {
                         onClick={() => {
                             //新增一行
                             tableRef.current.addItem({
-                                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                                item_name: '',
-                                quantity: '',
-                                uom: '',
-                                amount: '',
-                                reamrk: '',
+                                po_line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                                cancel_flag: 0
                             });
                         }}
                     ></Button>,
@@ -502,12 +522,11 @@ const po = (props) => {
                     ></Button>
                 ]}
             >
-                <TableForm_A ref={tableRef} disabled={disabled} columns={columns} primaryKey="line_id" tableForm={tableForm} />
+                <TableForm_A ref={tableRef} disabled={disabled} columns={columns} primaryKey="po_line_id" tableForm={tableForm} />
             </ProCardCollapse>
             <SelectUserDialog
                 modalVisible={selectUserDialogVisible}
                 handleOk={(selectUser) => {
-                    console.log('SelectUserDialog', selectUser)
                     if (selectUser) {
                         mainForm.setFieldsValue({
                             [`${selectUserFiledName}_id`]: selectUser.id,
@@ -518,6 +537,21 @@ const po = (props) => {
                 }}
                 handleCancel={() => {
                     setSelectUserDialogVisible(false);
+                }}
+            />
+            <SelectCustomersDialog
+                modalVisible={selectCustomersDialogVisible}
+                handleOk={(selectUser) => {
+                    if (selectUser) {
+                        mainForm.setFieldsValue({
+                            [`${selectCustomersFiledName}_id`]: selectUser.id,
+                            [`${selectCustomersFiledName}_name`]: selectUser.userName,
+                        });
+                    }
+                    setSelectCustomersDialogVisible(false);
+                }}
+                handleCancel={() => {
+                    setSelectCustomersDialogVisible(false);
                 }}
             />
         </PageContainer>

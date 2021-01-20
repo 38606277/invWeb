@@ -98,8 +98,7 @@ const fetchData = async (params, sort, filter) => {
   let requestParam = {
     pageNum: params.current,
     perPage: params.pageSize,
-    ...params,
-    bill_type: 'store'
+    ...params
   };
   const result = await HttpService.post(
     'reportServer/invStore/getStoreListByPage',
@@ -117,7 +116,7 @@ const getTypeName = (type) => {
   console.log('type:', type)
   if (type === 'other') {
     return '其他入库';
-  } else if (type == 'buy') {
+  } else if (type == 'po') {
     return '采购入库';
   }
   return '其他入库';
@@ -125,6 +124,11 @@ const getTypeName = (type) => {
 const transferList = (props) => {
   const ref = useRef();
   const type = props?.match?.params?.type || 'other';
+
+  useEffect(() => {
+    ref?.current?.clearSelected();
+    ref?.current?.reload();
+  }, [type])
 
   //定义列
   const columns = [
@@ -170,12 +174,12 @@ const transferList = (props) => {
       render: (text, record) => [
         <a
           onClick={() => {
-            history.push(`/transation/store/edit/${record.bill_id}`);
+            history.push(`/transation/store/${type}/edit/${record.bill_id}`);
           }}
         >
           编辑
         </a>,
-        <a key="link4" onClick={() => { }}>
+        <a onClick={() => { onDeleteClickListener(ref, [record.bill_id]) }}>
           删除
         </a>,
       ],
@@ -189,13 +193,16 @@ const transferList = (props) => {
       columns={columns}
       request={fetchData}
       rowKey="bill_id"
-      rowSelection={
-        {
-          // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
-          // 注释该行则默认不显示下拉选项
-          //selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-        }
-      }
+      // rowSelection={
+      //   {
+      //     // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
+      //     // 注释该行则默认不显示下拉选项
+      //     //selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+      //   }
+      // }
+      params={{
+        bill_type: `store_${type}`
+      }}
       tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
         <Space size={24}>
           <span>
@@ -227,7 +234,7 @@ const transferList = (props) => {
       dateFormatter="string"
       headerTitle={getTypeName(type)}
       toolBarRender={(action, { selectedRows }) => [
-        <Button type="primary" onClick={() => history.push('/transation/store/add/null')}>
+        <Button type="primary" onClick={() => history.push(`/transation/store/${type}/add/null`)}>
           新建
         </Button>,
       ]}

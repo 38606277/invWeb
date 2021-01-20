@@ -228,30 +228,19 @@ const TableForm = forwardRef((props, ref) => {
       },
     },
     {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      width: '10%',
+      title: '实际数量',
+      dataIndex: 'actual_quantity',
+      key: 'actual_quantity',
       render: (text, record, index) => {
         return (
-          <SelectEF
-            disabled={!disabled}
+          <InputEF
+            disabled={disabled}
             tableForm={tableForm}
             text={text}
             record={record}
             index={record[primaryKey]}
-            name="status"
-            rules={[{ required: true, message: '盘查状态' }]}
-            precision={0}
+            name="actual_quantity"
             handleFieldChange={handleFieldChange}
-            dictData={[
-              { id: 1, value: '未盘' },
-              { id: 2, value: '盘亏' },
-              { id: 3, value: '盘盈' }
-            ]}
-            keyName='id'
-            valueName='value'
-
           />
         );
       },

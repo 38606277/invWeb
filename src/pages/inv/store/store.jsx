@@ -7,10 +7,8 @@ import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
-import { SaveOutlined, PlusOutlined, MinusOutlined, RightOutlined } from '@ant-design/icons';
+import { SaveOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import 'moment/locale/zh-cn';
-
-// import './store.css';
 
 const { Search } = Input;
 const { RangePicker } = DatePicker;
@@ -25,16 +23,26 @@ const formItemLayout1 = {
   wrapperCol: { span: 20 },
 };
 
+const getTypeName = (type) => {
+  console.log('type:', type)
+  if (type === 'other') {
+    return '其他入库';
+  } else if (type == 'po') {
+    return '采购入库';
+  }
+  return '其他入库';
+}
+
 export default (props) => {
   const tableRef = useRef();
   const [tableForm] = Form.useForm();
   const [mainForm] = Form.useForm();
   const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
-  const [action, setAction] = useState(props?.match?.params?.action || 'add');
-  const [id, setId] = useState(props?.match?.params?.id || -1);
   const [disabled, setDisabled] = useState(false);
 
   const type = props?.match?.params?.type || 'other';
+  const action = props?.match?.params?.action || 'add';
+  const id = props?.match?.params?.id || -1;
 
   const save = (params) => {
     HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
@@ -80,10 +88,11 @@ export default (props) => {
     }
   }, []);
 
+
   return (
     <PageContainer
       ghost="true"
-      title="入库单"
+      title={getTypeName(type)}
       header={{
         extra: [
           <Button
@@ -95,7 +104,7 @@ export default (props) => {
               mainForm?.submit();
             }}
           >
-            保存入库单
+            {` 保存${getTypeName(type)}单`}
           </Button>,
           <Button
             disabled={disabled}
@@ -197,18 +206,29 @@ export default (props) => {
                 <DatePicker style={{ width: "100%" }} disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
               </Form.Item>
             </Col>
-            <Col xs={24} sm={11}>
+
+
+
+            {type == 'po' ? <Col xs={24} sm={11}>
               <Form.Item
-                name="bill_status"
-                label="状态"
-                rules={[{ required: true, message: '请选择状态' }]}
+                label="订单编号"
+                name="op_code"
+                rules={[{ required: true, message: '请选择订单编号' }]}
               >
-                <Select disabled={disabled}>
-                  <Option value={0}>新建</Option>
-                  <Option value={1}>过账</Option>
-                </Select>
+                <Search
+                  disabled={disabled}
+                  allowClear
+                  readOnly={true}
+                  enterButton
+                  onClick={() => {
+                    //setSelectOrgDialogVisible(true);
+                  }}
+                  onSearch={() => {
+                    //setSelectOrgDialogVisible(true);
+                  }}
+                />
               </Form.Item>
-            </Col>
+            </Col> : <></>}
           </Row>
 
           <Row>
