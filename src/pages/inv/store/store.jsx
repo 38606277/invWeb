@@ -2,8 +2,9 @@ import React, { useRef, useState, useEffect } from 'react';
 import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
-import TableForm from './components/TableForm';
+import TableForm_A from '@/components/EditFormA/TableForm_A';
 import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
+import SelectPoDialog from '@/components/Po/SelectPoDialog';
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
@@ -24,7 +25,6 @@ const formItemLayout1 = {
 };
 
 const getTypeName = (type) => {
-  console.log('type:', type)
   if (type === 'other') {
     return '其他入库';
   } else if (type == 'po') {
@@ -33,16 +33,137 @@ const getTypeName = (type) => {
   return '其他入库';
 }
 
+
 export default (props) => {
   const tableRef = useRef();
   const [tableForm] = Form.useForm();
   const [mainForm] = Form.useForm();
   const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
+  const [selectPoDialogVisible, setSelectPoDialogVisible] = useState(false);
+
+
   const [disabled, setDisabled] = useState(false);
 
   const type = props?.match?.params?.type || 'other';
   const action = props?.match?.params?.action || 'add';
   const id = props?.match?.params?.id || -1;
+
+
+  //行数据的列
+  const columns = [
+    {
+      title: '物料id',
+      dataIndex: 'item_id',
+      hide: true,
+      renderParams: {
+        formItemParams: {
+          rules: [{ required: false, message: '请选择物料' }]
+        },
+        widgetParams: { disabled: true }
+      }
+    },
+    {
+      title: '物料描述',
+      dataIndex: 'item_description',
+      renderType: 'InputSearchEF',
+      renderParams: {
+        formItemParams: {
+          rules: [{ required: true, message: '请选择物料' }]
+        },
+        widgetParams: {
+          disabled: disabled,
+          onSearch: (name, record) => {
+            tableRef.current.handleObjChange(
+              {
+                line_id: 1,
+                item_id: 5,
+                item_description: '红豆-黑白色-颜色-XXL',
+                category_id: 1,
+                category_name: '服装',
+                unit_price: '19.8',
+                uom: '件',
+                quantity: 10,
+                amount: (19.8 * 10)
+              },
+              record);
+          }
+        }
+      }
+    },
+    {
+      title: '单价',
+      dataIndex: 'unit_price',
+      renderParams: {
+        formItemParams: {
+          rules: [{ required: true, message: '请输入单价' }]
+        },
+        widgetParams: { disabled: disabled }
+      }
+    },
+    {
+      title: '单位',
+      dataIndex: 'uom',
+      renderParams: {
+        formItemParams: {
+          rules: [{ required: true, message: '请输入单位' }]
+        },
+        widgetParams: { disabled: disabled }
+      }
+    },
+    {
+      title: '数量',
+      dataIndex: 'quantity',
+      renderParams: {
+        formItemParams: {
+          rules: [{ required: true, message: '请输入数量' }]
+        },
+        widgetParams: { disabled: disabled }
+      }
+    },
+    {
+      title: '金额',
+      dataIndex: 'amount',
+      renderParams: {
+        formItemParams: {
+          rules: [{ required: true, message: '请输入金额' }]
+        },
+        widgetParams: { disabled: disabled }
+      }
+    }, {
+      title: '接收数量',
+      dataIndex: 'ok_quantity',
+      hide: type != 'po',
+      renderParams: {
+        formItemParams: {
+          rules: [{ required: type != 'po', message: '请输入接收数量' }]
+        },
+        widgetParams: {
+          disabled: disabled,
+          onChange: (value, name, record) => {
+            //数量不能大于结存数量
+            if (record['quantity'] < record['ok_quantity']) {
+              message.error('接收数量不能大于剩余数量，请检查');
+              tableRef.current.handleObjChange(
+                {
+                  ok_quantity: record['quantity']
+                },
+                record);
+            }
+          }
+        }
+
+      }
+    }, {
+      title: '备注',
+      dataIndex: 'reamrk',
+      renderParams: {
+        formItemParams: {
+          rules: [{ required: true, message: '请输入金额' }]
+        },
+        widgetParams: { disabled: disabled }
+      }
+    }
+  ]
 
   const save = (params) => {
     HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
@@ -210,6 +331,11 @@ export default (props) => {
 
 
             {type == 'po' ? <Col xs={24} sm={11}>
+
+              <Form.Item hidden label="来源id" name="source_id" />
+              <Form.Item hidden label="来源单据" name="source_bill" />
+              <Form.Item hidden label="来源系统" name="source_system" />
+
               <Form.Item
                 label="订单编号"
                 name="op_code"
@@ -221,10 +347,10 @@ export default (props) => {
                   readOnly={true}
                   enterButton
                   onClick={() => {
-                    //setSelectOrgDialogVisible(true);
+                    setSelectPoDialogVisible(true);
                   }}
                   onSearch={() => {
-                    //setSelectOrgDialogVisible(true);
+                    setSelectPoDialogVisible(true);
                   }}
                 />
               </Form.Item>
@@ -256,12 +382,7 @@ export default (props) => {
             onClick={() => {
               //新增一行
               tableRef.current.addItem({
-                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                item_name: '',
-                quantity: '',
-                uom: '',
-                amount: '',
-                reamrk: '',
+                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`
               });
             }}
           ></Button>,
@@ -277,7 +398,7 @@ export default (props) => {
           ></Button>
         ]}
       >
-        <TableForm ref={tableRef} disabled={disabled} primaryKey="line_id" tableForm={tableForm} />
+        <TableForm_A ref={tableRef} columns={columns} primaryKey="line_id" tableForm={tableForm} />
       </ProCardCollapse>
       <SelectOrgDialog
         modalVisible={selectOrgDialogVisible}
@@ -292,6 +413,24 @@ export default (props) => {
         }}
         handleCancel={() => {
           setSelectOrgDialogVisible(false);
+        }}
+      />
+
+      <SelectPoDialog
+        modalVisible={selectPoDialogVisible}
+        handleOk={(mainData, linesData) => {
+          console.log('SelectPoDialog', mainData, linesData)
+          mainForm.setFieldsValue({
+            source_id: mainData.po_header_id,
+            source_bill: 'po',
+            source_system: '0',
+            op_code: mainData.header_code
+          });
+          tableRef?.current?.initData(linesData);
+          setSelectPoDialogVisible(false);
+        }}
+        handleCancel={() => {
+          setSelectPoDialogVisible(false);
         }}
       />
     </PageContainer>
