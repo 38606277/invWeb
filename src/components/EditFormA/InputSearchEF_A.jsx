@@ -21,7 +21,6 @@ const InputSearchEF_A = (props) => {
             name={formItemName}
         >
             <Search
-                allowClear
                 {...widgetParams}
                 readOnly
                 onChange={(value) => {

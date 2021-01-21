@@ -101,7 +101,6 @@ const fetchData = async (params, sort, filter) => {
         pageNum: params.current,
         perPage: params.pageSize,
         ...params,
-        bill_type: 'store'
     };
     const result = await HttpService.post(
         'reportServer/po/getPoListByPage',
@@ -118,13 +117,12 @@ const fetchData = async (params, sort, filter) => {
 
 const poList = (props) => {
     const ref = useRef();
-    const type = props?.match?.params?.type || 'other';
 
     //定义列
     const columns = [
         {
             title: '订单编号',
-            dataIndex: 'hand_code',
+            dataIndex: 'header_code',
             valueType: 'text',
             render: (_) => <a>{_}</a>,
         },

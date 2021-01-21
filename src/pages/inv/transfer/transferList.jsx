@@ -133,6 +133,8 @@ const transferList = (props) => {
         } else {
             requestParam.target_operator = userInfo.id;
         }
+        requestParam.create_by = userInfo.id;
+
         const result = await HttpService.post(
             'reportServer/invStore/getStoreListByPage',
             JSON.stringify(requestParam),

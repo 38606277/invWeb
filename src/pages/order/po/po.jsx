@@ -69,22 +69,22 @@ const po = (props) => {
             }
         },
         {
-            title: '物料名称',
-            dataIndex: 'item_name',
+            title: '物料描述',
+            dataIndex: 'item_description',
             renderType: 'InputSearchEF',
             renderParams: {
                 formItemParams: {
                     rules: [{ required: true, message: '请选择物料' }]
                 },
                 widgetParams: {
-                    widgetParams: { disabled: disabled },
+                    disabled: disabled,
                     onSearch: (name, record) => {
                         console.log('onSearch')
                         tableRef.current.handleObjChange(
                             {
                                 line_type_id: 1,
                                 item_id: 5,
-                                item_name: '衬衫',
+                                item_description: '红豆-黑白色-颜色-XXL',
                                 category_id: 1,
                                 category_name: '服装',
                                 unit_price: '19.8',
@@ -105,7 +105,7 @@ const po = (props) => {
                 formItemParams: {
                     rules: [{ required: false, message: '请选择物料' }]
                 },
-                widgetParams: { disabled: true },
+                widgetParams: { disabled: disabled },
             }
         },
         {
@@ -115,7 +115,7 @@ const po = (props) => {
                 formItemParams: {
                     rules: [{ required: true, message: '请选择物料' }]
                 },
-                widgetParams: { disabled: true }
+                widgetParams: { disabled: disabled }
             }
         },
         {
@@ -125,8 +125,9 @@ const po = (props) => {
                 formItemParams: {
                     rules: [{ required: true, message: '请输入单价' }]
                 },
-                widgetParams: { disabled: true }
+                widgetParams: { disabled: disabled }
             }
+
         },
         {
             title: '单位',
@@ -135,7 +136,7 @@ const po = (props) => {
                 formItemParams: {
                     rules: [{ required: true, message: '请输入单位' }]
                 },
-                widgetParams: { disabled: true }
+                widgetParams: { disabled: disabled }
             }
         },
         {
@@ -145,7 +146,7 @@ const po = (props) => {
                 formItemParams: {
                     rules: [{ required: true, message: '请输入数量' }]
                 },
-                widgetParams: { disabled: true }
+                widgetParams: { disabled: disabled }
             }
         },
         {
@@ -155,58 +156,7 @@ const po = (props) => {
                 formItemParams: {
                     rules: [{ required: true, message: '请输入金额' }]
                 },
-                widgetParams: { disabled: true }
-            }
-        },
-        {
-            title: '物料描述',
-            dataIndex: 'item_description',
-            renderParams: {
-                formItemParams: {
-                    rules: [{ required: true, message: '请输入物料描述' }]
-                },
-            }
-        },
-        {
-            title: '接收状态',
-            dataIndex: 'cancel_flag',
-            renderType: 'SelectEF',
-            renderParams: {
-                formItemParams: {
-                    rules: [{ required: true, message: '请选择接收状态' }]
-                },
-                widgetParams: {
-                    dictData: [
-                        {
-                            keyName: 0,
-                            valueName: '接收'
-                        },
-                        {
-                            keyName: 1,
-                            valueName: '取消',
-                        }
-                    ],
-                    keyName: 'keyName',
-                    valueName: 'valueName'
-                }
-            }
-        },
-        {
-            title: '接收数量',
-            dataIndex: 'rcv_quantity',
-            renderParams: {
-                formItemParams: {
-                    rules: [{ required: true, message: '请输入接收数量' }]
-                }
-            }
-        },
-        {
-            title: '取消原因',
-            dataIndex: 'cancel_reason',
-            renderParams: {
-                formItemParams: {
-                    rules: [{ required: true, message: '请输入取消原因' }]
-                }
+                widgetParams: { disabled: disabled }
             }
         }
     ]
@@ -288,6 +238,10 @@ const po = (props) => {
             <Form
                 {...formItemLayout2}
                 form={mainForm}
+                onValuesChange={(a, b) => {
+                    console.log('ab = ', a, b)
+                }}
+                initialValues={{ po_type: "2" }}
                 onFinish={async (fieldsValue) => {
                     //验证tableForm
                     tableForm
@@ -332,8 +286,8 @@ const po = (props) => {
                 <ProCardCollapse
                     title="基础信息"
                 >
-                    <Form.Item style={{ display: 'none' }} label="采购员Id" name="agent_id" />
-                    <Form.Item style={{ display: 'none' }} label="供应商Id" name="vendor_id" />
+                    <Form.Item hidden label="采购员Id" name="agent_id" />
+                    <Form.Item hidden label="供应商Id" name="vendor_id" />
 
                     <Row>
                         <Col xs={24} sm={11}>
@@ -358,7 +312,6 @@ const po = (props) => {
                                 rules={[{ required: true, message: '请选择采购员' }]}>
                                 <Search
                                     disabled={disabled}
-
                                     allowClear
                                     readOnly={true}
                                     enterButton
@@ -385,22 +338,12 @@ const po = (props) => {
                                     readOnly={true}
                                     enterButton
                                     onClick={() => {
-                                        mainForm.setFieldsValue({
-                                            vendor_id: 1,
-                                            vendor_name: '张三羊毛批发厂'
-                                        })
-
-                                        // setSelectCustomersFiledName('vendor')
-                                        // setSelectCustomersDialogVisible(true);
+                                        setSelectCustomersFiledName('vendor')
+                                        setSelectCustomersDialogVisible(true);
                                     }}
                                     onSearch={() => {
-                                        mainForm.setFieldsValue({
-                                            vendor_id: 1,
-                                            vendor_name: '张三羊毛批发厂'
-                                        })
-
-                                        // setSelectCustomersFiledName('vendor')
-                                        // setSelectCustomersDialogVisible(true);
+                                        setSelectCustomersFiledName('vendor')
+                                        setSelectCustomersDialogVisible(true);
                                     }}
                                 />
                             </Form.Item>
@@ -541,11 +484,12 @@ const po = (props) => {
             />
             <SelectCustomersDialog
                 modalVisible={selectCustomersDialogVisible}
-                handleOk={(selectUser) => {
-                    if (selectUser) {
+                handleOk={(selectCustomers) => {
+                    console.log('selectCustomers', selectCustomers)
+                    if (selectCustomers) {
                         mainForm.setFieldsValue({
-                            [`${selectCustomersFiledName}_id`]: selectUser.id,
-                            [`${selectCustomersFiledName}_name`]: selectUser.userName,
+                            [`${selectCustomersFiledName}_id`]: selectCustomers.customer_id,
+                            [`${selectCustomersFiledName}_name`]: selectCustomers.customer_name,
                         });
                     }
                     setSelectCustomersDialogVisible(false);

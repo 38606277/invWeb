@@ -142,9 +142,7 @@ const TableForm = forwardRef((props, ref) => {
       for (let fieldName in obj) {
         target[fieldName] = obj[fieldName];
       }
-      console.log('handleObjChange newData', newData)
       setData(newData);
-      console.log('setData(newData);')
     }
   }
 
