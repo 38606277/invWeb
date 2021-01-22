@@ -37,7 +37,14 @@ const SelectItemCategoryDialog = (props) => {
             .then(res => {
                 if (res.resultCode === "1000") {
                     if(null!=res.data){
+                      if(res.data.length>0){
+                        const caiid=res.data[0].category_id;
+                        onTreeSelect(caiid);
+                        setCheckVal([]);
+                        setCheckVal([caiid]);
+                        setCatId(caiid)
                         setTreeData(res.data)
+                      }
                     }
                     
                 } else {
