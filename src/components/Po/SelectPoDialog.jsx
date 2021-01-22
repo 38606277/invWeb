@@ -87,7 +87,7 @@ const linesColumns = [
     },
     {
         title: '单价',
-        dataIndex: 'unit_price',
+        dataIndex: 'price',
     },
     {
         title: '单位',
@@ -100,6 +100,14 @@ const linesColumns = [
     {
         title: '金额',
         dataIndex: 'amount'
+    },
+    {
+        title: '已接收数量',
+        dataIndex: 'rcv_quantity'
+    },
+    {
+        title: '未接收数量',
+        dataIndex: 'not_rcv_quantity'
     }
 ]
 

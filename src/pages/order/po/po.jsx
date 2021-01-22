@@ -35,14 +35,15 @@ const po = (props) => {
     const tableRef = useRef();
     const [tableForm] = Form.useForm();
     const [mainForm] = Form.useForm();
-    const [action, setAction] = useState(props?.match?.params?.action || 'add');
-    const [id, setId] = useState(props?.match?.params?.id || -1);
     const [disabled, setDisabled] = useState(false);
 
     const [selectUserDialogVisible, setSelectUserDialogVisible] = useState(false);
     const [selectUserFiledName, setSelectUserFiledName] = useState('');
     const [selectCustomersDialogVisible, setSelectCustomersDialogVisible] = useState(false);
     const [selectCustomersFiledName, setSelectCustomersFiledName] = useState('');
+
+    const action = props?.match?.params?.action || 'add';
+    const id = props?.match?.params?.id || -1;
 
     //行数据的列
     const columns = [
@@ -87,7 +88,7 @@ const po = (props) => {
                                 item_description: '红豆-黑白色-颜色-XXL',
                                 category_id: 1,
                                 category_name: '服装',
-                                unit_price: '19.8',
+                                price: '19.8',
                                 uom: '件',
                                 quantity: 10,
                                 amount: (19.8 * 10)
@@ -120,7 +121,8 @@ const po = (props) => {
         },
         {
             title: '单价',
-            dataIndex: 'unit_price',
+            dataIndex: 'price',
+            renderType: 'InputNumberEF',
             renderParams: {
                 formItemParams: {
                     rules: [{ required: true, message: '请输入单价' }]
@@ -142,19 +144,31 @@ const po = (props) => {
         {
             title: '数量',
             dataIndex: 'quantity',
+            renderType: 'InputNumberEF',
             renderParams: {
                 formItemParams: {
                     rules: [{ required: true, message: '请输入数量' }]
                 },
-                widgetParams: { disabled: disabled }
+                widgetParams: { disabled: disabled, precision: 0 }
             }
         },
         {
             title: '金额',
             dataIndex: 'amount',
+            renderType: 'InputNumberEF',
             renderParams: {
                 formItemParams: {
                     rules: [{ required: true, message: '请输入金额' }]
+                },
+                widgetParams: { disabled: disabled }
+            }
+        },
+        {
+            title: '备注',
+            dataIndex: 'remark',
+            renderParams: {
+                formItemParams: {
+                    rules: [{ required: false, message: '请输入备注' }]
                 },
                 widgetParams: { disabled: disabled }
             }
@@ -238,10 +252,6 @@ const po = (props) => {
             <Form
                 {...formItemLayout2}
                 form={mainForm}
-                onValuesChange={(a, b) => {
-                    console.log('ab = ', a, b)
-                }}
-                initialValues={{ po_type: "2" }}
                 onFinish={async (fieldsValue) => {
                     //验证tableForm
                     tableForm
@@ -448,7 +458,7 @@ const po = (props) => {
                         onClick={() => {
                             //新增一行
                             tableRef.current.addItem({
-                                po_line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
                                 cancel_flag: 0
                             });
                         }}
@@ -465,7 +475,7 @@ const po = (props) => {
                     ></Button>
                 ]}
             >
-                <TableForm_A ref={tableRef} disabled={disabled} columns={columns} primaryKey="po_line_id" tableForm={tableForm} />
+                <TableForm_A ref={tableRef} disabled={disabled} columns={columns} primaryKey="line_id" tableForm={tableForm} />
             </ProCardCollapse>
             <SelectUserDialog
                 modalVisible={selectUserDialogVisible}

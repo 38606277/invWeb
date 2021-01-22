@@ -5,6 +5,7 @@ import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import TableForm_A from '@/components/EditFormA/TableForm_A';
 import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
 import SelectPoDialog from '@/components/Po/SelectPoDialog';
+import SelectItemDialog from '@/components/itemCategory/SelectItemDialog';
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
@@ -40,7 +41,8 @@ export default (props) => {
   const [mainForm] = Form.useForm();
   const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
   const [selectPoDialogVisible, setSelectPoDialogVisible] = useState(false);
-
+  const [selectItemDialogVisible, setSelectItemDialogVisible] = useState(false);
+  const [selectItemRecord, setSelectItemRecord] = useState({});
 
   const [disabled, setDisabled] = useState(false);
 
@@ -48,122 +50,242 @@ export default (props) => {
   const action = props?.match?.params?.action || 'add';
   const id = props?.match?.params?.id || -1;
 
+  const calculateAmount = (value, name, record) => {
+    const amount = record['quantity'] * record['price'];
+    tableRef.current.handleObjChange(
+      {
+        amount: amount
+      },
+      record);
+  }
 
-  //行数据的列
-  const columns = [
-    {
-      title: '物料id',
-      dataIndex: 'item_id',
-      hide: true,
-      renderParams: {
-        formItemParams: {
-          rules: [{ required: false, message: '请选择物料' }]
-        },
-        widgetParams: { disabled: true }
-      }
-    },
-    {
-      title: '物料描述',
-      dataIndex: 'item_description',
-      renderType: 'InputSearchEF',
-      renderParams: {
-        formItemParams: {
-          rules: [{ required: true, message: '请选择物料' }]
-        },
-        widgetParams: {
-          disabled: disabled,
-          onSearch: (name, record) => {
-            tableRef.current.handleObjChange(
-              {
-                line_id: 1,
-                item_id: 5,
-                item_description: '红豆-黑白色-颜色-XXL',
-                category_id: 1,
-                category_name: '服装',
-                unit_price: '19.8',
-                uom: '件',
-                quantity: 10,
-                amount: (19.8 * 10)
-              },
-              record);
+  const buildColumns = () => {
+    if (type == 'other') {//其他入库
+      return [
+        {
+          title: '物料id',
+          dataIndex: 'item_id',
+          hide: true,
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: false, message: '请选择物料' }]
+            },
+            widgetParams: { disabled: true }
           }
-        }
-      }
-    },
-    {
-      title: '单价',
-      dataIndex: 'unit_price',
-      renderParams: {
-        formItemParams: {
-          rules: [{ required: true, message: '请输入单价' }]
         },
-        widgetParams: { disabled: disabled }
-      }
-    },
-    {
-      title: '单位',
-      dataIndex: 'uom',
-      renderParams: {
-        formItemParams: {
-          rules: [{ required: true, message: '请输入单位' }]
-        },
-        widgetParams: { disabled: disabled }
-      }
-    },
-    {
-      title: '数量',
-      dataIndex: 'quantity',
-      renderParams: {
-        formItemParams: {
-          rules: [{ required: true, message: '请输入数量' }]
-        },
-        widgetParams: { disabled: disabled }
-      }
-    },
-    {
-      title: '金额',
-      dataIndex: 'amount',
-      renderParams: {
-        formItemParams: {
-          rules: [{ required: true, message: '请输入金额' }]
-        },
-        widgetParams: { disabled: disabled }
-      }
-    }, {
-      title: '接收数量',
-      dataIndex: 'ok_quantity',
-      hide: type != 'po',
-      renderParams: {
-        formItemParams: {
-          rules: [{ required: type != 'po', message: '请输入接收数量' }]
-        },
-        widgetParams: {
-          disabled: disabled,
-          onChange: (value, name, record) => {
-            //数量不能大于结存数量
-            if (record['quantity'] < record['ok_quantity']) {
-              message.error('接收数量不能大于剩余数量，请检查');
-              tableRef.current.handleObjChange(
-                {
-                  ok_quantity: record['quantity']
-                },
-                record);
+        {
+          title: '物料描述',
+          dataIndex: 'item_description',
+          renderType: 'InputSearchEF',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请选择物料' }]
+            },
+            widgetParams: {
+              disabled: disabled,
+              onSearch: (name, record) => {
+                setSelectItemRecord(record)
+                setSelectItemDialogVisible(true)
+              }
             }
           }
-        }
-
-      }
-    }, {
-      title: '备注',
-      dataIndex: 'reamrk',
-      renderParams: {
-        formItemParams: {
-          rules: [{ required: true, message: '请输入金额' }]
         },
-        widgetParams: { disabled: disabled }
-      }
+        {
+          title: '单价',
+          dataIndex: 'price',
+          renderType: 'InputNumberEF',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入单价' }]
+            },
+            widgetParams: { disabled: disabled, onChange: calculateAmount }
+          }
+        },
+        {
+          title: '单位',
+          dataIndex: 'uom',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入单位' }]
+            },
+            widgetParams: { disabled: disabled }
+          }
+        },
+        {
+          title: '数量',
+          dataIndex: 'quantity',
+          renderType: 'InputNumberEF',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入数量' }]
+
+            },
+            widgetParams: { disabled: disabled, precision: 0, onChange: calculateAmount }
+          }
+        },
+        {
+          title: '金额',
+          dataIndex: 'amount',
+          renderType: 'InputNumberEF',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入金额' }]
+            },
+            widgetParams: {
+              disabled: true
+            }
+          }
+        },
+        {
+          title: '备注',
+          dataIndex: 'remark',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: false, message: '请输入备注' }]
+            },
+            widgetParams: { disabled: disabled }
+          }
+        }
+      ]
+
+    } else if (type == 'po') {//订单入库
+
+      return [
+        {
+          title: '物料id',
+          dataIndex: 'item_id',
+          hide: true,
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: false, message: '请选择物料' }]
+            },
+            widgetParams: { disabled: true }
+          }
+        },
+        {
+          title: '物料描述',
+          dataIndex: 'item_description',
+          renderType: 'InputSearchEF',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请选择物料' }]
+            },
+            widgetParams: {
+              disabled: disabled,
+              onSearch: (name, record) => {
+                setSelectItemRecord(record)
+                setSelectItemDialogVisible(true)
+              }
+            }
+          }
+        },
+        {
+          title: '单价',
+          dataIndex: 'price',
+          renderType: 'InputNumberEF',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入单价' }]
+            },
+            widgetParams: {
+              disabled: disabled,
+              onChange: (value, name, record) => {
+                const amount = record['quantity'] * record['price'];
+                tableRef.current.handleObjChange(
+                  {
+                    amount: amount
+                  },
+                  record);
+              }
+            }
+          }
+        },
+        {
+          title: '单位',
+          dataIndex: 'uom',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入单位' }]
+            },
+            widgetParams: { disabled: disabled }
+          }
+        },
+        {
+          title: '未接收数量',
+          dataIndex: 'not_rcv_quantity',
+          renderType: 'InputNumberEF',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入数量' }]
+            },
+            widgetParams: { disabled: disabled, precision: 0, }
+          }
+        },
+        {
+          title: '接收数量',
+          dataIndex: 'quantity',
+          renderType: 'InputNumberEF',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入接收数量' }]
+            },
+            widgetParams: {
+              disabled: disabled,
+              precision: 0,
+              onChange: (value, name, record) => {
+                //数量不能大于结存数量
+                if (record['not_rcv_quantity'] < record['quantity']) {
+                  message.error('接收数量不能大于未接收数量，请检查');
+                  const quantity = record['not_rcv_quantity'];
+                  const amount = quantity * record['price'];
+                  tableRef.current.handleObjChange(
+                    {
+                      quantity: quantity,
+                      amount: amount
+                    },
+                    record);
+                } else {
+                  const amount = record['quantity'] * record['price'];
+                  tableRef.current.handleObjChange(
+                    {
+                      amount: amount
+                    },
+                    record);
+                }
+              }
+            }
+
+          }
+        }, {
+          title: '金额',
+          dataIndex: 'amount',
+          renderType: 'InputNumberEF',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入金额' }]
+            },
+            widgetParams: { disabled: true }
+          }
+        }, {
+          title: '备注',
+          dataIndex: 'remark',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: false, message: '请输入备注' }]
+            },
+            widgetParams: { disabled: disabled }
+          }
+        }
+      ]
+
     }
-  ]
+
+
+
+    return [];
+  }
+
+
 
   const save = (params) => {
     HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
@@ -256,7 +378,7 @@ export default (props) => {
                 bill_date: fieldsValue['bill_date'].format('YYYY-MM-DD HH:mm:ss'),
               };
 
-              values.bill_type = 'store';
+              values.bill_type = `store_${type}`;
 
               if (action === 'edit') {
                 let deleteRecordKeys = tableRef.current.getDeleteRecordKeys();
@@ -265,12 +387,20 @@ export default (props) => {
                 let deleteIds = deleteRecordKeys.filter((element) => {
                   return element.toString().indexOf('NEW_TEMP_ID_') < 0;
                 });
+                values.bill_status = 1;
                 update({
                   mainData: values,
                   linesData: tableData,
                   deleteData: deleteIds.toString(), // 删除项
                 });
               } else {
+
+                if (type == 'po') {
+                  values.bill_status = 1;
+                } else {
+                  values.bill_status = 0;
+                }
+
                 save({
                   mainData: values,
                   linesData: tableData,
@@ -398,7 +528,7 @@ export default (props) => {
           ></Button>
         ]}
       >
-        <TableForm_A ref={tableRef} columns={columns} primaryKey="line_id" tableForm={tableForm} />
+        <TableForm_A ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
       </ProCardCollapse>
       <SelectOrgDialog
         modalVisible={selectOrgDialogVisible}
@@ -426,13 +556,41 @@ export default (props) => {
             source_system: '0',
             op_code: mainData.header_code
           });
-          tableRef?.current?.initData(linesData);
+
+          const initData = [];
+          for (let i in linesData) {
+            const line = linesData[i];
+            initData.push({
+              item_id: line.item_id,
+              item_description: line.item_description,
+              price: line.price,
+              not_rcv_quantity: line.not_rcv_quantity
+            })
+          }
+          tableRef?.current?.initData(initData);
           setSelectPoDialogVisible(false);
         }}
         handleCancel={() => {
           setSelectPoDialogVisible(false);
         }}
       />
+
+      <SelectItemDialog
+        modalVisible={selectItemDialogVisible}
+        //selectType="checkbox"
+        handleOk={(result) => {
+          console.log('SelectItemDialog', result)
+          tableRef.current.handleObjChange(
+            result,
+            selectItemRecord);
+          setSelectItemDialogVisible(false);
+        }}
+        handleCancel={() => {
+          setSelectItemDialogVisible(false);
+        }}
+      />
+
+
     </PageContainer>
   );
 };

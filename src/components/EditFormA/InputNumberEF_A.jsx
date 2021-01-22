@@ -22,6 +22,7 @@ const InputNumberEF_A = (props) => {
         >
             <InputNumber
                 allowClear
+                min={0}//默认最小值为0
                 {...widgetParams}
                 onChange={(value) => {
                     if (handleFieldChange) {

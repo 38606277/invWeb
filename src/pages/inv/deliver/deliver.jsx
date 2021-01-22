@@ -2,8 +2,10 @@ import React, { useRef, useState, useEffect } from 'react';
 import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
-import TableForm from './components/TableForm';
+import TableForm_A from '@/components/EditFormA/TableForm_A';
 import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
+import SelectItemDialog from '@/components/itemCategory/SelectItemDialog';
+
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
@@ -23,14 +25,155 @@ const formItemLayout1 = {
     wrapperCol: { span: 20 },
 };
 
+
 const deliver = (props) => {
     const tableRef = useRef();
     const [tableForm] = Form.useForm();
     const [mainForm] = Form.useForm();
     const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
-    const [action, setAction] = useState(props?.match?.params?.action || add);
-    const [id, setId] = useState(props?.match?.params?.id || -1);
+    const [selectItemDialogVisible, setSelectItemDialogVisible] = useState(false);
+    const [selectItemRecord, setSelectItemRecord] = useState({});
     const [disabled, setDisabled] = useState(false);
+
+    const action = props?.match?.params?.action || 'add';
+    const id = props?.match?.params?.id || -1;
+
+
+    const calculateAmount = (value, name, record) => {
+        const amount = record['quantity'] * record['price'];
+        tableRef.current.handleObjChange(
+            {
+                amount: amount
+            },
+            record);
+    }
+
+    const buildColumns = () => {
+
+        return [
+            {
+                title: '物料id',
+                dataIndex: 'item_id',
+                hide: true,
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: false, message: '请选择物料' }]
+                    },
+                    widgetParams: { disabled: true }
+                }
+            },
+            {
+                title: '物料描述',
+                dataIndex: 'item_description',
+                renderType: 'InputSearchEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请选择物料' }]
+                    },
+                    widgetParams: {
+                        disabled: disabled,
+                        onSearch: (name, record) => {
+                            setSelectItemRecord(record)
+                            setSelectItemDialogVisible(true)
+                        }
+                    }
+                }
+            },
+            {
+                title: '单价',
+                dataIndex: 'price',
+                renderType: 'InputNumberEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入单价' }]
+                    },
+                    widgetParams: { disabled: disabled, onChange: calculateAmount }
+                }
+            },
+            {
+                title: '单位',
+                dataIndex: 'uom',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入单位' }]
+                    },
+                    widgetParams: { disabled: disabled }
+                }
+            },
+            {
+                title: '结存数量',
+                dataIndex: 'balance',
+                renderType: 'InputNumberEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入结存数量' }]
+
+                    },
+                    widgetParams: { disabled: disabled, precision: 0 }
+                }
+            },
+            {
+                title: '数量',
+                dataIndex: 'quantity',
+                renderType: 'InputNumberEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入数量' }]
+
+                    },
+                    widgetParams: {
+                        disabled: disabled,
+                        precision: 0,
+                        onChange: (value, name, record) => {
+                            //数量不能大于结存数量
+                            if (record['balance'] < record['quantity']) {
+                                message.error('接收数量不能大于结存数量，请检查');
+                                const quantity = record['balance'];
+                                const amount = quantity * record['price'];
+                                tableRef.current.handleObjChange(
+                                    {
+                                        quantity: quantity,
+                                        amount: amount
+                                    },
+                                    record);
+                            } else {
+                                const amount = record['quantity'] * record['price'];
+                                tableRef.current.handleObjChange(
+                                    {
+                                        amount: amount
+                                    },
+                                    record);
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                title: '金额',
+                dataIndex: 'amount',
+                renderType: 'InputNumberEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入金额' }]
+                    },
+                    widgetParams: {
+                        disabled: true
+                    }
+                }
+            },
+            {
+                title: '备注',
+                dataIndex: 'remark',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: false, message: '请输入备注' }]
+                    },
+                    widgetParams: { disabled: disabled }
+                }
+            }
+        ]
+
+    }
 
     const save = (params) => {
         HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
@@ -131,12 +274,14 @@ const deliver = (props) => {
                                 let deleteIds = deleteRecordKeys.filter((element) => {
                                     return element.toString().indexOf('NEW_TEMP_ID_') < 0;
                                 });
+                                values.bill_status = 1;
                                 update({
                                     mainData: values,
                                     linesData: tableData,
                                     deleteData: deleteIds.toString(), // 删除项
                                 });
                             } else {
+                                values.bill_status = 0;
                                 save({
                                     mainData: values,
                                     linesData: tableData,
@@ -192,18 +337,6 @@ const deliver = (props) => {
                                 <DatePicker style={{ width: "100%" }} disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
                             </Form.Item>
                         </Col>
-                        <Col xs={24} sm={10}>
-                            <Form.Item
-                                name="bill_status"
-                                label="状态"
-                                rules={[{ required: true, message: '请选择状态' }]}
-                            >
-                                <Select disabled={disabled}>
-                                    <Option value={0}>新建</Option>
-                                    <Option value={1}>过账</Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
                     </Row>
 
                     <Row>
@@ -252,7 +385,7 @@ const deliver = (props) => {
                     ></Button>
                 ]}
             >
-                <TableForm ref={tableRef} disabled={disabled} primaryKey="line_id" tableForm={tableForm} />
+                <TableForm_A ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
             </ProCardCollapse>
             <SelectOrgDialog
                 modalVisible={selectOrgDialogVisible}
@@ -267,6 +400,20 @@ const deliver = (props) => {
                 }}
                 handleCancel={() => {
                     setSelectOrgDialogVisible(false);
+                }}
+            />
+            <SelectItemDialog
+                modalVisible={selectItemDialogVisible}
+                //selectType="checkbox"
+                handleOk={(result) => {
+                    console.log('SelectItemDialog', result)
+                    tableRef.current.handleObjChange(
+                        result,
+                        selectItemRecord);
+                    setSelectItemDialogVisible(false);
+                }}
+                handleCancel={() => {
+                    setSelectItemDialogVisible(false);
                 }}
             />
         </PageContainer>
