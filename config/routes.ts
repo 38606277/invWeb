@@ -358,6 +358,22 @@
     ]
   },
   {
+    name: 'shipment',
+    path: '/shipment',
+    routes: [
+      {
+        name: 'user.user-list',
+        path: '/shipment/shipmentList',
+        component: './shipment/shipmentList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/shipment/shipment/:vendor_id',
+        component: './shipment/shipment',
+      },
+    ]
+  },
+  {
     name: 'user.user-list',
     path: '/inv/org',
     component: './inv/org/InvOrg',
