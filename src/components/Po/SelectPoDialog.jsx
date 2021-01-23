@@ -216,7 +216,7 @@ const SelectPoDialog = (props) => {
 
 
     return (
-        <Modal title="选择用户" visible={modalVisible} onOk={() => {
+        <Modal title="选择采购订单" visible={modalVisible} onOk={() => {
             if (selectPoHeader?.po_header_id != null) { //判断是否选择了采购订单
                 //返回订单头信息，行信息
                 handleOk(selectPoHeader, checkRows)

@@ -280,8 +280,6 @@ export default (props) => {
 
     }
 
-
-
     return [];
   }
 
@@ -561,6 +559,7 @@ export default (props) => {
           for (let i in linesData) {
             const line = linesData[i];
             initData.push({
+              line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
               item_id: line.item_id,
               item_description: line.item_description,
               price: line.price,

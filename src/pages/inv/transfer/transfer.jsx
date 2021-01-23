@@ -2,14 +2,15 @@ import React, { useRef, useState, useEffect } from 'react';
 import { message, Form, Button, Row, Col, Select, Input, DatePicker, Steps } from 'antd';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
-import TableForm from './components/TableForm';
+import TableForm_A from '@/components/EditFormA/TableForm_A';
 import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
 import SelectUserDialog from '@/components/User/SelectUserDialog';
+import SelectOnHandDialog from '@/components/OnHand/SelectOnHandDialog';
 import DictSelect from '@/components/Select/DictSelect';
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
-import { SaveOutlined, PlusOutlined, MinusOutlined, RightOutlined } from '@ant-design/icons';
+import { SaveOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import 'moment/locale/zh-cn';
 
 import LocalStorge from '@/utils/LogcalStorge.jsx';
@@ -36,8 +37,10 @@ const transfer = (props) => {
     const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
     const [selectUserDialogVisible, setSelectUserDialogVisible] = useState(false);
 
-    const [disabled, setDisabled] = useState(false);
+    const [selectOnHandDialogVisible, setSelectOnHandDialogVisible] = useState(false);
+    const [selectOrgId, setSelectOrgId] = useState(null);
 
+    const [disabled, setDisabled] = useState(false);
 
     const [selectStroeFiledName, setSelectStroeFiledName] = useState('');
     const [selectUserFiledName, setSelectUserFiledName] = useState('');
@@ -48,6 +51,112 @@ const transfer = (props) => {
     const action = props?.match?.params?.action || 'add';
     const id = props?.match?.params?.id || -1;
 
+
+    const buildColumns = () => {
+
+        return [
+            {
+                title: '物料id',
+                dataIndex: 'item_id',
+                hide: true,
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: false, message: '请选择物料' }]
+                    },
+                    widgetParams: { disabled: true }
+                }
+            },
+            {
+                title: '物料描述',
+                dataIndex: 'item_description',
+                renderType: 'InputSearchEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请选择物料' }]
+                    },
+                    widgetParams: {
+                        disabled: true,
+                        onSearch: (name, record) => {
+                            // setSelectItemRecord(record)
+                            // setSelectItemDialogVisible(true)
+                        }
+                    }
+                }
+            },
+            {
+                title: '单价',
+                dataIndex: 'price',
+                renderType: 'InputNumberEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入单价' }]
+                    },
+                    widgetParams: { disabled: true, }
+                }
+            },
+            {
+                title: '单位',
+                dataIndex: 'uom',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入单位' }]
+                    },
+                    widgetParams: { disabled: true }
+                }
+            },
+            {
+                title: '结余数量',
+                dataIndex: 'on_hand_quantity',
+                renderType: 'InputNumberEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入结余数量' }]
+
+                    },
+                    widgetParams: { disabled: true, precision: 0 }
+                }
+            },
+            {
+                title: '金额',
+                dataIndex: 'amount',
+                renderType: 'InputNumberEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入金额' }]
+                    },
+                    widgetParams: {
+                        disabled: true
+                    }
+                }
+            },
+            {
+                title: '调拨数量',
+                dataIndex: 'quantity',
+                renderType: 'InputNumberEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入调拨数量' }]
+
+                    },
+                    widgetParams: {
+                        disabled: disabled,
+                        precision: 0
+                    }
+                }
+            },
+            {
+                title: '备注',
+                dataIndex: 'remark',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: false, message: '请输入备注' }]
+                    },
+                    widgetParams: { disabled: disabled }
+                }
+            }
+        ]
+
+    }
 
     const save = (params) => {
         HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
@@ -385,14 +494,19 @@ const transfer = (props) => {
                         size="small"
                         onClick={() => {
                             //新增一行
-                            tableRef.current.addItem({
-                                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                                item_name: '',
-                                quantity: '',
-                                uom: '',
-                                amount: '',
-                                reamrk: '',
-                            });
+                            // tableRef.current.addItem({
+                            //     line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                            //     item_name: '',
+                            //     quantity: '',
+                            //     uom: '',
+                            //     amount: '',
+                            //     reamrk: '',
+                            // });
+                            if (selectOrgId == null) {
+                                message.error("请先选择调出仓库")
+                            } else {
+                                setSelectOnHandDialogVisible(true);
+                            }
                         }}
                     ></Button>,
                     <Button
@@ -407,7 +521,7 @@ const transfer = (props) => {
                     ></Button>
                 ]}
             >
-                <TableForm ref={tableRef} disabled={disabled} primaryKey="line_id" tableForm={tableForm} />
+                <TableForm_A ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
             </ProCardCollapse>
             <SelectOrgDialog
                 modalVisible={selectOrgDialogVisible}
@@ -417,6 +531,10 @@ const transfer = (props) => {
                             [`${selectStroeFiledName}_id`]: selectOrg.org_id,
                             [`${selectStroeFiledName}_name`]: selectOrg.org_name,
                         });
+
+                        if (selectStroeFiledName == 'inv_org') {
+                            setSelectOrgId(selectOrg.org_id);
+                        }
                     }
                     setSelectOrgDialogVisible(false);
                 }}
@@ -439,6 +557,32 @@ const transfer = (props) => {
                 }}
                 handleCancel={() => {
                     setSelectUserDialogVisible(false);
+                }}
+            />
+            <SelectOnHandDialog
+                orgId={selectOrgId}
+                modalVisible={selectOnHandDialogVisible}
+                selectType="checkbox"
+                handleOk={(result) => {
+                    console.log('SelectOnHandDialog', result)
+
+                    const initData = [];
+                    for (let i in result) {
+                        const line = result[i];
+                        initData.push({
+                            line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                            item_id: line.item_id,
+                            item_description: line.item_description,
+                            price: line.price,
+                            on_hand_quantity: line.on_hand_quantity,
+                            amount: line.amount
+                        })
+                    }
+                    tableRef?.current?.initData(initData);
+                    setSelectOnHandDialogVisible(false);
+                }}
+                handleCancel={() => {
+                    setSelectOnHandDialogVisible(false);
                 }}
             />
         </PageContainer>
