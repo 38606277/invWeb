@@ -36,7 +36,7 @@ const deleteByIds = ( selectedRowKeys) => {
         message.error('请选择需要删除的内容');
         return;
     }
-    HttpService.post('reportServer/customers/deleteCustomersById', JSON.stringify({ customer_id: selectedRowKeys.toString() }))
+    HttpService.post('reportServer/vendors/deleteCustomersById', JSON.stringify({ vendor_id: selectedRowKeys.toString() }))
         .then(res => {
             if (res.resultCode == "1000") {
                 //刷新
@@ -57,7 +57,7 @@ const fetchData = async (params, sort, filter) => {
         perPage: params.pageSize,
         ...params
     }
-    const result = await HttpService.post('reportServer/customers/getAllPage', JSON.stringify(requestParam));
+    const result = await HttpService.post('reportServer/vendors/getAllPage', JSON.stringify(requestParam));
     return Promise.resolve({
         data: result.data.list,
         total: result.data.total,
@@ -65,7 +65,7 @@ const fetchData = async (params, sort, filter) => {
     });
 }
 
-const customersList = () => {
+const vendorsList = () => {
 
     const ref = useRef();
     const [visible, setVisible] = useState(false);
@@ -75,25 +75,25 @@ const customersList = () => {
     const columns = [
         {
             title: '名称',
-            dataIndex: 'customer_name',
+            dataIndex: 'vendor_name',
             valueType: 'text',
             align:"center"
         },
         {
             title: '地址',
-            dataIndex: 'customer_address',
+            dataIndex: 'vendor_address',
             valueType: 'text',
             align:"center"
         },
         {
             title: '联系人',
-            dataIndex: 'customer_link',
+            dataIndex: 'vendor_link',
             valueType: 'text',
             align:"center"
         },
         {
             title: '类型',
-            dataIndex: 'customer_type',
+            dataIndex: 'vendor_type',
             valueType: 'text',
             align:"center"
         },
@@ -110,10 +110,10 @@ const customersList = () => {
             valueType: 'option',
             align:"center",
             render: (text, record) => [
-                <Button type="text" onClick={() => history.push('/customers/customers/'+`${record.customer_id}`)}>
+                <Button type="text" onClick={() => history.push('/vendors/vendors/'+`${record.vendor_id}`)}>
                       编辑
                     </Button>,
-                <Button type="text" danger onClick={() => onDeleteClickListener([record.customer_id])} >删除</Button>,
+                <Button type="text" danger onClick={() => onDeleteClickListener([record.vendor_id])} >删除</Button>,
             ]
         },
     ];
@@ -156,9 +156,9 @@ const customersList = () => {
                     defaultCollapsed: true
                 }}
                 dateFormatter="string"
-                headerTitle="客户列表"
+                headerTitle="供应商列表"
                  toolBarRender={(action, { selectedRows }) => [
-                    <Button type="primary" onClick={() => history.push('/customers/customers/null')}>
+                    <Button type="primary" onClick={() => history.push('/vendors/vendors/null')}>
                       新建
                     </Button>
                   ]}
@@ -167,4 +167,4 @@ const customersList = () => {
     );
 }
 
-export default customersList;
+export default vendorsList;
