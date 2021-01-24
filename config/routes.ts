@@ -387,6 +387,11 @@
     exact: true,
   },
   {
+    path: '/dashboard',
+    name: '/dashboard/dataAssetMap',
+    component: './dashboard/dataAssetMap2',
+  },
+  {
     path: '/admin',
     name: 'admin',
     icon: 'crown',
