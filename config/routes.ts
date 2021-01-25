@@ -379,6 +379,22 @@
     ]
   },
   {
+    name: 'vendors',
+    path: '/vendors',
+    routes: [
+      {
+        name: 'user.user-list',
+        path: '/vendors/vendorsList',
+        component: './vendors/vendorsList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/vendors/vendors/:vendor_id',
+        component: './vendors/vendors',
+      },
+    ]
+  },
+  {
     name: 'user.user-list',
     path: '/inv/org',
     component: './inv/org/InvOrg',
@@ -390,6 +406,11 @@
     icon: 'smile',
     component: './Welcome',
     exact: true,
+  },
+  {
+    path: '/dashboard',
+    name: '/dashboard/dataAssetMap',
+    component: './dashboard/dataAssetMap2',
   },
   {
     path: '/admin',
