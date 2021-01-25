@@ -5,6 +5,7 @@ import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import TableForm_A from '@/components/EditFormA/TableForm_A';
 import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
 import SelectItemDialog from '@/components/itemCategory/SelectItemDialog';
+import SelectOnHandDialog from '@/components/OnHand/SelectOnHandDialog';
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
@@ -33,6 +34,9 @@ const deliver = (props) => {
     const [selectItemDialogVisible, setSelectItemDialogVisible] = useState(false);
     const [selectItemRecord, setSelectItemRecord] = useState({});
     const [disabled, setDisabled] = useState(false);
+
+    const [selectOnHandDialogVisible, setSelectOnHandDialogVisible] = useState(false);
+    const [selectOrgId, setSelectOrgId] = useState(null);
 
     const action = props?.match?.params?.action || 'add';
     const id = props?.match?.params?.id || -1;
@@ -70,10 +74,10 @@ const deliver = (props) => {
                         rules: [{ required: true, message: '请选择物料' }]
                     },
                     widgetParams: {
-                        disabled: disabled,
+                        disabled: true,
                         onSearch: (name, record) => {
-                            setSelectItemRecord(record)
-                            setSelectItemDialogVisible(true)
+                            // setSelectItemRecord(record)
+                            // setSelectItemDialogVisible(true)
                         }
                     }
                 }
@@ -86,7 +90,7 @@ const deliver = (props) => {
                     formItemParams: {
                         rules: [{ required: true, message: '请输入单价' }]
                     },
-                    widgetParams: { disabled: disabled, onChange: calculateAmount }
+                    widgetParams: { disabled: true, onChange: calculateAmount }
                 }
             },
             {
@@ -108,7 +112,7 @@ const deliver = (props) => {
                         rules: [{ required: true, message: '请输入结存数量' }]
 
                     },
-                    widgetParams: { disabled: disabled, precision: 0 }
+                    widgetParams: { disabled: true, precision: 0 }
                 }
             },
             {
@@ -362,14 +366,20 @@ const deliver = (props) => {
                         size="small"
                         onClick={() => {
                             //新增一行
-                            tableRef.current.addItem({
-                                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                                item_name: '',
-                                quantity: '',
-                                uom: '',
-                                amount: '',
-                                reamrk: '',
-                            });
+                            // tableRef.current.addItem({
+                            //     line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                            //     item_name: '',
+                            //     quantity: '',
+                            //     uom: '',
+                            //     amount: '',
+                            //     reamrk: '',
+                            // });
+
+                            if (selectOrgId == null) {
+                                message.error("请先选择调出仓库")
+                            } else {
+                                setSelectOnHandDialogVisible(true);
+                            }
                         }}
                     ></Button>,
                     <Button
@@ -394,6 +404,7 @@ const deliver = (props) => {
                             inv_org_id: selectOrg.org_id,
                             inv_org_name: selectOrg.org_name,
                         });
+                        setSelectOrgId(selectOrg.org_id);
                     }
                     setSelectOrgDialogVisible(false);
                 }}
@@ -413,6 +424,32 @@ const deliver = (props) => {
                 }}
                 handleCancel={() => {
                     setSelectItemDialogVisible(false);
+                }}
+            />
+            <SelectOnHandDialog
+                orgId={selectOrgId}
+                modalVisible={selectOnHandDialogVisible}
+                selectType="checkbox"
+                handleOk={(result) => {
+                    console.log('SelectOnHandDialog', result)
+
+                    const initData = [];
+                    for (let i in result) {
+                        const line = result[i];
+                        initData.push({
+                            line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                            item_id: line.item_id,
+                            item_description: line.item_description,
+                            price: line.price,
+                            balance: line.on_hand_quantity,
+                            //amount: line.amount
+                        })
+                    }
+                    tableRef?.current?.initData(initData);
+                    setSelectOnHandDialogVisible(false);
+                }}
+                handleCancel={() => {
+                    setSelectOnHandDialogVisible(false);
                 }}
             />
         </PageContainer>

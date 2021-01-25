@@ -282,6 +282,11 @@
         path: '/transation/onHand/:action/:id/',
         component: './inv/onHand/onHand',
       },
+      {
+        name: 'user.user-list',
+        path: '/transation/transactionList',
+        component: './inv/transaction/transactionList',
+      }
     ],
   },
 

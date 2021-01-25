@@ -51,6 +51,15 @@ const transfer = (props) => {
     const action = props?.match?.params?.action || 'add';
     const id = props?.match?.params?.id || -1;
 
+    const calculateAmount = (value, name, record) => {
+        const amount = record['quantity'] * record['price'];
+        tableRef.current.handleObjChange(
+            {
+                amount: amount
+            },
+            record);
+    }
+
 
     const buildColumns = () => {
 
@@ -91,7 +100,7 @@ const transfer = (props) => {
                     formItemParams: {
                         rules: [{ required: true, message: '请输入单价' }]
                     },
-                    widgetParams: { disabled: true, }
+                    widgetParams: { disabled: true, onChange: calculateAmount }
                 }
             },
             {
@@ -101,19 +110,54 @@ const transfer = (props) => {
                     formItemParams: {
                         rules: [{ required: true, message: '请输入单位' }]
                     },
-                    widgetParams: { disabled: true }
+                    widgetParams: { disabled: false }
                 }
             },
             {
-                title: '结余数量',
+                title: '结存数量',
                 dataIndex: 'on_hand_quantity',
                 renderType: 'InputNumberEF',
                 renderParams: {
                     formItemParams: {
-                        rules: [{ required: true, message: '请输入结余数量' }]
+                        rules: [{ required: true, message: '请输入结存数量' }]
 
                     },
                     widgetParams: { disabled: true, precision: 0 }
+                }
+            },
+            {
+                title: '调拨数量',
+                dataIndex: 'quantity',
+                renderType: 'InputNumberEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入调拨数量' }]
+                    },
+                    widgetParams: {
+                        disabled: disabled,
+                        precision: 0,
+                        onChange: (value, name, record) => {
+                            //数量不能大于结存数量
+                            if (record['on_hand_quantity'] < record['quantity']) {
+                                message.error('接收数量不能大于结存数量，请检查');
+                                const quantity = record['on_hand_quantity'];
+                                const amount = quantity * record['price'];
+                                tableRef.current.handleObjChange(
+                                    {
+                                        quantity: quantity,
+                                        amount: amount
+                                    },
+                                    record);
+                            } else {
+                                const amount = record['quantity'] * record['price'];
+                                tableRef.current.handleObjChange(
+                                    {
+                                        amount: amount
+                                    },
+                                    record);
+                            }
+                        }
+                    }
                 }
             },
             {
@@ -126,21 +170,6 @@ const transfer = (props) => {
                     },
                     widgetParams: {
                         disabled: true
-                    }
-                }
-            },
-            {
-                title: '调拨数量',
-                dataIndex: 'quantity',
-                renderType: 'InputNumberEF',
-                renderParams: {
-                    formItemParams: {
-                        rules: [{ required: true, message: '请输入调拨数量' }]
-
-                    },
-                    widgetParams: {
-                        disabled: disabled,
-                        precision: 0
                     }
                 }
             },
@@ -575,7 +604,7 @@ const transfer = (props) => {
                             item_description: line.item_description,
                             price: line.price,
                             on_hand_quantity: line.on_hand_quantity,
-                            amount: line.amount
+                            //amount: line.amount
                         })
                     }
                     tableRef?.current?.initData(initData);
