@@ -286,6 +286,11 @@
         name: 'user.user-list',
         path: '/transation/transactionList',
         component: './inv/transaction/transactionList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/transation/inventoryList',
+        component: './inv/inventory/inventoryList',
       }
     ],
   },
