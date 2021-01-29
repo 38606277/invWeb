@@ -153,7 +153,7 @@ const itemCategoryList = () => {
                 actionRef={ref}
                 columns={columns}
                 request={fetchData}
-                rowKey="id"
+                rowKey="category_id"
                 params={{ category_pid: catId }}
                 rowSelection={{
                     // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom

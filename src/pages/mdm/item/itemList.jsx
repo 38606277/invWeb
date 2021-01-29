@@ -226,7 +226,7 @@ const itemList = (props) => {
                 actionRef={ref}
                 columns={columnData}
                 request={fetchData}
-                rowKey="id"
+                rowKey="item_id"
                 align="center"
                 params={{ item_category_id: catId }}
                 rowSelection={{
