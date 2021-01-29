@@ -4,8 +4,8 @@ import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined,PlusCircleOutl
 import ProTable from '@ant-design/pro-table';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import { history } from 'umi';
-
-
+import SplitPane from 'react-split-pane';
+import './index.less';
 import HttpService from '@/utils/HttpService.jsx';
 
 const { confirm } = Modal;
@@ -20,6 +20,7 @@ const itemCategoryList = () => {
     const [initData, setInitData] = useState({});
     const [treeData, setTreeData] = useState([]);
     const [catId, setCatId] = useState('-1');// 用于编辑赋初始值
+    const [minHeight, setMinHeight] = useState( window.innerHeight-92+'px');// 用于编辑赋初始值
 
     const getAllChildrenRecursionById = (catId) => {
         HttpService.post('reportServer/itemCategory/getAllList',JSON.stringify({"category_pid":catId}))
@@ -132,73 +133,61 @@ const itemCategoryList = () => {
     ];
 
     return (
-        <Row style={{ marginTop: '16px' }}>
-                <Col xs={24} sm={6}>
-                    <Tree
-                        defaultExpandAll
-                        style={{ width: "100%", minHeight: "450px", padding: "24px" }}
-                        showLine
-                        
-                        treeData={treeData}
-                        titleRender={(item) => {
-                            return (<div style={{ width: "100%" }} key={item.category_id}>
-                                <span onClick={() => {
-                                    onTreeSelect(item);
-                                }}>{item.category_name}</span>
-                            </div>)
-                        }}
-                    >
-                    </Tree>
-                </Col>
-                <Col xs={24} sm={1}></Col>
-                <Col xs={24} sm={17}>
-                    <ProTable
-                        actionRef={ref}
-                        columns={columns}
-                        request={fetchData}
-                        rowKey="id"
-                        params={{ category_pid: catId }}
-                        rowSelection={{
-                            // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
-                            // 注释该行则默认不显示下拉选项
-                            //selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-                        }}
-                        tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
-                            <Space size={24}>
-                                <span>
-                                    已选 {selectedRowKeys.length} 项
-                            <a
-                                        style={{
-                                            marginLeft: 8,
-                                        }}
-                                        onClick={onCleanSelected}
-                                    >
-                                        取消选择
-                            </a>
-                                </span>
-                            </Space>
-                        )}
-                        tableAlertOptionRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
-                            <Space size={16}>
-                                <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
-                            </Space>
-                        )}
-                        pagination={{
-                            showQuickJumper: true,
-                        }}
-                        search={{
-                            defaultCollapsed: true
-                        }}
-                        dateFormatter="string"
-                        headerTitle="物料类别列表"
-                        toolBarRender={(action, { selectedRows }) => [
-                            <Button type="primary" onClick={() => history.push('/mdm/itemCategory/itemCategory/null/null')}>
-                            新建
-                            </Button>
-                        ]}
-                    />
-                </Col>
-            </Row>
+        <SplitPane split="vertical"  minSize={10} defaultSize={200} style={{minHeight:minHeight,overflow:'auto',margin:'-15px'}}>
+            <Tree
+                defaultExpandAll
+                style={{ width: "100%", minHeight: "450px", padding: "10px" ,minHeight:minHeight,overflow:'auto' }}
+                showLine
+                treeData={treeData}
+                titleRender={(item) => {
+                    return (<div style={{ width: "100%" }} key={item.category_id}>
+                        <span onClick={() => {
+                            onTreeSelect(item);
+                        }}>{item.category_name}</span>
+                    </div>)
+                }}
+            >
+            </Tree>
+        
+            <ProTable
+                actionRef={ref}
+                columns={columns}
+                request={fetchData}
+                rowKey="id"
+                params={{ category_pid: catId }}
+                rowSelection={{
+                    // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
+                    // 注释该行则默认不显示下拉选项
+                    //selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+                }}
+                tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
+                    <Space size={24}>
+                        <span>
+                            已选 {selectedRowKeys.length} 项
+                            <a style={{ marginLeft: 8, }} onClick={onCleanSelected} > 取消选择 </a>
+                        </span>
+                    </Space>
+                )}
+                tableAlertOptionRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
+                    <Space size={16}>
+                        <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
+                    </Space>
+                )}
+                pagination={{
+                    showQuickJumper: true,
+                }}
+                search={{
+                    defaultCollapsed: true
+                }}
+                dateFormatter="string"
+                headerTitle="物料类别列表"
+                toolBarRender={(action, { selectedRows }) => [
+                    <Button type="primary" onClick={() => history.push('/mdm/itemCategory/itemCategory/null/null')}>
+                    新建
+                    </Button>
+                ]}
+            />
+        </SplitPane>
     );
 }
 

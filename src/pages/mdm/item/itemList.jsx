@@ -4,7 +4,8 @@ import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined,PlusCircleOutl
 import ProTable from '@ant-design/pro-table';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import { history } from 'umi';
-
+import SplitPane from 'react-split-pane';
+import '../itemCategory/index.less';
 
 import HttpService from '@/utils/HttpService.jsx';
 
@@ -19,6 +20,7 @@ const itemList = (props) => {
     const [columnData, setColumnData] = useState([]);
     const [catId, setCatId] = useState('-1');// 用于编辑赋初始值
     const [checkVal , setCheckVal] = useState([]);
+    const [minHeight, setMinHeight] = useState( window.innerHeight-92+'px');// 用于编辑赋初始值
 
     const getAllChildrenRecursionById = (catId) => {
         HttpService.post('reportServer/itemCategory/getAllList',JSON.stringify({"category_pid":catId}))
@@ -27,11 +29,11 @@ const itemList = (props) => {
                     if(null!=res.data){
                       console.log(res.data);
                       if(res.data.length>0){
-                        const caiid=res.data[0].category_id;
-                        onTreeSelect(caiid);
+                        // const caiid=res.data[0].category_id;
+                        // onTreeSelect(caiid);
                         setCheckVal([]);
-                        setCheckVal([caiid]);
-                        setCatId(caiid)
+                        // setCheckVal([caiid]);
+                        // setCatId(caiid)
                         setTreeData(res.data)
                       }
                     }
@@ -73,11 +75,16 @@ const itemList = (props) => {
         setColumnData(columns);
     }
     useEffect(() => {
-        if ("null" != props.match.params.category_id && "" != props.match.params.category_id) {
+        if ("null" != props.match.params.category_id && "-1" != props.match.params.category_id && "" != props.match.params.category_id) {
+            
+            console.log(333333);
             setCatId(props.match.params.category_id);
             onTreeSelect(props.match.params.category_id);
             setCheckVal([]);
             setCheckVal([props.match.params.category_id]);
+        }else{
+            console.log(1111);
+            setColumnData(columns);
         }
         refreshData();
     }, [])
@@ -136,6 +143,10 @@ const itemList = (props) => {
         });
     }
     const onTreeSelect = (category_id) => {
+        setCheckVal();
+        setCheckVal(category_id);
+        setCatId(category_id)
+
         const outlist = [{
             title: '描述',
             dataIndex: 'item_description',
@@ -143,7 +154,7 @@ const itemList = (props) => {
             align:"center"
         }];
         setColumnData([]);
-        if (catId !== category_id) {
+        if (catId !== category_id && "-1"!=category_id) {
             let params = {
                 "category_id":category_id
             }
@@ -182,6 +193,8 @@ const itemList = (props) => {
                     message.error(res.message);
                 }
             })
+        }else{
+            setColumnData(outlist);
         }
     }
     const onChangeOption = (value, selectedOptions) => {
@@ -198,62 +211,60 @@ const itemList = (props) => {
         children:"children"
       }
     return (
-        <div style={{ marginTop: '16px' }}>
-            <Row>
-                <Col xs={24} sm={24}>
-                    物料类别： <Cascader 
-                    options={treeData} 
-                    placeholder="请选择类别" 
-                    onChange={onChangeOption} 
-                    value={checkVal}
-                    changeOnSelect
-                    allowClear={false} 
-                    fieldNames={exdefault}/>
-               </Col>
-               </Row>
-               <Row>
-                   <Col xs={24} sm={24}>
-                   <ProTable
-                    actionRef={ref}
-                    columns={columnData}
-                    request={fetchData}
-                    rowKey="id"
-                    align="center"
-                    params={{ item_category_id: catId }}
-                    rowSelection={{
-                        // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
-                        // 注释该行则默认不显示下拉选项
-                        //selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-                    }}
-                    tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
-                        <Space size={24}>
-                            <span>  已选 {selectedRowKeys.length} 项
-                                <a style={{ marginLeft: 8 }} onClick={onCleanSelected}>取消选择</a>
-                            </span>
-                        </Space>
-                    )}
-                    tableAlertOptionRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
-                        <Space size={16}>
-                            <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
-                        </Space>
-                    )}
-                    pagination={{
-                        showQuickJumper: true,
-                    }}
-                    search={{
-                        defaultCollapsed: true
-                    }}
-                    dateFormatter="string"
-                    headerTitle="物料管理列表"
-                    toolBarRender={(action, { selectedRows }) => [
-                        <Button type="primary" onClick={() => history.push('/mdm/item/item/'+catId+'/null')}>
-                        新建
-                        </Button>
-                    ]}
-                />
-            </Col>
-            </Row> 
-        </div>
+        <SplitPane split="vertical"  minSize={10} defaultSize={200} style={{minHeight:minHeight,overflow:'auto',margin:'-15px'}}>
+            <Tree
+                defaultExpandAll
+                style={{ width: "100%", minHeight: "450px", padding: "10px" ,minHeight:minHeight,overflow:'auto' }}
+                showLine
+                treeData={treeData}
+                titleRender={(item) => {
+                    return (<div style={{ width: "100%" }} key={item.category_id}>
+                        <span onClick={() => {
+                            onTreeSelect(item.category_id);
+                        }}>{item.category_name}</span>
+                    </div>)
+                }}
+            >
+            </Tree>
+            <ProTable
+                actionRef={ref}
+                columns={columnData}
+                request={fetchData}
+                rowKey="id"
+                align="center"
+                params={{ item_category_id: catId }}
+                rowSelection={{
+                    // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
+                    // 注释该行则默认不显示下拉选项
+                    //selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+                }}
+                tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
+                    <Space size={24}>
+                        <span>  已选 {selectedRowKeys.length} 项
+                            <a style={{ marginLeft: 8 }} onClick={onCleanSelected}>取消选择</a>
+                        </span>
+                    </Space>
+                )}
+                tableAlertOptionRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
+                    <Space size={16}>
+                        <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
+                    </Space>
+                )}
+                pagination={{
+                    showQuickJumper: true,
+                }}
+                search={{
+                    defaultCollapsed: true
+                }}
+                dateFormatter="string"
+                headerTitle="物料管理列表"
+                toolBarRender={(action, { selectedRows }) => [
+                    <Button type="primary" onClick={() => history.push('/mdm/item/item/'+catId+'/null')}>
+                    新建
+                    </Button>
+                ]}
+            />
+        </SplitPane>
     );
 }
 
