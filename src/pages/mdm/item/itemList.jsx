@@ -76,14 +76,11 @@ const itemList = (props) => {
     }
     useEffect(() => {
         if ("null" != props.match.params.category_id && "-1" != props.match.params.category_id && "" != props.match.params.category_id) {
-            
-            console.log(333333);
             setCatId(props.match.params.category_id);
             onTreeSelect(props.match.params.category_id);
             setCheckVal([]);
             setCheckVal([props.match.params.category_id]);
         }else{
-            console.log(1111);
             setColumnData(columns);
         }
         refreshData();
@@ -145,16 +142,15 @@ const itemList = (props) => {
     const onTreeSelect = (category_id) => {
         setCheckVal();
         setCheckVal(category_id);
-        setCatId(category_id)
-
         const outlist = [{
             title: '描述',
             dataIndex: 'item_description',
             valueType: 'text',
             align:"center"
         }];
-        setColumnData([]);
         if (catId !== category_id && "-1"!=category_id) {
+            setColumnData([]);
+            setCatId(category_id)
             let params = {
                 "category_id":category_id
             }
@@ -193,27 +189,27 @@ const itemList = (props) => {
                     message.error(res.message);
                 }
             })
-        }else{
+        }else if("-1"==category_id){
             setColumnData(outlist);
         }
     }
-    const onChangeOption = (value, selectedOptions) => {
-        setCheckVal();
-        setCheckVal(value);
-        const catidd=selectedOptions[selectedOptions.length-1]["category_id"];
-        setCatId(catidd)
-        onTreeSelect(catidd);
-      }
+    // const onChangeOption = (value, selectedOptions) => {
+    //     setCheckVal();
+    //     setCheckVal(value);
+    //     const catidd=selectedOptions[selectedOptions.length-1]["category_id"];
+    //     setCatId(catidd)
+    //     onTreeSelect(catidd);
+    //   }
     
-      const exdefault={
-        label:"category_name",
-        value:"category_id",
-        children:"children"
-      }
+    //   const exdefault={
+    //     label:"category_name",
+    //     value:"category_id",
+    //     children:"children"
+    //   }
     return (
         <SplitPane split="vertical"  minSize={10} defaultSize={200} style={{minHeight:minHeight,overflow:'auto',margin:'-15px'}}>
             <Tree
-                defaultExpandAll
+                defaultExpandAll="true"
                 style={{ width: "100%", minHeight: "450px", padding: "10px" ,minHeight:minHeight,overflow:'auto' }}
                 showLine
                 treeData={treeData}
