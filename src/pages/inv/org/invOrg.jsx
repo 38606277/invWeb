@@ -6,8 +6,7 @@ import HttpService from '@/utils/HttpService.jsx';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import CreateForm from './components/CreateForm.jsx';
 import UpdateForm from './components/UpdateForm.jsx';
-
-
+import SplitPane from 'react-split-pane';
 
 
 const { confirm } = Modal;
@@ -40,6 +39,8 @@ const InvOrg = () => {
 
     const [initData, setInitData] = useState({});// 用于编辑赋初始值
     const [orgPid, setOrgPid] = useState();// 用于编辑赋初始值
+
+    const [minHeight, setMinHeight] = useState(window.innerHeight - 92 + 'px'); // 用于编辑赋初始值
 
     const getAllChildrenRecursionById = (mOrgPid) => {
         HttpService.post('reportServer/invOrg/getAllChildrenRecursionById', JSON.stringify({ org_pid: mOrgPid }))
@@ -173,97 +174,83 @@ const InvOrg = () => {
 
 
     return (
-        <PageContainer>
+        <PageContainer ghost="true" title="仓库管理">
+            <SplitPane split="vertical" minSize={10} defaultSize={200}>
+                <Tree
+                    defaultExpandAll
+                    style={{
+                        width: '100%',
+                        padding: '10px',
+                        overflow: 'auto',
+                        minHeight: minHeight,
+                    }}
+                    showLine
+                    treeData={treeData}
+                    titleRender={(item) => {
+                        return (<div style={{ width: "100%" }} key={item.org_id} onClick={() => {
+                            onTreeSelect(item);
+                        }}>
+                            <span >{item.org_name}</span>
+                        </div>)
+                    }}
+                >
+                </Tree>
 
-            <Row style={{ marginTop: '16px' }}>
-                <Col xs={24} sm={6}>
-                    <Tree
-                        defaultExpandAll
-                        style={{ width: "100%", minHeight: "450px", padding: "24px" }}
-                        showLine
 
-                        treeData={treeData}
-                        titleRender={(item) => {
-                            return (<div style={{ width: "100%" }} key={item.org_id}>
-                                <span onClick={() => {
-                                    onTreeSelect(item);
-                                }}>{item.org_name}</span>
-                                {/* <PlusOutlined style={{ marginLeft: '10px', fontSize: '14px', color: '#1890ff' }} onClick={() => {
-                                    handleCreateModalVisible(true);
-                                    setOrgPid(item.org_id)
-                                }} />
-                                <EditOutlined style={{ marginLeft: '10px', fontSize: '14px', color: '#1890ff' }} onClick={() => {
-                                    setInitData(item)
-                                    handleUpdateModalVisible(true);
-                                }} />
-                                <DeleteOutlined style={{ marginLeft: '10px', fontSize: '14px', color: '#1890ff' }} onClick={() => {
-                                    onDeleteClickListener([item.org_id]);
-                                }}
-                                 /> */}
-                            </div>)
-                        }}
-                    >
-                    </Tree>
-                </Col>
-                <Col xs={24} sm={1}>
-                </Col>
-                <Col xs={24} sm={17}>
-
-                    <ProTable
-                        headerTitle="仓库列表"
-                        actionRef={ref}
-                        columns={columns}
-                        request={fetchData}
-                        rowKey="org_id"
-                        params={{ path: currentPath }}
-                        rowSelection={{
-                            //  自定义选择项参考: https:// ant.design/components/table-cn/#components-table-demo-row-selection-custom
-                            //  注释该行则默认不显示下拉选项
-                            // selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-                        }}
-                        tableAlertRender={({ selectedRowKeys, onCleanSelected }) => (
-                            <Space size={24}>
-                                <span>
-                                    已选 {selectedRowKeys.length} 项
+                <ProTable
+                    headerTitle="仓库列表"
+                    actionRef={ref}
+                    columns={columns}
+                    request={fetchData}
+                    rowKey="org_id"
+                    params={{ path: currentPath }}
+                    rowSelection={{
+                        //  自定义选择项参考: https:// ant.design/components/table-cn/#components-table-demo-row-selection-custom
+                        //  注释该行则默认不显示下拉选项
+                        // selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+                    }}
+                    tableAlertRender={({ selectedRowKeys, onCleanSelected }) => (
+                        <Space size={24}>
+                            <span>
+                                已选 {selectedRowKeys.length} 项
                     <a
-                                        style={{
-                                            marginLeft: 8,
-                                        }}
-                                        onClick={onCleanSelected}
-                                    >
-                                        取消选择
+                                    style={{
+                                        marginLeft: 8,
+                                    }}
+                                    onClick={onCleanSelected}
+                                >
+                                    取消选择
                     </a>
-                                </span>
-                            </Space>
-                        )}
-                        tableAlertOptionRender={({ selectedRowKeys }) => (
-                            <Space size={16}>
-                                <a onClick={() => onDeleteClickListener(selectedRowKeys)}> 批量删除</a>
-                            </Space>
-                        )}
-                        pagination={{
-                            showQuickJumper: true,
-                        }}
-                        // search={{
-                        //     defaultCollapsed: true
-                        // }}
-                        search={false}
-                        dateFormatter="string"
-                        toolBarRender={() => [
-                            <Button key='create' type="primary" onClick={() => {
-                                setOrgPid(1)
-                                handleCreateModalVisible(true);
-                            }}>
-                                <PlusOutlined />
+                            </span>
+                        </Space>
+                    )}
+                    tableAlertOptionRender={({ selectedRowKeys }) => (
+                        <Space size={16}>
+                            <a onClick={() => onDeleteClickListener(selectedRowKeys)}> 批量删除</a>
+                        </Space>
+                    )}
+                    pagination={{
+                        showQuickJumper: true,
+                    }}
+                    // search={{
+                    //     defaultCollapsed: true
+                    // }}
+                    search={false}
+                    dateFormatter="string"
+                    toolBarRender={() => [
+                        <Button key='create' type="primary" onClick={() => {
+                            setOrgPid(1)
+                            handleCreateModalVisible(true);
+                        }}>
+                            <PlusOutlined />
                                     新增
                           </Button>
 
 
-                        ]}
-                    />
-                </Col>
-            </Row>
+                    ]}
+                />
 
+            </SplitPane>
             <CreateForm
                 orgPid={orgPid}
                 onCancel={() => handleCreateModalVisible(false)}

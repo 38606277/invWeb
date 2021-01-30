@@ -406,6 +406,12 @@
     exact: true,
   },
   {
+    name: 'user.user-list',
+    path: '/inv/orgUser',
+    component: './inv/org/invOrgUser',
+    exact: true,
+  },
+  {
     path: '/welcome',
     name: 'welcome',
     icon: 'smile',
