@@ -46,7 +46,7 @@ const itemCategoryList = () => {
   }, []);
 
   //删除按钮事件
-  const onDeleteClickListener = (selectedRowKeys) => {
+  const onDeleteClickListener = (ref,selectedRowKeys) => {
     if (selectedRowKeys.length < 1) {
       message.error('请选择需要删除的内容');
       return;
@@ -58,13 +58,13 @@ const itemCategoryList = () => {
       cancelText: '取消',
       okType: 'danger',
       onOk() {
-        deleteByIds(selectedRowKeys);
+        deleteByIds(ref,selectedRowKeys);
       },
       onCancel() {},
     });
   };
   //删除
-  const deleteByIds = (selectedRowKeys) => {
+  const deleteByIds = (ref,selectedRowKeys) => {
     if (selectedRowKeys.length < 1) {
       message.error('请选择需要删除的内容');
       return;
@@ -76,7 +76,9 @@ const itemCategoryList = () => {
       if (res.resultCode == '1000') {
         //刷新
         // 清空选中项
-        fetchData({ current: 0, pageSize: 10, category_pid: catId }, '', '');
+        ref.current.clearSelected();
+        ref.current.reload();
+        //fetchData({ current: 0, pageSize: 10, category_pid: catId }, '', '');
       } else {
         message.error(res.message);
       }
@@ -153,7 +155,7 @@ const itemCategoryList = () => {
           shape="circle"
           danger
           type="text"
-          onClick={() => onDeleteClickListener([record.category_id])}
+          onClick={() => onDeleteClickListener(ref,[record.category_id])}
           icon={<MinusCircleOutlined />}
         ></Button>,
       ],
@@ -163,7 +165,7 @@ const itemCategoryList = () => {
   return (
     <PageContainer ghost="true" title="商品类别">
       <div style={{ backgroundColor: 'white' }}>
-        <SplitPane split="vertical" minSize={10} defaultSize={200}>
+        <SplitPane split="vertical" minSize={10} defaultSize={200}  style={{minHeight:minHeight,overflow:'auto'}}>
           <Tree
             defaultExpandAll
             style={{
@@ -171,7 +173,7 @@ const itemCategoryList = () => {
               minHeight: '450px',
               padding: '10px',
               minHeight: minHeight,
-              overflow: 'auto',
+              overflow: 'auto'
             }}
             showLine
             treeData={treeData}

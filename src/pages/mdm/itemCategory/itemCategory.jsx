@@ -4,6 +4,7 @@ import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse';
 import TableForm from './TableForm';
+import TableForm2 from './TableForm2';
 import FormItem from 'antd/lib/form/FormItem';
 import HttpService from '../../../utils/HttpService';
 import { history } from 'umi';
@@ -14,9 +15,12 @@ const { Option } = Select;
 
 export default (props) => {
   const [tableForm] = Form.useForm();
+  const [tableForm2] = Form.useForm();
   const [mainForm] = Form.useForm();
   const tableRef = useRef();
+  const tableRef2 = useRef();
   const [tableData, setTableData] = useState([]);
+  const [tableData2, setTableData2] = useState([]);
   const [query, setQuery] = useState('redux');
   const [displayType, setDisplayType] = useState('list');
 
@@ -34,6 +38,7 @@ export default (props) => {
           setIsSelect(true);
           let mainFormV = res.data.mainForm;
           let lineFormV = res.data.lineForm;
+          let lineFormV2 = res.data.lineForm2;
           mainForm.setFieldsValue({
             category_id: mainFormV.category_id,
             category_code: mainFormV.category_code,
@@ -43,6 +48,7 @@ export default (props) => {
 
           //初始化数据
           tableRef?.current?.initData(lineFormV);
+          tableRef2?.current?.initData(lineFormV2);
         } else {
           message.error(res.message);
         }
@@ -92,35 +98,50 @@ export default (props) => {
       <Form
         form={mainForm}
         onFinish={async (values) => {
+          let boolean1=true;
+          let boolean2=true;
           //验证tableForm
           tableForm
             .validateFields()
             .then(() => {
               //验证成功
-              let postData = {
-                ...values,
-                lineForm: tableData,
-                lineDelete: tableRef?.current?.getDeleteData(),
-              };
-              HttpService.post(
-                'reportServer/itemCategory/saveItemCategory',
-                JSON.stringify(postData),
-              ).then((res) => {
-                if (res.resultCode == '1000') {
+             
+            })
+            .catch((errorInfo) => {
+              //验证失败
+              boolean1=false;
+              message.error('提交失败');
+            });
+            //表单2验证
+          tableForm2.validateFields().then(() => {
+            //验证成功
+
+          }).catch(errorInfo => {
+            //验证失败
+            boolean2=false;
+            message.error('提交失败');
+          });
+          if(boolean1 && boolean2){
+            let postData = {
+              ...values,
+              lineForm: tableData,
+              lineForm2: tableData2,
+              lineDelete: tableRef?.current?.getDeleteData(),
+              lineDelete2: tableRef2?.current?.getDeleteData()
+            }
+            HttpService.post('reportServer/itemCategory/saveItemCategory', JSON.stringify(postData))
+              .then(res => {
+                if (res.resultCode == "1000") {
                   //刷新
                   message.success('提交成功');
-                  history.push('/mdm/itemCategory/itemCategoryList');
+                  history.push("/mdm/itemCategory/itemCategoryList");
                 } else {
                   message.error(res.message);
                 }
               });
-            })
-            .catch((errorInfo) => {
-              //验证失败
-              message.error('提交失败');
-            });
-        }}
-      >
+            }
+          }}
+        >
         <ProCardCollapse
           title="基础信息"
           headerBordered
@@ -170,7 +191,9 @@ export default (props) => {
                   segment_name: '',
                   dict_id: '',
                   dict_name: '',
+                  attribute:'',
                   row_or_column: 'row',
+                  type:'0',
                   editable: true,
                   isNew: true,
                 });
@@ -199,6 +222,48 @@ export default (props) => {
             }}
             tableForm={tableForm}
           />
+        </ProCardCollapse>
+        <ProCardCollapse
+          title="行信息2"
+          style={{ marginTop: '30px' }}
+          headerBordered
+          collapsible
+          extra={
+            [
+              <Button onClick={() => {
+                //新增一行
+                tableRef2.current.addItem({
+                  category_id: mainForm.category_id,
+                  row_number: `NEW_${(Math.random() * 1000000).toFixed(0)}`,
+                  segment: '',
+                  segment_name: '',
+                  dict_id: '',
+                  dict_name: '',
+                  attribute: '',
+                  type:'1',
+                  row_or_column: 'row',
+                  editable: true,
+                  isNew: true,
+                });
+              }} icon={<PlusOutlined />}>
+              </Button>,
+              <Button style={{ margin: '12px' }} onClick={() => {
+                //删除选中项
+                tableRef2.current.removeRows();
+              }} icon={<MinusOutlined />}></Button>
+            ]
+          }
+        >
+          <TableForm2
+            ref={tableRef2}
+            primaryKey='row_number'
+            value={tableData2}
+            onChange={(newTableData) => {
+              //onChange实时回调最新的TableData 
+              //手动获取方式 tableRef2?.current?.getTableData()，可以节省onChange方法
+              setTableData2(newTableData);
+            }}
+            tableForm2={tableForm2} />
         </ProCardCollapse>
       </Form>
     </PageContainer>

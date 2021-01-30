@@ -82,7 +82,7 @@ const itemList = (props) => {
         >
           编辑
         </Button>,
-        <Button type="text" danger onClick={() => onDeleteClickListener([record.dict_id])}>
+        <Button type="text" danger onClick={() => onDeleteClickListener(ref,[record.dict_id])}>
           删除
         </Button>,
       ],
@@ -109,7 +109,7 @@ const itemList = (props) => {
   }, []);
 
   //删除按钮事件
-  const onDeleteClickListener = (selectedRowKeys) => {
+  const onDeleteClickListener = (ref,selectedRowKeys) => {
     if (selectedRowKeys.length < 1) {
       message.error('请选择需要删除的内容');
       return;
@@ -121,13 +121,13 @@ const itemList = (props) => {
       cancelText: '取消',
       okType: 'danger',
       onOk() {
-        deleteByIds(selectedRowKeys);
+        deleteByIds(ref,selectedRowKeys);
       },
       onCancel() {},
     });
   };
   //删除
-  const deleteByIds = (selectedRowKeys) => {
+  const deleteByIds = (ref,selectedRowKeys) => {
     if (selectedRowKeys.length < 1) {
       message.error('请选择需要删除的内容');
       return;
@@ -139,7 +139,9 @@ const itemList = (props) => {
       if (res.resultCode == '1000') {
         //刷新
         // 清空选中项
-        fetchData({ current: 0, pageSize: 10, item_category_pid: catId }, '', '');
+        ref.current.clearSelected();
+        ref.current.reload();
+        //fetchData({ current: 0, pageSize: 10, item_category_pid: catId }, '', '');
       } else {
         message.error(res.message);
       }
@@ -214,7 +216,7 @@ const itemList = (props) => {
                   shape="circle"
                   danger
                   type="text"
-                  onClick={() => onDeleteClickListener([record.item_id])}
+                  onClick={() => onDeleteClickListener(ref,[record.item_id])}
                   icon={<CloseCircleOutlined />}
                 ></Button>,
               ],
@@ -247,7 +249,7 @@ const itemList = (props) => {
     <PageContainer ghost="true" title="商品列表">
       {/* <ProCard> */}
       <div style={{ backgroundColor: 'white' }}>
-        <SplitPane split="vertical" minSize={0} defaultSize={180}>
+        <SplitPane split="vertical" minSize={0} defaultSize={180}  style={{minHeight:minHeight,overflow:'auto'}}>
           <Tree
             defaultExpandAll="true"
             style={{
