@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
-import TableForm from './TableForm';
 import FormItem from 'antd/lib/form/FormItem';
 import HttpService from '../../../utils/HttpService';
 import { history } from 'umi';
@@ -73,7 +72,6 @@ export default (props) => {
                 inlist.push(arr);
               }
             }
-            console.log(inlist);
             setColumnData(inlist);
 
             const resultlist2 = res.data.list2;
@@ -101,7 +99,7 @@ export default (props) => {
       if (null != props.match.params.item_id && 'null' != props.match.params.item_id) {
         HttpService.post(
           'reportServer/item/getItemByItemId',
-          JSON.stringify({ item_id: props.match.params.item_id }),
+          JSON.stringify({ item_id: props.match.params.item_id })
         ).then((res) => {
           if (res.resultCode == '1000') {
             let mainFormV = res.data;
@@ -382,12 +380,46 @@ export default (props) => {
           {inColumn2}
         </ProCard>
         <ProCard collapsible title="价格信息">
-          {/* {inColumn} */}
+        <Row gutter={24}>
+        <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+              <Form.Item
+                label="市场价"
+                name="market_price"
+                rules={[{ required: true, message: '请输入市场价' }]}
+              >
+                <Input id="market_price" name="market_price" />
+              </Form.Item>
+            </Col>
+            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+              <Form.Item label="原价" name="price" rules={[{ required: true, message: '请输入原价' }]} >
+                <Input id="price" name="price" style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+             <Form.Item
+                label="促销价"
+                name="promotion_price"
+                rules={[{ required: true, message: '请输入促销价' }]}
+              >
+                <Input id="promotion_price" name="promotion_price" />
+              </Form.Item>
+            </Col>
+            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+              <Form.Item
+                label="成本价"
+                name="cost_price"
+                rules={[{ required: true, message: '请输入成本价' }]}
+              >
+                <Input id="cost_price" name="cost_price" />
+              </Form.Item>
+            </Col>
+          </Row>
         </ProCard>
         <SelectItemCategoryDialog
           modalVisible={selectItemCategoryDialogVisible}
           handleOk={(selectitemCategory) => {
-            console.log('selectItemCategoryDialog', selectitemCategory);
             if (selectitemCategory) {
               getColumnListByCategoryId(selectitemCategory.category_id);
               mainForm.setFieldsValue({
