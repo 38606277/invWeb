@@ -1,16 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
+import { message, Form, Button, Row, Col, Select, Input, DatePicker,Upload  } from 'antd';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import FormItem from 'antd/lib/form/FormItem';
 import HttpService from '../../../utils/HttpService';
 import { history } from 'umi';
-import { PlusOutlined, MinusOutlined, ConsoleSqlOutlined } from '@ant-design/icons';
+import { PlusOutlined, MinusOutlined, ConsoleSqlOutlined,UploadOutlined,LoadingOutlined  } from '@ant-design/icons';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse';
 import SelectEF from '@/components/EditForm/SelectEF';
 import SelectItemCategoryDialog from '@/components/itemCategory/SelectItemCategoryDialog';
 import StandardFormRow from '@/components/StandardFormRow';
+import LocalStorge  from '../../../utils/LogcalStorge.jsx';
 
+const localStorge = new LocalStorge();
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Search } = Input;
@@ -23,6 +25,28 @@ const formItemLayout1 = {
   wrapperCol: { span: 12 },
 };
 
+function getBase64(img, callback) {
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result));
+  reader.readAsDataURL(img);
+}
+const url=window.getServerUrl()+"/reportServer/uploadFile/uploadFile";
+const imgurl = window.getServerUrl();
+function beforeUpload(file) {
+  let isJPG=false;
+  if(file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png' || file.type === 'image/gif'){
+    isJPG=true;
+  }
+  if (!isJPG) {
+    message.error('You can only upload JPG file!');
+  }
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isLt2M) {
+    message.error('Image must smaller than 2MB!');
+  }
+  return isJPG && isLt2M;
+}
+
 export default (props) => {
   const [tableForm] = Form.useForm();
   const [mainForm] = Form.useForm();
@@ -33,7 +57,11 @@ export default (props) => {
   const [columnData, setColumnData] = useState([]);
   const [columnData2, setColumnData2] = useState([]);
   const [selectItemCategoryDialogVisible, setSelectItemCategoryDialogVisible] = useState(false);
+  const [imageUrl, setImageUrl] = useState(null);
   const [names, setNames] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [fileList, setFileList] = useState([]);
+
 
   useEffect(() => {
     const outlist = [];
@@ -57,6 +85,7 @@ export default (props) => {
               category_code: datainfo.category_code,
               item_category_name: datainfo.category_name,
             });
+            
             //条件列两两一组进行组合，作为一行显示
             const inlist = [];
             var k = Math.ceil(resultlist.length / 3);
@@ -103,6 +132,7 @@ export default (props) => {
         ).then((res) => {
           if (res.resultCode == '1000') {
             let mainFormV = res.data;
+            setImageUrl(mainFormV.image_url);
             setCatName(mainFormV.category_name);
             mainForm.setFieldsValue(mainFormV);
             mainForm.setFieldsValue({
@@ -270,6 +300,20 @@ export default (props) => {
       </StandardFormRow>
     );
   });
+
+   const handleChange = info => {
+    console.log(info);
+    if (info.file.status === 'uploading') {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === 'done') {
+      // Get this url from response in real world.
+      setLoading(false);
+      getBase64(info.file.originFileObj, imageUrl => setImageUrl(info.file.response.data));
+    }
+  }
+
   return (
     <PageContainer
       ghost="true"
@@ -303,6 +347,7 @@ export default (props) => {
               //验证成功
               let postData = {
                 ...values,
+                image_url:imageUrl
               };
               console.log(postData);
               HttpService.post('reportServer/item/saveItem', JSON.stringify(postData)).then(
@@ -429,7 +474,32 @@ export default (props) => {
               </Form.Item>
             </Col>
           </Row>
-        </ProCard>
+          </ProCard>
+          <ProCard collapsible title="图片信息">
+          <Row gutter={24}>
+          <Col xs={24} sm={24}>
+            <Upload 
+                accept={"image/*"}
+                listType='picture'
+                beforeUpload={beforeUpload}
+                action={url}
+                headers={{
+                  credentials: JSON.stringify(localStorge.getStorage("userInfo") || "")}
+                }
+                listType="picture-card"
+                showUploadList={false}
+                onChange={handleChange}
+            >
+              
+              {imageUrl!=null ? <img src={imgurl+"/report/"+imageUrl} alt="avatar" style={{ width: '100px',height:'100px' }} /> :<div>
+        {loading ? <LoadingOutlined /> : <PlusOutlined />}
+        <div style={{ marginTop: 8 }}>Upload</div>
+      </div>}
+            </Upload>
+            </Col>
+          </Row>
+          </ProCard>
+        
         <SelectItemCategoryDialog
           modalVisible={selectItemCategoryDialogVisible}
           handleOk={(selectitemCategory) => {
