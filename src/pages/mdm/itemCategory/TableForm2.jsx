@@ -231,6 +231,59 @@ const TableForm2 = forwardRef((props, ref) => {
 
             },
         },{
+            title: '字典',
+            dataIndex: 'dict_id',
+            key: 'dict_id',
+            className:styles.columnshow,
+            render: (text, record, index) => {
+                return (
+                    <InputSearchEF
+                    tableForm={tableForm2}
+                    text={text}
+                    record={record}
+                    index={record[primaryKey]}
+                    name="dict_id"
+                    rules={[{ required: false, message: '请选择数据字典' }]}
+                    handleFieldChange={handleFieldChange}
+                    onClick={() => {
+                        setRowId(record)
+                        setSelectDictDailogVisible(true);
+                      }}
+                      onSearch={() => {
+                        setRowId(record)
+                        setSelectDictDailogVisible(true);
+                      }}
+                    />
+                );
+
+            },
+        },{
+            title: '字典项',
+            dataIndex: 'dict_name',
+            key: 'dict_name',
+            render: (text, record, index) => {
+                return (
+                    <InputSearchEF
+                    tableForm={tableForm2}
+                    text={text}
+                    record={record}
+                    index={record[primaryKey]}
+                    name="dict_name"
+                    rules={[{ required: true, message: '请选择字典' }]}
+                    handleFieldChange={handleFieldChange}
+                    onClick={() => {
+                        setRowId(record)
+                        setSelectDictDailogVisible(true);
+                      }}
+                      onSearch={() => {
+                        setRowId(record)
+                        setSelectDictDailogVisible(true);
+                      }}
+                    />
+                );
+
+            },
+        },{
             title: '行列',
             dataIndex: 'row_or_column',
             key: 'row_or_column',
@@ -270,6 +323,21 @@ const TableForm2 = forwardRef((props, ref) => {
                     rowSelection={{
                         type: 'checkbox',
                         onChange: onTableChange,
+                    }}
+                />
+                <SelectDictDailog
+                    modalVisible={selectDictDailogVisible}
+                    handleOk={(selectDict) => {
+                        if (selectDict) {
+                            rowId.dict_id=selectDict.dict_id;
+                            rowId.dict_name=selectDict.dict_name;
+                        }
+                        setRowId("");
+                        setSelectDictDailogVisible(false);
+                    }}
+                    handleCancel={() => {
+                        setRowId("");
+                        setSelectDictDailogVisible(false);
                     }}
                 />
             </Form>

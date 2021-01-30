@@ -177,7 +177,7 @@ export default (props) => {
         </ProCardCollapse>
 
         <ProCardCollapse
-          title="行信息"
+          title="关键信息"
           onCollapse={(collapse) => console.log(collapse)}
           extra={[
             <Button
@@ -224,7 +224,7 @@ export default (props) => {
           />
         </ProCardCollapse>
         <ProCardCollapse
-          title="行信息2"
+          title="属性信息"
           style={{ marginTop: '30px' }}
           headerBordered
           collapsible
