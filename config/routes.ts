@@ -98,6 +98,22 @@
     ],
   },
   {
+    name: 'sales',
+    path: '/sales',
+    routes: [
+      {
+        name: 'user.user-list',
+        path: '/sales/salesList',
+        component: './sales/salesList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/sales/sales/:type/:action/:id',
+        component: './sales/sales',
+      },
+    ]
+  },
+  {
     name: 'Auth',
     path: '/Auth',
     component: './system/auth/Auth',

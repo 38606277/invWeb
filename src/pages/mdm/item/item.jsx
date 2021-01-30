@@ -19,8 +19,8 @@ const formItemLayout2 = {
   wrapperCol: { span: 16 },
 };
 const formItemLayout1 = {
-  labelCol: { span: 4 },
-  wrapperCol: { span: 20 },
+  labelCol: { span: 3 },
+  wrapperCol: { span: 12 },
 };
 
 export default (props) => {
@@ -59,11 +59,11 @@ export default (props) => {
             });
             //条件列两两一组进行组合，作为一行显示
             const inlist = [];
-            var k = Math.ceil(resultlist.length / 2);
+            var k = Math.ceil(resultlist.length / 3);
             var j = 0;
             for (var i = 1; i <= k; i++) {
               var arr = new Array();
-              for (j; j < i * 2; j++) {
+              for (j; j < i * 3; j++) {
                 if (undefined != resultlist[j]) {
                   arr.push(resultlist[j]);
                 }
@@ -77,11 +77,11 @@ export default (props) => {
             const resultlist2 = res.data.list2;
           //条件列两两一组进行组合，作为一行显示
           const inlist2 = [];
-          var kk = Math.ceil(resultlist2.length / 2);
+          var kk = Math.ceil(resultlist2.length / 3);
           var jj = 0;
           for (var ii = 1; ii <= kk; ii++) {
             var arr2 = new Array();
-            for (jj; jj < ii * 2; jj++) {
+            for (jj; jj < ii * 3; jj++) {
               if (undefined != resultlist2[jj]) {
                 arr2.push(resultlist2[jj]);
               }
@@ -129,11 +129,11 @@ export default (props) => {
           const resultlist = res.data.list;
           //条件列两两一组进行组合，作为一行显示
           const inlist = [];
-          var k = Math.ceil(resultlist.length / 2);
+          var k = Math.ceil(resultlist.length / 3);
           var j = 0;
           for (var i = 1; i <= k; i++) {
             var arr = new Array();
-            for (j; j < i * 2; j++) {
+            for (j; j < i * 3; j++) {
               if (undefined != resultlist[j]) {
                 arr.push(resultlist[j]);
               }
@@ -147,11 +147,11 @@ export default (props) => {
           const resultlist2 = res.data.list2;
           //条件列两两一组进行组合，作为一行显示
           const inlist2 = [];
-          var kk = Math.ceil(resultlist2.length / 2);
+          var kk = Math.ceil(resultlist2.length / 3);
           var jj = 0;
           for (var ii = 1; ii <= kk; ii++) {
             var arr2 = new Array();
-            for (jj; jj < i * 2; jj++) {
+            for (jj; jj < i * 3; jj++) {
               if (undefined != resultlist2[jj]) {
                 arr2.push(resultlist2[jj]);
               }
@@ -193,8 +193,8 @@ export default (props) => {
     const rc = item.map((record, index) => {
       return (
         <Col
-          xl={{ span: 8, offset: 2 }}
-          lg={{ span: 8 }}
+          xl={{ span: 6, offset: 2 }}
+          lg={{ span: 6 }}
           md={{ span: 12 }}
           sm={24}
           key={record.segment + index}
@@ -233,8 +233,8 @@ export default (props) => {
     const rc = item.map((record, index) => {
       return (
         <Col
-          xl={{ span: 8, offset: 2 }}
-          lg={{ span: 8 }}
+          xl={{ span: 6, offset: 2 }}
+          lg={{ span: 6 }}
           md={{ span: 12 }}
           sm={24}
           key={record.segment + index}
@@ -244,11 +244,21 @@ export default (props) => {
             name={record.segment}
             rules={[{ required: true, message: '请输入' + record.segment_name + '!' }]}
           >
-            <Input
+            <Select
               placeholder="请选择"
               name={record.segment}
-              
-            />
+              onChange={(value) => {
+                handleFieldChange(value, record);
+              }}
+            >
+              {record.dictList == null
+                ? []
+                : record.dictList.map((item) => (
+                    <Option key={item['value_id']} value={item['value_id']}>
+                      {item['value_name']}
+                    </Option>
+                  ))}
+            </Select>
               
           </Form.Item>
         </Col>
@@ -283,7 +293,7 @@ export default (props) => {
       }}
     >
       <Form
-        {...formItemLayout2}
+        
         form={mainForm}
         onFinish={async (values) => {
           //验证tableForm
@@ -320,22 +330,7 @@ export default (props) => {
           onCollapse={(collapse) => console.log(collapse)}
         >
           <Row gutter={24}>
-            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
-              <Form.Item name="item_id" style={{ display: 'none' }}>
-                <Input id="item_id" name="item_id" value={mainForm.item_id} />
-              </Form.Item>
-              <Form.Item label="类别编码" name="category_code">
-                <Input id="category_code" name="category_code" />
-              </Form.Item>
-              <Form.Item name="item_category_id" style={{ display: 'none' }}>
-                <Input
-                  id="item_category_id"
-                  name="item_category_id"
-                  value={mainForm.item_category_id}
-                />
-              </Form.Item>
-            </Col>
-            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+          <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
               <Form.Item
                 label="类别名称"
                 name="item_category_name"
@@ -355,14 +350,23 @@ export default (props) => {
                 />
               </Form.Item>
             </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
-              <Form.Item label="商品描述" name="item_description">
-                <Input id="item_description" name="item_description" style={{ width: '100%' }} />
+            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
+              <Form.Item name="item_id" style={{ display: 'none' }}>
+                <Input id="item_id" name="item_id" value={mainForm.item_id} />
+              </Form.Item>
+              <Form.Item label="类别编码" name="category_code">
+                <Input id="category_code" name="category_code" />
+              </Form.Item>
+              <Form.Item name="item_category_id" style={{ display: 'none' }}>
+                <Input
+                  id="item_category_id"
+                  name="item_category_id"
+                  value={mainForm.item_category_id}
+                />
               </Form.Item>
             </Col>
-            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+            
+            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
               <Form.Item
                 label="单位"
                 name="uom"
@@ -371,6 +375,14 @@ export default (props) => {
                 <Input id="uom" name="uom" />
               </Form.Item>
             </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col xl={{ span: 12, offset: 2 }}  sm={24}>
+              <Form.Item label="商品描述" name="item_description" {...formItemLayout1}>
+                <Input id="item_description" name="item_description" style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+           
           </Row>
         </ProCard>
         <ProCard collapsible title="关键信息">
@@ -381,7 +393,7 @@ export default (props) => {
         </ProCard>
         <ProCard collapsible title="价格信息">
         <Row gutter={24}>
-        <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+        <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
               <Form.Item
                 label="市场价"
                 name="market_price"
@@ -390,14 +402,12 @@ export default (props) => {
                 <Input id="market_price" name="market_price" />
               </Form.Item>
             </Col>
-            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
               <Form.Item label="原价" name="price" rules={[{ required: true, message: '请输入原价' }]} >
                 <Input id="price" name="price" style={{ width: '100%' }} />
               </Form.Item>
             </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
              <Form.Item
                 label="促销价"
                 name="promotion_price"
@@ -406,7 +416,10 @@ export default (props) => {
                 <Input id="promotion_price" name="promotion_price" />
               </Form.Item>
             </Col>
-            <Col xl={{ span: 8, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+          </Row>
+          <Row gutter={24}>
+            
+            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
               <Form.Item
                 label="成本价"
                 name="cost_price"
