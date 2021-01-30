@@ -32,6 +32,7 @@ export default (props) => {
   const [catId, setCatId] = useState();
   const [catName, setCatName] = useState();
   const [columnData, setColumnData] = useState([]);
+  const [columnData2, setColumnData2] = useState([]);
   const [selectItemCategoryDialogVisible, setSelectItemCategoryDialogVisible] = useState(false);
   const [names, setNames] = useState({});
 
@@ -74,6 +75,24 @@ export default (props) => {
             }
             console.log(inlist);
             setColumnData(inlist);
+
+            const resultlist2 = res.data.list2;
+          //条件列两两一组进行组合，作为一行显示
+          const inlist2 = [];
+          var kk = Math.ceil(resultlist2.length / 2);
+          var jj = 0;
+          for (var ii = 1; ii <= kk; ii++) {
+            var arr2 = new Array();
+            for (jj; jj < ii * 2; jj++) {
+              if (undefined != resultlist2[jj]) {
+                arr2.push(resultlist2[jj]);
+              }
+            }
+            if (arr2.length > 0) {
+              inlist2.push(arr2);
+            }
+          }
+          setColumnData2(inlist2);
           } else {
             message.error(res.message);
           }
@@ -126,6 +145,24 @@ export default (props) => {
             }
           }
           setColumnData(inlist);
+
+          const resultlist2 = res.data.list2;
+          //条件列两两一组进行组合，作为一行显示
+          const inlist2 = [];
+          var kk = Math.ceil(resultlist2.length / 2);
+          var jj = 0;
+          for (var ii = 1; ii <= kk; ii++) {
+            var arr2 = new Array();
+            for (jj; jj < i * 2; jj++) {
+              if (undefined != resultlist2[jj]) {
+                arr2.push(resultlist2[jj]);
+              }
+            }
+            if (arr2.length > 0) {
+              inlist2.push(arr2);
+            }
+          }
+          setColumnData2(inlist2);
         } else {
           message.error(res.message);
         }
@@ -158,7 +195,7 @@ export default (props) => {
     const rc = item.map((record, index) => {
       return (
         <Col
-          xl={{ span: 6, offset: 2 }}
+          xl={{ span: 8, offset: 2 }}
           lg={{ span: 8 }}
           md={{ span: 12 }}
           sm={24}
@@ -184,6 +221,37 @@ export default (props) => {
                     </Option>
                   ))}
             </Select>
+          </Form.Item>
+        </Col>
+      );
+    });
+    return (
+      <StandardFormRow key={'formrow' + index}>
+        <Row key={index}>{rc}</Row>
+      </StandardFormRow>
+    );
+  });
+  const inColumn2 = columnData2.map((item, index) => {
+    const rc = item.map((record, index) => {
+      return (
+        <Col
+          xl={{ span: 8, offset: 2 }}
+          lg={{ span: 8 }}
+          md={{ span: 12 }}
+          sm={24}
+          key={record.segment + index}
+        >
+          <Form.Item
+            label={record.segment_name}
+            name={record.segment}
+            rules={[{ required: true, message: '请输入' + record.segment_name + '!' }]}
+          >
+            <Input
+              placeholder="请选择"
+              name={record.segment}
+              
+            />
+              
           </Form.Item>
         </Col>
       );
@@ -311,10 +379,10 @@ export default (props) => {
           {inColumn}
         </ProCard>
         <ProCard collapsible title="属性信息">
-          {inColumn}
+          {inColumn2}
         </ProCard>
         <ProCard collapsible title="价格信息">
-          {inColumn}
+          {/* {inColumn} */}
         </ProCard>
         <SelectItemCategoryDialog
           modalVisible={selectItemCategoryDialogVisible}

@@ -196,6 +196,17 @@ const itemList = (props) => {
               };
               outlist.push(json);
             });
+            const resultlist2 = res.data.list2;
+            resultlist2.map((item, index) => {
+              let json = {
+                key: item.segment.toLowerCase(),
+                title: item.segment_name,
+                dataIndex: item.segment.toLowerCase(),
+                valueType: 'text',
+                align: 'center',
+              };
+              outlist.push(json);
+            });
             let option = {
               title: '操作',
               width: 180,

@@ -231,25 +231,6 @@ const TableForm2 = forwardRef((props, ref) => {
 
             },
         },{
-            title: '属性',
-            dataIndex: 'attribute',
-            key: 'attribute',
-            render: (text, record, index) => {
-                return (
-                    <InputEF
-                        tableForm={tableForm2}
-                        text={text}
-                        record={record}
-                        index={record.row_number}
-                        name="attribute"
-                        rules={[{ required: true, message: '请输入属性!' }]}
-                        handleFieldChange={handleFieldChange}
-                        placeholder={"请输入属性"}
-                    />
-                );
-
-            },
-        },{
             title: '行列',
             dataIndex: 'row_or_column',
             key: 'row_or_column',
