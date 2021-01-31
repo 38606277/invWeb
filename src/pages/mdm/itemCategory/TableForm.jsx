@@ -285,9 +285,9 @@ const TableForm = forwardRef((props, ref) => {
 
             },
         },{
-            title: '行列',
-            dataIndex: 'row_or_column',
-            key: 'row_or_column',
+            title: '横排',
+            dataIndex: 'spread_mode',
+            key: 'spread_mode',
             render: (text, record, index) => {
                 return (
                     <SelectEF
@@ -295,7 +295,7 @@ const TableForm = forwardRef((props, ref) => {
                     text={text}
                     record={record}
                     index={record.row_number}
-                    name="row_or_column"
+                    name="spread_mode"
                     rules={[{ required: true, message: '请选择行或列!' }]}
                     handleFieldChange={handleFieldChange}
                     dictData={rowcolumn}
@@ -332,11 +332,6 @@ const TableForm = forwardRef((props, ref) => {
                             console.log(selectDict);
                             rowId.dict_id=selectDict.dict_id;
                             rowId.dict_name=selectDict.dict_name;
-                            // handleFieldChangeSelect('dict_id',selectDict.dict_id,'dict_name',selectDict.dict_name,rowId);
-                            // mainForm.setFieldsValue({
-                            // inv_org_id: selectDict.dict_id,
-                            // inv_org_name: selectDict.dict_name,
-                            // });
                         }
                         setRowId("");
                         setSelectDictDailogVisible(false);

@@ -101,26 +101,29 @@ export default (props) => {
           let boolean1=true;
           let boolean2=true;
           //验证tableForm
-          tableForm
+          await tableForm
             .validateFields()
             .then(() => {
               //验证成功
-             
+              console.log("boolean1=true")
             })
             .catch((errorInfo) => {
               //验证失败
               boolean1=false;
+              console.log("boolean1=false")
               message.error('提交失败');
             });
-            //表单2验证
-          tableForm2.validateFields().then(() => {
+          //表单2验证
+          await  tableForm2.validateFields().then(() => {
             //验证成功
-
+            console.log("boolean2=true")
           }).catch(errorInfo => {
             //验证失败
             boolean2=false;
+            console.log("boolean2=false")
             message.error('提交失败');
           });
+   
           if(boolean1 && boolean2){
             let postData = {
               ...values,
@@ -191,9 +194,9 @@ export default (props) => {
                   segment_name: '',
                   dict_id: '',
                   dict_name: '',
-                  attribute:'',
-                  row_or_column: 'row',
-                  type:'0',
+                  input_mode:"dict",
+                  spread_mode: 'r',
+                  qualifier:'0',
                   editable: true,
                   isNew: true,
                 });
@@ -235,13 +238,14 @@ export default (props) => {
                 tableRef2.current.addItem({
                   category_id: mainForm.category_id,
                   row_number: `NEW_${(Math.random() * 1000000).toFixed(0)}`,
-                  segment: '',
-                  segment_name: '',
+                  attribute: '',
+                  attribute_name: '',
                   dict_id: '',
                   dict_name: '',
-                  attribute: '',
-                  type:'1',
-                  row_or_column: 'row',
+                  input_mode:"dict",
+                  spread_mode: 'r',
+                  qualifier:'0',
+                  required:'0',
                   editable: true,
                   isNew: true,
                 });

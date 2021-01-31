@@ -16,6 +16,8 @@ const TableForm2 = forwardRef((props, ref) => {
     const [deleteRecord, setDeleteRecord] = useState([]);//删除记录
     const [departmentDic, setDepartmentDic] = useState([]);
     const [rowcolumn, setRowcolumn] = useState([]);
+    const [required, setRequired] = useState([]);
+    const [isInput, setIsInput] = useState([]);
     const [selectDictDailogVisible, setSelectDictDailogVisible] = useState(false);
     const [rowId, setRowId] = useState([]);
 
@@ -55,10 +57,17 @@ const TableForm2 = forwardRef((props, ref) => {
             }
         ]);
         setRowcolumn([
-            {"rowcolId":"row","rowcolname":"行"},
-            {"rowcolId":"column","rowcolname":"列"},
+            {"rowcolId":"r","rowcolname":"行"},
+            {"rowcolId":"c","rowcolname":"列"},
         ]);
-
+        setRequired([
+            {"rowcolId":"0","rowcolname":"是"},
+            {"rowcolId":"1","rowcolname":"否"},
+        ]);
+        setIsInput([
+            {"rowcolId":"dict","rowcolname":"是"},
+            {"rowcolId":"input","rowcolname":"否"},
+        ]);
     }, []);
 
     const onTableChange = (selectedRowKeys, selectedRows) => {
@@ -144,6 +153,26 @@ const TableForm2 = forwardRef((props, ref) => {
         }
     };
 
+    const handleFieldChangeInput = (
+        filedValue,
+        fieldName,
+        record,
+    ) => {
+        console.log("List");
+        let key = record[primaryKey];
+        const newData = [...(data)];
+        const target = getRowByKey(key, newData);
+        if (target) {
+            target[fieldName] = filedValue;
+            target['dict_id'] = "";
+            target['dict_name'] = "";
+            setData(newData);
+        }
+        if (onChange) {
+            onChange(newData);
+        }
+    };
+
 
     const handleFieldChangeSelect = (
         filedValue,
@@ -191,8 +220,8 @@ const TableForm2 = forwardRef((props, ref) => {
         },
         {
             title: '属性名称',
-            dataIndex: 'segment_name',
-            key: 'segment_name',
+            dataIndex: 'attribute_name',
+            key: 'attribute_name',
             render: (text, record, index) => {
                 return (
                     <InputEF
@@ -200,7 +229,7 @@ const TableForm2 = forwardRef((props, ref) => {
                         text={text}
                         record={record}
                         index={record.row_number}
-                        name="segment_name"
+                        name="attribute_name"
                         rules={[{ required: true, message: '请输入属性名称!' }]}
                         handleFieldChange={handleFieldChange}
                         placeholder={"请输入属性名称"}
@@ -210,8 +239,8 @@ const TableForm2 = forwardRef((props, ref) => {
         },
         {
             title: 'ATTRIBUTE',
-            dataIndex: 'segment',
-            key: 'segment',
+            dataIndex: 'attribute',
+            key: 'attribute',
             render: (text, record, index) => {
                 return (
                   <SelectEF
@@ -219,13 +248,13 @@ const TableForm2 = forwardRef((props, ref) => {
                   text={text}
                   record={record}
                   index={record.row_number}
-                  name="segment"
+                  name="attribute"
                   rules={[{ required: true, message: '请选择数据ATTRIBUTE!' }]}
                   handleFieldChange={handleFieldChange}
                   dictData={departmentDic}
                   keyName={'dict_id'}
                   valueName={'dict_name'}
-                  placeholder={"请选择数据SEGMENT"}
+                  placeholder={"请选择数据ATTRIBUTE"}
                 />
               );
 
@@ -258,35 +287,61 @@ const TableForm2 = forwardRef((props, ref) => {
 
             },
         },{
+            title: '是否字典',
+            dataIndex: 'input_mode',
+            key: 'input_mode',
+            render: (text, record, index) => {
+                return (
+                    <SelectEF
+                    tableForm={tableForm2}
+                    text={text}
+                    record={record}
+                    index={record.row_number}
+                    name="input_mode"
+                    rules={[{ required: true, message: '请选择!' }]}
+                    handleFieldChange={handleFieldChangeInput}
+                    dictData={isInput}
+                    keyName={'rowcolId'}
+                    valueName={'rowcolname'}
+                    placeholder={"请选择"}
+                  />
+                );
+            },   
+        },{
             title: '字典项',
             dataIndex: 'dict_name',
             key: 'dict_name',
             render: (text, record, index) => {
-                return (
-                    <InputSearchEF
-                    tableForm={tableForm2}
-                    text={text}
-                    record={record}
-                    index={record[primaryKey]}
-                    name="dict_name"
-                    rules={[{ required: true, message: '请选择字典' }]}
-                    handleFieldChange={handleFieldChange}
-                    onClick={() => {
-                        setRowId(record)
-                        setSelectDictDailogVisible(true);
-                      }}
-                      onSearch={() => {
-                        setRowId(record)
-                        setSelectDictDailogVisible(true);
-                      }}
-                    />
-                );
+                if(record.input_mode=="dict"){
+                    return (
+                        <InputSearchEF
+                        tableForm={tableForm2}
+                        text={text}
+                        record={record}
+                        index={record[primaryKey]}
+                        name="dict_name"
+                        rules={[{ required: true, message: '请选择字典' }]}
+                        handleFieldChange={handleFieldChange}
+                        onClick={() => {
+                            setRowId(record)
+                            setSelectDictDailogVisible(true);
+                          }}
+                          onSearch={() => {
+                            setRowId(record)
+                            setSelectDictDailogVisible(true);
+                          }}
+                        />
+                    );
+                }else{
+                    return "";
+                }
+                
 
             },
         },{
-            title: '行列',
-            dataIndex: 'row_or_column',
-            key: 'row_or_column',
+            title: '横排',
+            dataIndex: 'spread_mode',
+            key: 'spread_mode',
             className:styles.columnshow,
             render: (text, record, index) => {
                 return (
@@ -295,7 +350,7 @@ const TableForm2 = forwardRef((props, ref) => {
                     text={text}
                     record={record}
                     index={record.row_number}
-                    name="row_or_column"
+                    name="spread_mode"
                     rules={[{ required: true, message: '请选择行或列!' }]}
                     handleFieldChange={handleFieldChange}
                     dictData={rowcolumn}
@@ -305,6 +360,27 @@ const TableForm2 = forwardRef((props, ref) => {
                   />
                 );
             },
+        },{
+            title: '是否必填',
+            dataIndex: 'required',
+            key: 'required',
+            render: (text, record, index) => {
+                return (
+                    <SelectEF
+                    tableForm={tableForm2}
+                    text={text}
+                    record={record}
+                    index={record.row_number}
+                    name="required"
+                    rules={[{ required: true, message: '请选择!' }]}
+                    handleFieldChange={handleFieldChange}
+                    dictData={required}
+                    keyName={'rowcolId'}
+                    valueName={'rowcolname'}
+                    placeholder={"请选择"}
+                  />
+                );
+            },    
         },
     ];
 
