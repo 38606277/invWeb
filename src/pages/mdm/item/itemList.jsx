@@ -182,10 +182,10 @@ const itemList = (props) => {
       let params = {
         category_id: category_id,
       };
-      HttpService.post('reportServer/itemCategory/getAllPageById', JSON.stringify(params)).then(
+      HttpService.post('reportServer/itemCategory/getItemCategoryByID', JSON.stringify(params)).then(
         (res) => {
           if (res.resultCode == '1000') {
-            const resultlist = res.data.list;
+            const resultlist = res.data.lineForm;
             resultlist.map((item, index) => {
               let json = {
                 key: item.segment.toLowerCase(),
@@ -196,17 +196,17 @@ const itemList = (props) => {
               };
               outlist.push(json);
             });
-            const resultlist2 = res.data.list2;
-            resultlist2.map((item, index) => {
-              let json = {
-                key: item.segment.toLowerCase(),
-                title: item.segment_name,
-                dataIndex: item.segment.toLowerCase(),
-                valueType: 'text',
-                align: 'center',
-              };
-              outlist.push(json);
-            });
+            // const resultlist2 = res.data.list2;
+            // resultlist2.map((item, index) => {
+            //   let json = {
+            //     key: item.segment.toLowerCase(),
+            //     title: item.segment_name,
+            //     dataIndex: item.segment.toLowerCase(),
+            //     valueType: 'text',
+            //     align: 'center',
+            //   };
+            //   outlist.push(json);
+            // });
             let option = {
               title: '操作',
               width: 180,

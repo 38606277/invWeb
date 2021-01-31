@@ -74,12 +74,12 @@ export default (props) => {
       let params = {
         category_id: props.match.params.category_id,
       };
-      HttpService.post('reportServer/itemCategory/getAllPageById', JSON.stringify(params)).then(
+      HttpService.post('reportServer/itemCategory/getItemCategoryByID', JSON.stringify(params)).then(
         (res) => {
           if (res.resultCode == '1000') {
-            const resultlist = res.data.list;
+            const resultlist = res.data.lineForm;
             //setColumnData(resultlist);
-            const datainfo = res.data.dataInfo;
+            const datainfo = res.data.mainForm;
             mainForm.setFieldsValue({
               item_category_id: datainfo.category_id,
               category_code: datainfo.category_code,
@@ -103,7 +103,7 @@ export default (props) => {
             }
             setColumnData(inlist);
 
-            const resultlist2 = res.data.list2;
+            const resultlist2 = res.data.lineForm2;
           //条件列两两一组进行组合，作为一行显示
           const inlist2 = [];
           var kk = Math.ceil(resultlist2.length / 3);
@@ -153,10 +153,10 @@ export default (props) => {
     let params = {
       category_id: id,
     };
-    HttpService.post('reportServer/itemCategory/getAllPageById', JSON.stringify(params)).then(
+    HttpService.post('reportServer/itemCategory/getItemCategoryByID', JSON.stringify(params)).then(
       (res) => {
         if (res.resultCode == '1000') {
-          const resultlist = res.data.list;
+          const resultlist = res.data.lineForm;
           //条件列两两一组进行组合，作为一行显示
           const inlist = [];
           var k = Math.ceil(resultlist.length / 3);
@@ -174,7 +174,7 @@ export default (props) => {
           }
           setColumnData(inlist);
 
-          const resultlist2 = res.data.list2;
+          const resultlist2 = res.data.lineForm2;
           //条件列两两一组进行组合，作为一行显示
           const inlist2 = [];
           var kk = Math.ceil(resultlist2.length / 3);
@@ -261,22 +261,24 @@ export default (props) => {
   });
   const inColumn2 = columnData2.map((item, index) => {
     const rc = item.map((record, index) => {
+      const isReq=record.required=="0"?true:false;
       return (
         <Col
           xl={{ span: 6, offset: 2 }}
           lg={{ span: 6 }}
           md={{ span: 12 }}
           sm={24}
-          key={record.segment + index}
+          key={record.attribute + index}
         >
           <Form.Item
-            label={record.segment_name}
-            name={record.segment}
-            rules={[{ required: true, message: '请输入' + record.segment_name + '!' }]}
+            label={record.attribute_name}
+            name={record.attribute}
+            rules={[{ required: isReq, message: '请输入' + record.attribute_name + '!' }]}
           >
+            {record.input_mode=="dict"?
             <Select
               placeholder="请选择"
-              name={record.segment}
+              name={record.attribute}
               onChange={(value) => {
                 handleFieldChange(value, record);
               }}
@@ -288,8 +290,9 @@ export default (props) => {
                       {item['value_name']}
                     </Option>
                   ))}
-            </Select>
-              
+            </Select>:
+            <Input id={record.attribute} name={record.attribute} />
+            }
           </Form.Item>
         </Col>
       );
