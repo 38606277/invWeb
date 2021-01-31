@@ -92,10 +92,10 @@ const SelectItemCategoryDialog = (props) => {
             let params = {
                 "category_id":category_id
             }
-            HttpService.post('reportServer/itemCategory/getAllPageById', JSON.stringify(params))
+            HttpService.post('reportServer/itemCategory/getItemCategoryByID', JSON.stringify(params))
             .then(res => {
                 if (res.resultCode == "1000") {
-                    const resultlist=res.data.list;
+                    const resultlist=res.data.lineForm;
                     resultlist.map((item, index) => {
                         let json = {
                             key: item.segment.toLowerCase(), 
