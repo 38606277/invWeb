@@ -8,6 +8,10 @@ import HttpService from '@/utils/HttpService.jsx';
 const Search = Input.Search;
 
 const columns = [{
+    title: 'ID',
+    dataIndex: 'category_id',
+    key: 'category_id'
+}, {
     title: '编码',
     dataIndex: 'category_code',
     key: 'category_code'

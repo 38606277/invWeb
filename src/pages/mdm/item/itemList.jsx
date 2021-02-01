@@ -332,6 +332,12 @@ const itemList = (props) => {
               >
                 新建
               </Button>,
+              <Button
+              type="primary"
+              onClick={() => history.push('/mdm/item/itembatch/' + catId + '/null')}
+            >
+              批量新建
+            </Button>,
             ]}
           />
         </SplitPane>

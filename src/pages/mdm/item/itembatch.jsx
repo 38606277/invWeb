@@ -7,7 +7,9 @@ import HttpService from '../../../utils/HttpService';
 import { history } from 'umi';
 import { PlusOutlined, MinusOutlined, ConsoleSqlOutlined,UploadOutlined,LoadingOutlined  } from '@ant-design/icons';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse';
+import SelectEF from '@/components/EditForm/SelectEF';
 import SelectItemCategoryDialog from '@/components/itemCategory/SelectItemCategoryDialog';
+import SelectItemBatchDialog  from '@/components/itemCategory/SelectItemBatchDialog';
 import StandardFormRow from '@/components/StandardFormRow';
 import LocalStorge  from '../../../utils/LogcalStorge.jsx';
 
@@ -55,7 +57,9 @@ export default (props) => {
   const [catName, setCatName] = useState();
   const [columnData, setColumnData] = useState([]);
   const [columnData2, setColumnData2] = useState([]);
+  const [columnSkey, setColumnSkey] = useState([]);
   const [selectItemCategoryDialogVisible, setSelectItemCategoryDialogVisible] = useState(false);
+  const [selectItemBatchDialogVisible, setSelectItemBatchDialogVisible] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
   const [names, setNames] = useState({});
   const [loading, setLoading] = useState(false);
@@ -76,8 +80,6 @@ export default (props) => {
       HttpService.post('reportServer/itemCategory/getItemCategoryByID', JSON.stringify(params)).then(
         (res) => {
           if (res.resultCode == '1000') {
-            const resultlist = res.data.lineForm;
-            //setColumnData(resultlist);
             const datainfo = res.data.mainForm;
             mainForm.setFieldsValue({
               item_category_id: datainfo.category_id,
@@ -86,6 +88,7 @@ export default (props) => {
             });
             
             //条件列两两一组进行组合，作为一行显示
+            const resultlist = res.data.listmkey;
             const inlist = [];
             var k = Math.ceil(resultlist.length / 3);
             var j = 0;
@@ -102,23 +105,41 @@ export default (props) => {
             }
             setColumnData(inlist);
 
-            const resultlist2 = res.data.lineForm2;
-          //条件列两两一组进行组合，作为一行显示
-          const inlist2 = [];
-          var kk = Math.ceil(resultlist2.length / 3);
-          var jj = 0;
-          for (var ii = 1; ii <= kk; ii++) {
-            var arr2 = new Array();
-            for (jj; jj < ii * 3; jj++) {
-              if (undefined != resultlist2[jj]) {
-                arr2.push(resultlist2[jj]);
+            const resultlistskey = res.data.listskey;
+            //条件列两两一组进行组合，作为一行显示
+            const inlistskey = [];
+            var k1 = Math.ceil(resultlistskey.length / 3);
+            var j1 = 0;
+            for (var i1 = 1; i1 <= k1; i1++) {
+              var arr = new Array();
+              for (j1; j1 < i1 * 3; j1++) {
+                if (undefined != resultlistskey[j1]) {
+                  arr.push(resultlistskey[j1]);
+                }
+              }
+              if (arr.length > 0) {
+                inlistskey.push(arr);
               }
             }
-            if (arr2.length > 0) {
-              inlist2.push(arr2);
+            setColumnSkey(inlistskey);
+
+            const resultlist2 = res.data.lineForm2;
+            //条件列两两一组进行组合，作为一行显示
+            const inlist2 = [];
+            var kk = Math.ceil(resultlist2.length / 3);
+            var jj = 0;
+            for (var ii = 1; ii <= kk; ii++) {
+              var arr2 = new Array();
+              for (jj; jj < ii * 3; jj++) {
+                if (undefined != resultlist2[jj]) {
+                  arr2.push(resultlist2[jj]);
+                }
+              }
+              if (arr2.length > 0) {
+                inlist2.push(arr2);
+              }
             }
-          }
-          setColumnData2(inlist2);
+            setColumnData2(inlist2);
           } else {
             message.error(res.message);
           }
@@ -152,10 +173,10 @@ export default (props) => {
     let params = {
       category_id: id,
     };
-    HttpService.post('reportServer/itemCategory/getItemCategoryByID', JSON.stringify(params)).then(
+    HttpService.post('reportServer/itemCategory/getItemCategoryBatchByID', JSON.stringify(params)).then(
       (res) => {
         if (res.resultCode == '1000') {
-          const resultlist = res.data.lineForm;
+          const resultlist = res.data.listmkey;
           //条件列两两一组进行组合，作为一行显示
           const inlist = [];
           var k = Math.ceil(resultlist.length / 3);
@@ -172,6 +193,24 @@ export default (props) => {
             }
           }
           setColumnData(inlist);
+
+          const resultlistskey = res.data.listskey;
+          //条件列两两一组进行组合，作为一行显示
+          const inlistskey = [];
+          var k1 = Math.ceil(resultlistskey.length / 3);
+          var j1 = 0;
+          for (var i1 = 1; i1 <= k1; i1++) {
+            var arr = new Array();
+            for (j1; j1 < i1 * 3; j1++) {
+              if (undefined != resultlistskey[j1]) {
+                arr.push(resultlistskey[j1]);
+              }
+            }
+            if (arr.length > 0) {
+              inlistskey.push(arr);
+            }
+          }
+          setColumnSkey(inlistskey);
 
           const resultlist2 = res.data.lineForm2;
           //条件列两两一组进行组合，作为一行显示
@@ -332,6 +371,15 @@ export default (props) => {
           >
             提交
           </Button>,
+          <Button
+          type="primary"
+          onClick={() => {
+            console.log('mainForm', mainForm);
+            setSelectItemBatchDialogVisible(true);
+          }}
+        >
+          添加数据
+        </Button>,
           <Button key="back" onClick={() => history.push('/mdm/item/itemList/' + catId)}>
             返回
           </Button>,
@@ -432,12 +480,6 @@ export default (props) => {
            
           </Row>
         </ProCard>
-        <ProCard collapsible title="关键信息">
-          {inColumn}
-        </ProCard>
-        <ProCard collapsible title="属性信息">
-          {inColumn2}
-        </ProCard>
         <ProCard collapsible title="价格信息">
         <Row gutter={24}>
         <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
@@ -477,6 +519,13 @@ export default (props) => {
             </Col>
           </Row>
           </ProCard>
+        <ProCard collapsible title="关键信息">
+          {inColumn}
+        </ProCard>
+        <ProCard collapsible title="属性信息">
+          {inColumn2}
+        </ProCard>
+        
           <ProCard collapsible title="图片信息">
           <Row gutter={24}>
           <Col xs={24} sm={24}>
@@ -517,6 +566,25 @@ export default (props) => {
           }}
           handleCancel={() => {
             setSelectItemCategoryDialogVisible(false);
+          }}
+        />
+        <SelectItemBatchDialog
+          columns={columnSkey}
+          modalVisible={selectItemBatchDialogVisible}
+          handleOk={(selectitemCategory) => {
+            if (selectitemCategory) {
+              console.log(selectitemCategory)
+              //getColumnListByCategoryId(selectitemCategory);
+              // mainForm.setFieldsValue({
+              //   item_category_id: selectitemCategory.category_id,
+              //   category_code: selectitemCategory.category_code,
+              //   item_category_name: selectitemCategory.category_name,
+              // });
+            }
+            setSelectItemBatchDialogVisible(false);
+          }}
+          handleCancel={() => {
+            setSelectItemBatchDialogVisible(false);
           }}
         />
       </Form>

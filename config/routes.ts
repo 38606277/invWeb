@@ -352,6 +352,11 @@
       },
       {
         name: 'user.user-list',
+        path: '/mdm/item/itembatch/:category_id/:item_id',
+        component: './mdm/item/itembatch',
+      },
+      {
+        name: 'user.user-list',
         path: '/mdm/item/itemList/:category_id',
         component: './mdm/item/itemList',
       },
