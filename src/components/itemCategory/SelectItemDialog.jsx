@@ -17,6 +17,7 @@ const SelectItemCategoryDialog = (props) => {
     const [treeData, setTreeData] = useState([]);
     const [columnData, setColumnData] = useState([]);
     const [catId, setCatId] = useState('-1');// 用于编辑赋初始值
+    const [catname, setCatname] = useState('');// 用于编辑赋初始值
     const [checkVal , setCheckVal] = useState([]);
 
     const selectType = props?.selectType || 'radio';
@@ -39,10 +40,12 @@ const SelectItemCategoryDialog = (props) => {
                     if(null!=res.data){
                       if(res.data.length>0){
                         const caiid=res.data[0].category_id;
+                        const catname=res.data[0].category_name;
                         onTreeSelect(caiid);
                         setCheckVal([]);
                         setCheckVal([caiid]);
                         setCatId(caiid)
+                        setCatname(catname)
                         setTreeData(res.data)
                       }
                     }
@@ -118,7 +121,9 @@ const SelectItemCategoryDialog = (props) => {
         setCheckVal();
         setCheckVal(value);
         const catidd=selectedOptions[selectedOptions.length-1]["category_id"];
+        const catname=selectedOptions[selectedOptions.length-1]["category_name"];
         setCatId(catidd)
+        setCatname(catname)
         onTreeSelect(catidd);
       }
       const selectOnChange = (selectedKeys, selectedRows) => {
@@ -144,9 +149,9 @@ const SelectItemCategoryDialog = (props) => {
         <Modal title="选择类别" visible={modalVisible} onOk={() => {
             if (0 < checkKeys.length) {
                 if (selectType === 'radio') {
-                    handleOk(checkRows[0], checkKeys[0],columnData)
+                    handleOk(checkRows[0], checkKeys[0],columnData,catId,catname)
                 } else {
-                    handleOk(checkRows, checkKeys,columnData)
+                    handleOk(checkRows, checkKeys,columnData,catId,catname)
                 }
             } else {
                 handleCancel();
