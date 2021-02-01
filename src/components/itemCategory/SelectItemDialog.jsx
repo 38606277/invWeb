@@ -144,9 +144,9 @@ const SelectItemCategoryDialog = (props) => {
         <Modal title="选择类别" visible={modalVisible} onOk={() => {
             if (0 < checkKeys.length) {
                 if (selectType === 'radio') {
-                    handleOk(checkRows[0], checkKeys[0])
+                    handleOk(checkRows[0], checkKeys[0],columnData)
                 } else {
-                    handleOk(checkRows, checkKeys)
+                    handleOk(checkRows, checkKeys,columnData)
                 }
             } else {
                 handleCancel();
