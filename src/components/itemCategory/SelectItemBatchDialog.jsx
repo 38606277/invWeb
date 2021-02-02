@@ -72,8 +72,8 @@ const SelectItemBatchDialog = (props) => {
             const keys=optionlist[i].key;
             const vals=optionlist[i].children;
             let newparam={};
-            newparam[names]=vals;
-            newparam[namesv]=keys;
+            newparam[names]=keys;
+            newparam[namesv]=vals;
             newarr.push(newparam);
         }
         let newcheckRows = checkRows;

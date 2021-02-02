@@ -108,7 +108,20 @@ export default (props) => {
             }
             setColumnData(inlist);
 
-            const resultlistskey = res.data.listskey;
+
+           const outlist = [];
+          const resultlistskey = res.data.listskey;
+          resultlistskey.map((item, index) => {
+            let json = {
+              key: item.segment.toLowerCase()+"v",
+              title: item.segment_name,
+              dataIndex: item.segment.toLowerCase()+"v",
+              valueType: 'text',
+              align: 'center',
+            };
+            outlist.push(json);
+          });
+          setNewcolumns(outlist);
             //条件列两两一组进行组合，作为一行显示
             const inlistskey = [];
             var k1 = Math.ceil(resultlistskey.length / 3);
@@ -201,9 +214,9 @@ export default (props) => {
           const resultlistskey = res.data.listskey;
           resultlistskey.map((item, index) => {
             let json = {
-              key: item.segment.toLowerCase(),
+              key: item.segment.toLowerCase()+"v",
               title: item.segment_name,
-              dataIndex: item.segment.toLowerCase(),
+              dataIndex: item.segment.toLowerCase()+"v",
               valueType: 'text',
               align: 'center',
             };
