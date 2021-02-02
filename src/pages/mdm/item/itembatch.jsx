@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { message, Form, Button, Row, Col, Select, Input, DatePicker,Upload  } from 'antd';
+import { message, Form, Button, Row, Col, Select, Input, DatePicker,Upload,Table  } from 'antd';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import FormItem from 'antd/lib/form/FormItem';
@@ -64,6 +64,9 @@ export default (props) => {
   const [names, setNames] = useState({});
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
+
+  const [newcolumns, setNewcolumns] = useState([]);
+  const [newcolumnsData, setNewcolumnsData] = useState([]);
 
 
   useEffect(() => {
@@ -194,7 +197,19 @@ export default (props) => {
           }
           setColumnData(inlist);
 
+          const outlist = [];
           const resultlistskey = res.data.listskey;
+          resultlistskey.map((item, index) => {
+            let json = {
+              key: item.segment.toLowerCase(),
+              title: item.segment_name,
+              dataIndex: item.segment.toLowerCase(),
+              valueType: 'text',
+              align: 'center',
+            };
+            outlist.push(json);
+          });
+          setNewcolumns(outlist);
           //条件列两两一组进行组合，作为一行显示
           const inlistskey = [];
           var k1 = Math.ceil(resultlistskey.length / 3);
@@ -235,6 +250,20 @@ export default (props) => {
       },
     );
   };
+
+  const getBatchListByCheckRow = (arrid) => {
+    let params = {
+      arrId: arrid,
+    };
+    HttpService.post('reportServer/itemCategory/decomposingDataList', JSON.stringify(params)).then(
+      (res) => {
+        if (res.resultCode == '1000') {
+          const resultlist = res.data;
+          setNewcolumnsData(resultlist);
+        }
+      })
+    }
+
   const handleFieldChange = (vale, record) => {
     const valnames = record.segment;
     const valName = 'item_description';
@@ -371,15 +400,7 @@ export default (props) => {
           >
             提交
           </Button>,
-          <Button
-          type="primary"
-          onClick={() => {
-            console.log('mainForm', mainForm);
-            setSelectItemBatchDialogVisible(true);
-          }}
-        >
-          添加数据
-        </Button>,
+         
           <Button key="back" onClick={() => history.push('/mdm/item/itemList/' + catId)}>
             返回
           </Button>,
@@ -397,10 +418,11 @@ export default (props) => {
               //验证成功
               let postData = {
                 ...values,
-                image_url:imageUrl
+                'image_url':imageUrl,
+                'columnSkeyList':newcolumnsData
               };
               console.log(postData);
-              HttpService.post('reportServer/item/saveItem', JSON.stringify(postData)).then(
+              HttpService.post('reportServer/item/saveItemBatch', JSON.stringify(postData)).then(
                 (res) => {
                   if (res.resultCode == '1000') {
                     //刷新
@@ -480,6 +502,31 @@ export default (props) => {
            
           </Row>
         </ProCard>
+        
+        <ProCard collapsible title="关键信息">
+          {inColumn}
+        </ProCard>
+        <ProCard collapsible title="从键信息"
+        extra={
+          <Button
+            type="primary"
+            onClick={() => {
+              console.log('mainForm', mainForm);
+              setSelectItemBatchDialogVisible(true);
+            }}
+          >添加数据</Button>
+        }
+        >
+          <Table
+            columns={newcolumns}
+            dataSource={newcolumnsData}
+            pagination={false}
+              
+          />
+        </ProCard>
+        <ProCard collapsible title="属性信息">
+          {inColumn2}
+        </ProCard>
         <ProCard collapsible title="价格信息">
         <Row gutter={24}>
         <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
@@ -519,13 +566,6 @@ export default (props) => {
             </Col>
           </Row>
           </ProCard>
-        <ProCard collapsible title="关键信息">
-          {inColumn}
-        </ProCard>
-        <ProCard collapsible title="属性信息">
-          {inColumn2}
-        </ProCard>
-        
           <ProCard collapsible title="图片信息">
           <Row gutter={24}>
           <Col xs={24} sm={24}>
@@ -571,10 +611,10 @@ export default (props) => {
         <SelectItemBatchDialog
           columns={columnSkey}
           modalVisible={selectItemBatchDialogVisible}
-          handleOk={(selectitemCategory) => {
-            if (selectitemCategory) {
-              console.log(selectitemCategory)
-              //getColumnListByCategoryId(selectitemCategory);
+          handleOk={(selectitemCategory,checkKeys,checkRows) => {
+            if (checkRows) {
+              console.log(checkRows)
+              getBatchListByCheckRow(checkRows);
               // mainForm.setFieldsValue({
               //   item_category_id: selectitemCategory.category_id,
               //   category_code: selectitemCategory.category_code,

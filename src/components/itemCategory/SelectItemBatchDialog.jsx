@@ -15,8 +15,6 @@ const SelectItemBatchDialog = (props) => {
     const [checkRows, setCheckRows] = useState({});
     const [val, setVal] = useState({});
 
-    const selectType = props?.selectType || 'radio';
-    console.log(columns);
     const inColumn = columns.map((item, index) => {
         const rc = item.map((record, index) => {
         return (
@@ -67,11 +65,16 @@ const SelectItemBatchDialog = (props) => {
     const handleFieldChange = (selectedKeys, record,optionlist) => {
         setCheckKeys(selectedKeys);
 
-        console.log(optionlist)
         const names=record.segment;
+        const namesv=names+"v";
         let newarr=[];
         for(let i=0;i<optionlist.length;i++){
-            newarr.push(optionlist[i].children);
+            const keys=optionlist[i].key;
+            const vals=optionlist[i].children;
+            let newparam={};
+            newparam[names]=vals;
+            newparam[namesv]=keys;
+            newarr.push(newparam);
         }
         let newcheckRows = checkRows;
         newcheckRows[names]=newarr;
@@ -81,19 +84,19 @@ const SelectItemBatchDialog = (props) => {
         let newval = val;
         newval[names]=selectedKeys;
         setVal(newval);
-        console.log('selectedKeys', selectedKeys)
-        console.log('newarr', newarr)
-        console.log('newval', newval)
-        console.log('newcheckRows', newcheckRows)
+        // console.log('selectedKeys', selectedKeys)
+        // console.log('newarr', newarr)
+        // console.log('newval', newval)
+        //console.log('newcheckRows', newcheckRows)
     }
 
     return (
         <Modal title="选择类别" visible={modalVisible} onOk={() => {
-            handleOk(val, checkKeys)
+            handleOk(val, checkKeys,checkRows)
            
         }} onCancel={handleCancel}>
 
-        <ProCard collapsible title="关键信息">
+        <ProCard collapsible title="从键信息">
           {inColumn}
         </ProCard>
         </Modal>
