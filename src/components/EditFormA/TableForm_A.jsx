@@ -32,8 +32,15 @@ import styles from './index.less';
 
 const TableForm = forwardRef((props, ref) => {
 
-  const { primaryKey, tableForm, columns } = props;
-  const [data, setData] = useState([]); //列表行数据
+  const { primaryKey, columns, value } = props;
+
+  const tableParams = props.tableParams || {};
+
+  const [tableForm] = Form.useForm();
+
+
+  const [data, setData] = useState(value || []); //列表行数据
+
   const [deleteRecordKeys, setDeleteRecordKeys] = useState([]); //删除记录
   const [deleteRecord, setDeleteRecord] = useState([]); //删除记录
   const [mSelectedRows, setMSelectedRows] = useState([]);
@@ -51,9 +58,13 @@ const TableForm = forwardRef((props, ref) => {
     initData: (initData) => {
       setData(initData);
     },
+    //新增一行
     addItem: (item) => {
-      //新增一行
       newMember(item);
+    },
+    //新增多行
+    addItemList: (itemList) => {
+      newMemberList(itemList);
     },
     //删除选中项
     removeRows: () => {
@@ -78,13 +89,32 @@ const TableForm = forwardRef((props, ref) => {
     //修改对象
     handleObjChange(obj, record) {
       handleObjChange(obj, record)
+    },
+    //验证表单数据
+    validateFields() {
+      return new Promise((resolve, reject) => {
+        tableForm.validateFields().then(() => {
+          resolve(true);
+        }).catch(() => {
+          reject(false);
+        });
+      });
     }
+
+
   }));
 
   //新增一行
   const newMember = (newItem) => {
     const newData = data?.map((item) => ({ ...item })) || [];
     newData.push(newItem);
+    setData(newData);
+  };
+
+  //新增多行
+  const newMemberList = (newItemList) => {
+    const newData = data?.map((item) => ({ ...item })) || [];
+    newData.push(...newItemList);
     setData(newData);
   };
 
@@ -165,7 +195,7 @@ const TableForm = forwardRef((props, ref) => {
    * @param {} columnParams  列参数
    */
   const getColumn = (columnParams) => {
-    const { renderParams } = columnParams;
+    const renderParams = columnParams?.renderParams || {};
 
     if (columnParams?.hide) {
       if (!columnParams.className) {
@@ -188,7 +218,7 @@ const TableForm = forwardRef((props, ref) => {
 
   /**
    * 获取对应类型的控件
-   * @param {}} renderType 
+   * @param {*}} renderType 
    * @param {*} renderParams 
    */
   const getItemEF = (renderType, renderParams) => {
@@ -209,6 +239,7 @@ const TableForm = forwardRef((props, ref) => {
   return (
     <Form className={styles.tableForm} key="tableForm" form={tableForm}>
       <Table
+        {...tableParams}
         className="formTable"
         rowKey={primaryKey}
         columns={buildColumns(columns || [])}

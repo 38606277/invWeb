@@ -370,6 +370,16 @@
         path: '/mdm/itemCategory/itemCategory/:category_pid/:category_id',
         component: './mdm/itemCategory/itemCategory',
       },
+      {
+        name: 'user.user-list',
+        path: '/mdm/bom/:action/:id',
+        component: './mdm/bom/bom',
+      },
+      {
+        name: 'user.user-list',
+        path: '/mdm/bomList',
+        component: './mdm/bom/bomList',
+      },
     ],
   },
   {

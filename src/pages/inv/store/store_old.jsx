@@ -26,7 +26,7 @@ const formItemLayout1 = {
 };
 
 const getTypeName = (type) => {
-  if (type == 'other') {
+  if (type === 'other') {
     return '其他入库';
   } else if (type == 'po') {
     return '采购入库';
@@ -34,64 +34,15 @@ const getTypeName = (type) => {
   return '其他入库';
 }
 
-const TableFormList = ({ tableFormDataList, disabled }) => {
-  let tableFormList = [];
-  for (let index in tableFormDataList) {
-    let tableFormData = tableFormDataList[index];
 
-
-    console.log('TableFormList tableFormData :  ', tableFormData)
-
-    tableFormList.push(<ProCardCollapse
-      title={tableFormData.catname}
-      extra={[
-        <Button
-          disabled={disabled}
-          icon={<PlusOutlined />}
-          size="small"
-          onClick={() => {
-            //新增一行
-            tableFormData?.tableRef?.current?.addItem({
-              line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`
-            });
-          }}
-        ></Button>,
-        <Button
-          disabled={disabled}
-          size="small"
-          style={{ marginLeft: '6px' }}
-          icon={<MinusOutlined />}
-          onClick={() => {
-            //删除选中项
-            tableFormData?.tableRef?.current?.removeRows();
-          }}
-        ></Button>,
-      ]}
-    >
-      <TableForm_A
-        tableParams={
-          { scroll: { x: 1300 } }
-        }
-        ref={tableFormData.tableRef}
-        columns={tableFormData.columnList}
-        primaryKey="line_id"
-        value={tableFormData.dataList}
-      />
-    </ProCardCollapse>
-    );
-  }
-  return tableFormList;
-}
-
-
-const store = (props) => {
+const store_old = (props) => {
+  const tableRef = useRef();
+  const [tableForm] = Form.useForm();
   const [mainForm] = Form.useForm();
   const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
   const [selectPoDialogVisible, setSelectPoDialogVisible] = useState(false);
   const [selectItemDialogVisible, setSelectItemDialogVisible] = useState(false);
   const [selectItemRecord, setSelectItemRecord] = useState({});
-
-  const [tableFormDataList, setTableFormDataList] = useState([]);
 
   const [disabled, setDisabled] = useState(false);
 
@@ -100,13 +51,8 @@ const store = (props) => {
   const id = props?.match?.params?.id || -1;
 
   const calculateAmount = (value, name, record) => {
-    console.log('calculateAmount', record);
     const amount = record['quantity'] * record['price'];
-    let tableFormData = tableFormDataList?.find((item) => {
-      console.log('calculateAmount item', item);
-      return item.catId == record.item_category_id;
-    })
-    tableFormData?.tableRef?.current?.handleObjChange(
+    tableRef.current.handleObjChange(
       {
         amount: amount
       },
@@ -243,7 +189,7 @@ const store = (props) => {
             },
             widgetParams: {
               disabled: disabled,
-              onChange: (value, name, record, tableRef) => {
+              onChange: (value, name, record) => {
                 const amount = record['quantity'] * record['price'];
                 tableRef.current.handleObjChange(
                   {
@@ -286,7 +232,7 @@ const store = (props) => {
             widgetParams: {
               disabled: disabled,
               precision: 0,
-              onChange: (value, name, record, tableRef) => {
+              onChange: (value, name, record) => {
                 //数量不能大于结存数量
                 if (record['not_rcv_quantity'] < record['quantity']) {
                   message.error('接收数量不能大于未接收数量，请检查');
@@ -391,16 +337,6 @@ const store = (props) => {
       header={{
         extra: [
           <Button
-            key="submit"
-            type="danger"
-            icon={<SaveOutlined />}
-            onClick={() => {
-              setSelectItemDialogVisible(true);
-            }}
-          >
-            添加物料
-        </Button>,
-          <Button
             disabled={disabled}
             key="submit"
             type="danger"
@@ -427,62 +363,53 @@ const store = (props) => {
         {...formItemLayout2}
         form={mainForm}
         onFinish={async (fieldsValue) => {
+          //验证tableForm
+          tableForm
+            .validateFields()
+            .then(() => {
+              //验证成功
 
-          let tableFormPromiseList = [];
-          for (let index in tableFormDataList) {
-            tableFormPromiseList.push(tableFormDataList[index].tableRef.current.validateFields());
-          }
-          let promiseAll = Promise.all(tableFormPromiseList);
-          promiseAll.then((res) => {
-            console.log('promiseAll then', res);
+              let tableData = tableRef.current.getTableData();
 
-            let tableData = [];
-            for (let index in tableFormDataList) {
-              tableData.push(...tableFormDataList[index].tableRef.current.getTableData());
-            }
-            const values = {
-              ...fieldsValue,
-              bill_date: fieldsValue['bill_date'].format('YYYY-MM-DD HH:mm:ss'),
-            };
+              const values = {
+                ...fieldsValue,
+                bill_date: fieldsValue['bill_date'].format('YYYY-MM-DD HH:mm:ss'),
+              };
 
-            values.bill_type = `store_${type}`;
+              values.bill_type = `store_${type}`;
 
-            if (action === 'edit') {
-              let deleteRecordKeys = [];
-              for (let deleteIndex in tableFormDataList) {
-                deleteRecordKeys.push(tableFormDataList[deleteIndex].tableRef.current.getDeleteRecordKeys());
-              }
-              console.log('deleteRecordKeys', deleteRecordKeys);
-              //过滤deleteRecord中的临时数据
-              let deleteIds = deleteRecordKeys.filter((element) => {
-                return element.toString().indexOf('NEW_TEMP_ID_') < 0;
-              });
-              values.bill_status = 1;
-              update({
-                mainData: values,
-                linesData: tableData,
-                deleteData: deleteIds.toString(), // 删除项
-              });
-            } else {
-
-              if (type == 'po') {
+              if (action === 'edit') {
+                let deleteRecordKeys = tableRef.current.getDeleteRecordKeys();
+                console.log('deleteRecordKeys', deleteRecordKeys);
+                //过滤deleteRecord中的临时数据
+                let deleteIds = deleteRecordKeys.filter((element) => {
+                  return element.toString().indexOf('NEW_TEMP_ID_') < 0;
+                });
                 values.bill_status = 1;
+                update({
+                  mainData: values,
+                  linesData: tableData,
+                  deleteData: deleteIds.toString(), // 删除项
+                });
               } else {
-                values.bill_status = 0;
+
+                if (type == 'po') {
+                  values.bill_status = 1;
+                } else {
+                  values.bill_status = 0;
+                }
+
+                save({
+                  mainData: values,
+                  linesData: tableData,
+                });
               }
-
-              save({
-                mainData: values,
-                linesData: tableData,
-              });
-            }
-
-
-          }).catch((error) => {
-            console.log('promiseAll catch', error)
-            message.error('提交失败');
-          });
-
+            })
+            .catch((errorInfo) => {
+              console.log(errorInfo);
+              //验证失败
+              message.error('提交失败');
+            });
         }}
       >
         <ProCardCollapse
@@ -573,8 +500,34 @@ const store = (props) => {
         </ProCardCollapse>
       </Form>
 
-      <TableFormList tableFormDataList={tableFormDataList} disable={disabled} />
-
+      <ProCardCollapse
+        title="行信息"
+        extra={[
+          <Button
+            disabled={disabled}
+            icon={<PlusOutlined />}
+            size="small"
+            onClick={() => {
+              //新增一行
+              tableRef.current.addItem({
+                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`
+              });
+            }}
+          ></Button>,
+          <Button
+            disabled={disabled}
+            size="small"
+            style={{ marginLeft: '6px' }}
+            icon={<MinusOutlined />}
+            onClick={() => {
+              //删除选中项
+              tableRef.current.removeRows();
+            }}
+          ></Button>
+        ]}
+      >
+        <TableForm_A ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
+      </ProCardCollapse>
       <SelectOrgDialog
         modalVisible={selectOrgDialogVisible}
         handleOk={(selectOrg) => {
@@ -590,8 +543,6 @@ const store = (props) => {
           setSelectOrgDialogVisible(false);
         }}
       />
-
-
 
       <SelectPoDialog
         modalVisible={selectPoDialogVisible}
@@ -623,7 +574,7 @@ const store = (props) => {
         }}
       />
 
-      {/* <SelectItemDialog
+      <SelectItemDialog
         modalVisible={selectItemDialogVisible}
         //selectType="checkbox"
         handleOk={(result) => {
@@ -636,146 +587,11 @@ const store = (props) => {
         handleCancel={() => {
           setSelectItemDialogVisible(false);
         }}
-      /> */}
-
-      <SelectItemDialog
-        modalVisible={selectItemDialogVisible}
-        selectType='checkbox'
-        handleOk={(checkRows, checkKeys, columnData, catId, catname) => {
-
-          let tableFormDate = tableFormDataList.find((element) => {
-            return element.catId == catId;
-          })
-
-          if (tableFormDate) {
-            let addItemList = [];
-            for (let index in checkRows) {
-              let row = checkRows[index];
-              addItemList.push({
-                ...row,
-                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                material_id: row.item_id,
-                material_description: row.item_description,
-                uom: row.uom
-              })
-            }
-
-
-            tableFormDate.tableRef.current.addItemList(addItemList)
-
-          } else {
-            let dataList = [];
-            for (let index in checkRows) {
-              let row = checkRows[index];
-              dataList.push({
-                ...row,
-                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                material_id: row.item_id,
-                material_description: row.item_description,
-                uom: row.uom,
-              })
-            }
-
-            let columnList = [];
-            //构建列
-            for (let index in columnData) {
-              let column = columnData[index];
-
-              columnList.push({
-                ...column,
-                renderParams: {
-                  formItemParams: {
-                    rules: [{ required: true, message: `请输入${column.title}` }]
-                  },
-                  widgetParams: { disabled: true }
-                }
-              });
-            }
-
-            columnList.push(...[
-              {
-                title: '单位',
-                dataIndex: 'uom',
-                renderParams: {
-                  formItemParams: {
-                    rules: [{ required: true, message: '请输入单位' }]
-                  },
-                  widgetParams: { disabled: true }
-                }
-              },
-              {
-                title: '单价',
-                dataIndex: 'price',
-                renderType: 'InputNumberEF',
-                fixed: 'right',
-                renderParams: {
-                  formItemParams: {
-                    rules: [{ required: true, message: '请输入单价' }]
-                  },
-                  widgetParams: { disabled: disabled, onChange: calculateAmount }
-                }
-              },
-              {
-                title: '数量',
-                dataIndex: 'quantity',
-                renderType: 'InputNumberEF',
-                fixed: 'right',
-                renderParams: {
-                  formItemParams: {
-                    rules: [{ required: true, message: '请输入数量' }]
-
-                  },
-                  widgetParams: { disabled: disabled, precision: 0, onChange: calculateAmount }
-                }
-              },
-              {
-                title: '金额',
-                dataIndex: 'amount',
-                renderType: 'InputNumberEF',
-                fixed: 'right',
-                renderParams: {
-                  formItemParams: {
-                    rules: [{ required: true, message: '请输入金额' }]
-                  },
-                  widgetParams: {
-                    disabled: true
-                  }
-                }
-              },
-              {
-                title: '备注',
-                dataIndex: 'remark',
-                fixed: 'right',
-                renderParams: {
-                  formItemParams: {
-                    rules: [{ required: false, message: '请输入备注' }]
-                  },
-                  widgetParams: { disabled: disabled }
-                }
-              }])
-
-
-            let tableFormData = {
-              dataList,
-              catname,
-              catId,
-              columnList,
-              tableRef: React.createRef()
-            }
-            tableFormDataList.push(tableFormData);
-          }
-
-          setTableFormDataList(tableFormDataList)
-
-          setSelectItemDialogVisible(false);
-        }}
-        handleCancel={() => {
-          setSelectItemDialogVisible(false);
-        }}
       />
 
 
     </PageContainer>
   );
 };
-export default store;
+
+export default store_old;
