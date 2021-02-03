@@ -526,14 +526,16 @@ export default (props) => {
           {inColumn}
         </ProCard>
         <ProCard collapsible title="从键信息"
+        
         extra={
+          newcolumns.length>0?
           <Button
             type="primary"
             onClick={() => {
               console.log('mainForm', mainForm);
               setSelectItemBatchDialogVisible(true);
             }}
-          >添加数据</Button>
+          >添加数据</Button>:''
         }
         >
           <Table
