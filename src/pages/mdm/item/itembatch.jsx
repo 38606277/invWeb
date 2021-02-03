@@ -80,7 +80,7 @@ export default (props) => {
       let params = {
         category_id: props.match.params.category_id,
       };
-      HttpService.post('reportServer/itemCategory/getItemCategoryByID', JSON.stringify(params)).then(
+      HttpService.post('reportServer/itemCategory/getItemCategoryBatchByID', JSON.stringify(params)).then(
         (res) => {
           if (res.resultCode == '1000') {
             const datainfo = res.data.mainForm;
@@ -93,69 +93,75 @@ export default (props) => {
             //条件列两两一组进行组合，作为一行显示
             const resultlist = res.data.listmkey;
             const inlist = [];
-            var k = Math.ceil(resultlist.length / 3);
-            var j = 0;
-            for (var i = 1; i <= k; i++) {
-              var arr = new Array();
-              for (j; j < i * 3; j++) {
-                if (undefined != resultlist[j]) {
-                  arr.push(resultlist[j]);
+            if(null!=resultlist){
+              var k = Math.ceil(resultlist.length / 3);
+              var j = 0;
+              for (var i = 1; i <= k; i++) {
+                var arr = new Array();
+                for (j; j < i * 3; j++) {
+                  if (undefined != resultlist[j]) {
+                    arr.push(resultlist[j]);
+                  }
+                }
+                if (arr.length > 0) {
+                  inlist.push(arr);
                 }
               }
-              if (arr.length > 0) {
-                inlist.push(arr);
-              }
+              setColumnData(inlist);
             }
-            setColumnData(inlist);
 
 
            const outlist = [];
-          const resultlistskey = res.data.listskey;
-          resultlistskey.map((item, index) => {
-            let json = {
-              key: item.segment.toLowerCase()+"v",
-              title: item.segment_name,
-              dataIndex: item.segment.toLowerCase()+"v",
-              valueType: 'text',
-              align: 'center',
-            };
-            outlist.push(json);
-          });
-          setNewcolumns(outlist);
-            //条件列两两一组进行组合，作为一行显示
-            const inlistskey = [];
-            var k1 = Math.ceil(resultlistskey.length / 3);
-            var j1 = 0;
-            for (var i1 = 1; i1 <= k1; i1++) {
-              var arr = new Array();
-              for (j1; j1 < i1 * 3; j1++) {
-                if (undefined != resultlistskey[j1]) {
-                  arr.push(resultlistskey[j1]);
+           const resultlistskey = res.data.listskey;
+           if(null!=resultlistskey){
+              resultlistskey.map((item, index) => {
+                let json = {
+                  key: item.segment.toLowerCase()+"v",
+                  title: item.segment_name,
+                  dataIndex: item.segment.toLowerCase()+"v",
+                  valueType: 'text',
+                  align: 'center',
+                };
+                outlist.push(json);
+              });
+              setNewcolumns(outlist);
+                //条件列两两一组进行组合，作为一行显示
+                const inlistskey = [];
+                var k1 = Math.ceil(resultlistskey.length / 3);
+                var j1 = 0;
+                for (var i1 = 1; i1 <= k1; i1++) {
+                  var arr = new Array();
+                  for (j1; j1 < i1 * 3; j1++) {
+                    if (undefined != resultlistskey[j1]) {
+                      arr.push(resultlistskey[j1]);
+                    }
+                  }
+                  if (arr.length > 0) {
+                    inlistskey.push(arr);
+                  }
                 }
+                setColumnSkey(inlistskey);
               }
-              if (arr.length > 0) {
-                inlistskey.push(arr);
-              }
-            }
-            setColumnSkey(inlistskey);
 
             const resultlist2 = res.data.lineForm2;
             //条件列两两一组进行组合，作为一行显示
             const inlist2 = [];
-            var kk = Math.ceil(resultlist2.length / 3);
-            var jj = 0;
-            for (var ii = 1; ii <= kk; ii++) {
-              var arr2 = new Array();
-              for (jj; jj < ii * 3; jj++) {
-                if (undefined != resultlist2[jj]) {
-                  arr2.push(resultlist2[jj]);
+            if(null!=resultlist2){
+              var kk = Math.ceil(resultlist2.length / 3);
+              var jj = 0;
+              for (var ii = 1; ii <= kk; ii++) {
+                var arr2 = new Array();
+                for (jj; jj < ii * 3; jj++) {
+                  if (undefined != resultlist2[jj]) {
+                    arr2.push(resultlist2[jj]);
+                  }
+                }
+                if (arr2.length > 0) {
+                  inlist2.push(arr2);
                 }
               }
-              if (arr2.length > 0) {
-                inlist2.push(arr2);
-              }
+              setColumnData2(inlist2);
             }
-            setColumnData2(inlist2);
           } else {
             message.error(res.message);
           }
