@@ -326,6 +326,18 @@
         path: '/order/po/:action/:id',
         component: './order/po/po',
         exact: true,
+      },
+      {
+        name: 'user.user-list',
+        path: '/order/pdList',
+        component: './order/pd/pdList',
+        exact: true,
+      },
+      {
+        name: 'user.user-list',
+        path: '/order/pd/:action/:id',
+        component: './order/pd/pd',
+        exact: true,
       }
     ],
   },
