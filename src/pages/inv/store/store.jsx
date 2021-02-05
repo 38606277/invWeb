@@ -1,6 +1,6 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-layout';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import TableForm_A from '@/components/EditFormA/TableForm_A';
 import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
@@ -39,11 +39,10 @@ const TableFormList = ({ tableFormDataList, disabled }) => {
   for (let index in tableFormDataList) {
     let tableFormData = tableFormDataList[index];
 
-
     console.log('TableFormList tableFormData :  ', tableFormData)
 
     tableFormList.push(<ProCardCollapse
-      title={tableFormData.catname}
+      title={tableFormData.categoryName}
       extra={[
         <Button
           disabled={disabled}
@@ -104,7 +103,7 @@ const store = (props) => {
     const amount = record['quantity'] * record['price'];
     let tableFormData = tableFormDataList?.find((item) => {
       console.log('calculateAmount item', item);
-      return item.catId == record.item_category_id;
+      return item.categoryId == record.item_category_id;
     })
     tableFormData?.tableRef?.current?.handleObjChange(
       {
@@ -374,7 +373,117 @@ const store = (props) => {
               ...res.data.mainData,
               bill_date: moment(res.data.mainData.bill_date),
             });
-            tableRef?.current?.initData(res.data.linesData);
+
+            //  tableRef?.current?.initData(res.data.linesData);
+
+            //回填行信息
+            let linesData = res.data.linesData;
+            let newLinesData = [];
+            for (let index in linesData) {
+              let lines = linesData[index];
+
+              let columnList = [{
+                title: '描述',
+                dataIndex: 'item_description',
+                fixed: 'left',
+                width: '200px',
+                renderParams: {
+                  formItemParams: {
+                    rules: [{ required: true, message: '请输入描述' }]
+                  },
+                  widgetParams: { disabled: true }
+                }
+              }];
+              for (let columnIndex in lines.columnList) {
+                let column = lines.columnList[columnIndex];
+
+
+
+                columnList.push({
+                  ...column,
+                  renderParams: {
+                    formItemParams: {
+                      rules: [{ required: true, message: `请输入${column.title}` }]
+                    },
+                    widgetParams: { disabled: true }
+                  }
+                });
+              }
+              columnList.push(...[
+                {
+                  title: '单位',
+                  dataIndex: 'uom',
+                  renderParams: {
+                    formItemParams: {
+                      rules: [{ required: true, message: '请输入单位' }]
+                    },
+                    widgetParams: { disabled: true }
+                  }
+                },
+                {
+                  title: '单价',
+                  dataIndex: 'price',
+                  renderType: 'InputNumberEF',
+                  fixed: 'right',
+                  width: '100px',
+                  renderParams: {
+                    formItemParams: {
+                      rules: [{ required: true, message: '请输入单价' }]
+                    },
+                    widgetParams: { disabled: disabled, onChange: calculateAmount }
+                  }
+                },
+                {
+                  title: '数量',
+                  dataIndex: 'quantity',
+                  renderType: 'InputNumberEF',
+                  fixed: 'right',
+                  width: '100px',
+                  renderParams: {
+                    formItemParams: {
+                      rules: [{ required: true, message: '请输入数量' }]
+
+                    },
+                    widgetParams: { disabled: disabled, precision: 0, onChange: calculateAmount }
+                  }
+                },
+                {
+                  title: '金额',
+                  dataIndex: 'amount',
+                  renderType: 'InputNumberEF',
+                  fixed: 'right',
+                  width: '100px',
+                  renderParams: {
+                    formItemParams: {
+                      rules: [{ required: true, message: '请输入金额' }]
+                    },
+                    widgetParams: {
+                      disabled: true
+                    }
+                  }
+                },
+                {
+                  title: '备注',
+                  dataIndex: 'remark',
+                  fixed: 'right',
+                  width: '100px',
+                  renderParams: {
+                    formItemParams: {
+                      rules: [{ required: false, message: '请输入备注' }]
+                    },
+                    widgetParams: { disabled: disabled }
+                  }
+                }])
+
+              newLinesData.push({
+                ...lines,
+                columnList,
+                tableRef: React.createRef()
+              })
+            }
+
+            setTableFormDataList(newLinesData)
+
           } else {
             message.error(res.message);
           }
@@ -386,6 +495,7 @@ const store = (props) => {
 
   return (
     <PageContainer
+
       ghost="true"
       title={getTypeName(type)}
       header={{
@@ -572,9 +682,7 @@ const store = (props) => {
           </Row>
         </ProCardCollapse>
       </Form>
-
-      <TableFormList tableFormDataList={tableFormDataList} disable={disabled} />
-
+      {tableFormDataList.length < 1 ? "" : <TableFormList tableFormDataList={tableFormDataList} disable={disabled} />}
       <SelectOrgDialog
         modalVisible={selectOrgDialogVisible}
         handleOk={(selectOrg) => {
@@ -644,7 +752,7 @@ const store = (props) => {
         handleOk={(checkRows, checkKeys, columnData, catId, catname) => {
 
           let tableFormDate = tableFormDataList.find((element) => {
-            return element.catId == catId;
+            return element.categoryId == catId;
           })
 
           if (tableFormDate) {
@@ -757,13 +865,14 @@ const store = (props) => {
 
             let tableFormData = {
               dataList,
-              catname,
-              catId,
+              categoryName: catname,
+              categoryId: catId,
               columnList,
               tableRef: React.createRef()
             }
             tableFormDataList.push(tableFormData);
           }
+          console.log('tableFormDataList', tableFormDataList)
 
           setTableFormDataList(tableFormDataList)
 
