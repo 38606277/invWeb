@@ -290,7 +290,7 @@ const TableForm = forwardRef((props, ref) => {
 
             },
         },{
-            title: '是否主键',
+            title: '限定词',
             dataIndex: 'qualifier',
             key: 'qualifier',
             render: (text, record, index) => {
