@@ -196,7 +196,7 @@ export default (props) => {
                   dict_name: '',
                   input_mode:"dict",
                   spread_mode: 'r',
-                  qualifier:'0',
+                  qualifier:'mkey',
                   editable: true,
                   isNew: true,
                 });
@@ -244,7 +244,7 @@ export default (props) => {
                   dict_name: '',
                   input_mode:"dict",
                   spread_mode: 'r',
-                  qualifier:'0',
+                  qualifier:'mkey',
                   required:'0',
                   editable: true,
                   isNew: true,

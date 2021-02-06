@@ -16,6 +16,7 @@ const TableForm = forwardRef((props, ref) => {
     const [deleteRecord, setDeleteRecord] = useState([]);//删除记录
     const [departmentDic, setDepartmentDic] = useState([]);
     const [rowcolumn, setRowcolumn] = useState([]);
+    const [mSkey ,setMSkey] = useState([]);
     const [selectDictDailogVisible, setSelectDictDailogVisible] = useState(false);
     const [rowId, setRowId] = useState([]);
 
@@ -56,8 +57,12 @@ const TableForm = forwardRef((props, ref) => {
             
         ]);
         setRowcolumn([
-            {"rowcolId":"row","rowcolname":"行"},
-            {"rowcolId":"column","rowcolname":"列"},
+            {"rowcolId":"r","rowcolname":"行"},
+            {"rowcolId":"c","rowcolname":"列"},
+        ]);
+        setMSkey([
+            {"rowcolId":"mkey","rowcolname":"主键"},
+            {"rowcolId":"skey","rowcolname":"从键"},
         ]);
 
     }, []);
@@ -285,6 +290,27 @@ const TableForm = forwardRef((props, ref) => {
 
             },
         },{
+            title: '是否主键',
+            dataIndex: 'qualifier',
+            key: 'qualifier',
+            render: (text, record, index) => {
+                return (
+                    <SelectEF
+                    tableForm={tableForm}
+                    text={text}
+                    record={record}
+                    index={record.row_number}
+                    name="qualifier"
+                    rules={[{ required: true, message: '请选择!' }]}
+                    handleFieldChange={handleFieldChange}
+                    dictData={mSkey}
+                    keyName={'rowcolId'}
+                    valueName={'rowcolname'}
+                    placeholder={"请选择"}
+                  />
+                );
+            },
+        },{
             title: '横排',
             dataIndex: 'spread_mode',
             key: 'spread_mode',
@@ -306,6 +332,7 @@ const TableForm = forwardRef((props, ref) => {
                 );
             },
         },
+
     ];
 
  
