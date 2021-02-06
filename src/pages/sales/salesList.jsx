@@ -115,11 +115,11 @@ const fetchData = async (params, sort, filter) => {
 const getTypeName = (type) => {
   console.log('type:', type)
   if (type === 'other') {
-    return '其他入库';
+    return '销售出库';
   } else if (type == 'po') {
-    return '采购入库';
+    return '销售出库';
   }
-  return '其他入库';
+  return '销售出库';
 }
 const salesList = (props) => {
   const ref = useRef();
@@ -144,7 +144,7 @@ const salesList = (props) => {
       valueType: 'text',
     },
     {
-      title: '入库时间',
+      title: '出库时间',
       dataIndex: 'bill_date',
       valueType: 'dateTime',
     },

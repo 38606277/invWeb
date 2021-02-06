@@ -27,7 +27,7 @@ const formItemLayout1 = {
 
 const getTypeName = (type) => {
   if (type === 'other') {
-    return '其他入库';
+    return 'POS销售';
   } else if (type == 'po') {
     return '采购入库';
   }
@@ -189,7 +189,7 @@ export default (props) => {
             },
             widgetParams: {
               disabled: disabled,
-              onChange: (value, name, record) => {
+              onChange: (value, name, record, tableRef) => {
                 const amount = record['quantity'] * record['price'];
                 tableRef.current.handleObjChange(
                   {
@@ -232,7 +232,7 @@ export default (props) => {
             widgetParams: {
               disabled: disabled,
               precision: 0,
-              onChange: (value, name, record) => {
+              onChange: (value, name, record, tableRef) => {
                 //数量不能大于结存数量
                 if (record['not_rcv_quantity'] < record['quantity']) {
                   message.error('接收数量不能大于未接收数量，请检查');
@@ -418,8 +418,8 @@ export default (props) => {
           <Form.Item style={{ display: 'none' }} label="仓库Id" name="inv_org_id" />
           <Row>
             <Col xs={24} sm={11}>
-              <Form.Item label="入库编码" name="bill_id">
-                <Input disabled placeholde="自动生成" />
+              <Form.Item label="销售编码" name="bill_id">
+                <Input disabled placeholder="自动生成" />
               </Form.Item>
             </Col>
             <Col xs={24} sm={11}>
@@ -449,8 +449,8 @@ export default (props) => {
             <Col xs={24} sm={11}>
               <Form.Item
                 name="bill_date"
-                label="入库时间"
-                rules={[{ required: true, message: '请选择入库时间' }]}
+                label="销售时间"
+                rules={[{ required: true, message: '请选择销售时间' }]}
               >
                 <DatePicker style={{ width: "100%" }} disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
               </Form.Item>
