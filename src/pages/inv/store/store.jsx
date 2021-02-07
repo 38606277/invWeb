@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
-import TableForm_A from '@/components/EditFormA/TableForm_A';
+import TableFormList_A from '@/components/EditFormA/TableFormList_A';
 import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
 import SelectPoDialog from '@/components/Po/SelectPoDialog';
 import SelectItemDialog from '@/components/itemCategory/SelectItemDialog';
+import SelectItemCategoryDialog from '@/components/itemCategory/SelectItemCategoryDialog';
+
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
@@ -34,77 +36,29 @@ const getTypeName = (type) => {
   return '其他入库';
 }
 
-const TableFormList = ({ tableFormDataList, disabled }) => {
-  let tableFormList = [];
-  for (let index in tableFormDataList) {
-    let tableFormData = tableFormDataList[index];
-
-    console.log('TableFormList tableFormData :  ', tableFormData)
-
-    tableFormList.push(<ProCardCollapse
-      title={tableFormData.categoryName}
-      extra={[
-        <Button
-          disabled={disabled}
-          icon={<PlusOutlined />}
-          size="small"
-          onClick={() => {
-            //新增一行
-            tableFormData?.tableRef?.current?.addItem({
-              line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`
-            });
-          }}
-        ></Button>,
-        <Button
-          disabled={disabled}
-          size="small"
-          style={{ marginLeft: '6px' }}
-          icon={<MinusOutlined />}
-          onClick={() => {
-            //删除选中项
-            tableFormData?.tableRef?.current?.removeRows();
-          }}
-        ></Button>,
-      ]}
-    >
-      <TableForm_A
-        tableParams={
-          { scroll: { x: 1300 } }
-        }
-        ref={tableFormData.tableRef}
-        columns={tableFormData.columnList}
-        primaryKey="line_id"
-        value={tableFormData.dataList}
-      />
-    </ProCardCollapse>
-    );
-  }
-  return tableFormList;
-}
 
 
 const store = (props) => {
+  const tableFormListRef = useRef();
   const [mainForm] = Form.useForm();
   const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
   const [selectPoDialogVisible, setSelectPoDialogVisible] = useState(false);
   const [selectItemDialogVisible, setSelectItemDialogVisible] = useState(false);
-  const [selectItemRecord, setSelectItemRecord] = useState({});
-
-  const [tableFormDataList, setTableFormDataList] = useState([]);
-
+  const [categoryId, setCategoryId] = useState('-1')
+  const [selectItemCategoryDialogVisible, setSelectItemCategoryDialogVisible] = useState(false);
   const [disabled, setDisabled] = useState(false);
 
   const type = props?.match?.params?.type || 'other';
   const action = props?.match?.params?.action || 'add';
   const id = props?.match?.params?.id || -1;
 
+
   const calculateAmount = (value, name, record) => {
-    console.log('calculateAmount', record);
     const amount = record['quantity'] * record['price'];
-    let tableFormData = tableFormDataList?.find((item) => {
-      console.log('calculateAmount item', item);
-      return item.categoryId == record.item_category_id;
+    let tableFormData = tableFormListRef?.current?.getTableFormDataList()?.find((item) => {
+      return item.parimaryId == record.item_category_id;
     })
+
     tableFormData?.tableRef?.current?.handleObjChange(
       {
         amount: amount
@@ -112,6 +66,8 @@ const store = (props) => {
       record);
   }
 
+
+  //构建列 
   const buildColumns = () => {
     if (type == 'other') {//其他入库
       return [
@@ -336,8 +292,6 @@ const store = (props) => {
     return [];
   }
 
-
-
   const save = (params) => {
     HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
       if (res.resultCode == '1000') {
@@ -396,8 +350,6 @@ const store = (props) => {
               }];
               for (let columnIndex in lines.columnList) {
                 let column = lines.columnList[columnIndex];
-
-
 
                 columnList.push({
                   ...column,
@@ -477,12 +429,15 @@ const store = (props) => {
 
               newLinesData.push({
                 ...lines,
+                title: lines.categoryName,
+                parimaryId: lines.categoryId,
                 columnList,
                 tableRef: React.createRef()
               })
             }
+            tableFormListRef?.current?.setTableFormDataList(newLinesData);
 
-            setTableFormDataList(newLinesData)
+
 
           } else {
             message.error(res.message);
@@ -495,7 +450,6 @@ const store = (props) => {
 
   return (
     <PageContainer
-
       ghost="true"
       title={getTypeName(type)}
       header={{
@@ -505,10 +459,10 @@ const store = (props) => {
             type="danger"
             icon={<SaveOutlined />}
             onClick={() => {
-              setSelectItemDialogVisible(true);
+              setSelectItemCategoryDialogVisible(true);
             }}
           >
-            添加物料
+            添加类别
         </Button>,
           <Button
             disabled={disabled}
@@ -522,7 +476,6 @@ const store = (props) => {
             {` 保存${getTypeName(type)}单`}
           </Button>,
           <Button
-            disabled={disabled}
             key="reset"
             onClick={() => {
               history.goBack();
@@ -537,7 +490,7 @@ const store = (props) => {
         {...formItemLayout2}
         form={mainForm}
         onFinish={async (fieldsValue) => {
-
+          const tableFormDataList = tableFormListRef?.current?.getTableFormDataList();
           let tableFormPromiseList = [];
           for (let index in tableFormDataList) {
             tableFormPromiseList.push(tableFormDataList[index].tableRef.current.validateFields());
@@ -560,13 +513,14 @@ const store = (props) => {
             if (action === 'edit') {
               let deleteRecordKeys = [];
               for (let deleteIndex in tableFormDataList) {
-                deleteRecordKeys.push(tableFormDataList[deleteIndex].tableRef.current.getDeleteRecordKeys());
+                deleteRecordKeys.push(...tableFormDataList[deleteIndex].tableRef.current.getDeleteRecordKeys());
               }
               console.log('deleteRecordKeys', deleteRecordKeys);
               //过滤deleteRecord中的临时数据
               let deleteIds = deleteRecordKeys.filter((element) => {
                 return element.toString().indexOf('NEW_TEMP_ID_') < 0;
               });
+
               values.bill_status = 1;
               update({
                 mainData: values,
@@ -682,7 +636,16 @@ const store = (props) => {
           </Row>
         </ProCardCollapse>
       </Form>
-      {tableFormDataList.length < 1 ? "" : <TableFormList tableFormDataList={tableFormDataList} disable={disabled} />}
+      <TableFormList_A
+        ref={tableFormListRef}
+        //tableFormDataList={tableFormDataList}
+        disable={disabled}
+        primaryKey="line_id"
+        onAddClick={(tableFormData) => {
+          setCategoryId(tableFormData.parimaryId);
+          setSelectItemDialogVisible(true)
+        }}
+      />
       <SelectOrgDialog
         modalVisible={selectOrgDialogVisible}
         handleOk={(selectOrg) => {
@@ -698,8 +661,6 @@ const store = (props) => {
           setSelectOrgDialogVisible(false);
         }}
       />
-
-
 
       <SelectPoDialog
         modalVisible={selectPoDialogVisible}
@@ -731,28 +692,15 @@ const store = (props) => {
         }}
       />
 
-      {/* <SelectItemDialog
-        modalVisible={selectItemDialogVisible}
-        //selectType="checkbox"
-        handleOk={(result) => {
-          console.log('SelectItemDialog', result)
-          tableRef.current.handleObjChange(
-            result,
-            selectItemRecord);
-          setSelectItemDialogVisible(false);
-        }}
-        handleCancel={() => {
-          setSelectItemDialogVisible(false);
-        }}
-      /> */}
-
       <SelectItemDialog
+        categoryId={categoryId}
         modalVisible={selectItemDialogVisible}
         selectType='checkbox'
         handleOk={(checkRows, checkKeys, columnData, catId, catname) => {
 
+          const tableFormDataList = tableFormListRef?.current?.getTableFormDataList();
           let tableFormDate = tableFormDataList.find((element) => {
-            return element.categoryId == catId;
+            return element.parimaryId == catId;
           })
 
           if (tableFormDate) {
@@ -767,30 +715,55 @@ const store = (props) => {
                 uom: row.uom
               })
             }
+            tableFormDate?.tableRef?.current?.addItemList(addItemList)
+          }
+          tableFormListRef?.current?.setTableFormDataList(tableFormDataList);
+
+          setSelectItemDialogVisible(false);
+        }}
+        handleCancel={() => {
+          setSelectItemDialogVisible(false);
+        }}
+      />
 
 
-            tableFormDate.tableRef.current.addItemList(addItemList)
+      <SelectItemCategoryDialog
+        modalVisible={selectItemCategoryDialogVisible}
+        handleOk={(checkRows, checkKeys) => {
+          console.log('SelectItemCategoryDialog', checkRows, checkKeys)
+          if (checkRows.category_id == -1) {
+            message.warning('根节点无法作为类别')
+            return;
+          }
 
+          const tableFormDataList = tableFormListRef?.current?.getTableFormDataList();
+          //添加类别
+          let tableFormDate = tableFormDataList.find((element) => {
+            return element.parimaryId == checkRows.category_id;
+          })
+
+          if (tableFormDate) {
+            message.warning('类别已存在，请勿重复添加')
           } else {
-            let dataList = [];
-            for (let index in checkRows) {
-              let row = checkRows[index];
-              dataList.push({
-                ...row,
-                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                material_id: row.item_id,
-                material_description: row.item_description,
-                uom: row.uom,
-              })
-            }
 
-            let columnList = [];
+            const columnList = [{
+              title: '描述',
+              dataIndex: 'item_description',
+              fixed: 'left',
+              width: '200px',
+              renderParams: {
+                formItemParams: {
+                  rules: [{ required: true, message: '请输入描述' }]
+                },
+                widgetParams: { disabled: true }
+              }
+            }];
             //构建列
-            for (let index in columnData) {
-              let column = columnData[index];
-
+            for (let index in checkRows.segmentlist) {
+              let column = checkRows.segmentlist[index];
               columnList.push({
-                ...column,
+                title: column.segment_name,
+                dataIndex: column.segment,
                 renderParams: {
                   formItemParams: {
                     rules: [{ required: true, message: `请输入${column.title}` }]
@@ -804,6 +777,7 @@ const store = (props) => {
               {
                 title: '单位',
                 dataIndex: 'uom',
+                width: '100px',
                 renderParams: {
                   formItemParams: {
                     rules: [{ required: true, message: '请输入单位' }]
@@ -816,6 +790,7 @@ const store = (props) => {
                 dataIndex: 'price',
                 renderType: 'InputNumberEF',
                 fixed: 'right',
+                width: '100px',
                 renderParams: {
                   formItemParams: {
                     rules: [{ required: true, message: '请输入单价' }]
@@ -828,6 +803,7 @@ const store = (props) => {
                 dataIndex: 'quantity',
                 renderType: 'InputNumberEF',
                 fixed: 'right',
+                width: '100px',
                 renderParams: {
                   formItemParams: {
                     rules: [{ required: true, message: '请输入数量' }]
@@ -841,6 +817,7 @@ const store = (props) => {
                 dataIndex: 'amount',
                 renderType: 'InputNumberEF',
                 fixed: 'right',
+                width: '100px',
                 renderParams: {
                   formItemParams: {
                     rules: [{ required: true, message: '请输入金额' }]
@@ -854,6 +831,7 @@ const store = (props) => {
                 title: '备注',
                 dataIndex: 'remark',
                 fixed: 'right',
+                width: '100px',
                 renderParams: {
                   formItemParams: {
                     rules: [{ required: false, message: '请输入备注' }]
@@ -864,24 +842,22 @@ const store = (props) => {
 
 
             let tableFormData = {
-              dataList,
-              categoryName: catname,
-              categoryId: catId,
+              dataList: [],
+              title: checkRows.category_name,
+              parimaryId: checkRows.category_id,
               columnList,
               tableRef: React.createRef()
             }
             tableFormDataList.push(tableFormData);
           }
-          console.log('tableFormDataList', tableFormDataList)
-
-          setTableFormDataList(tableFormDataList)
-
-          setSelectItemDialogVisible(false);
+          tableFormListRef?.current?.setTableFormDataList(tableFormDataList);
+          setSelectItemCategoryDialogVisible(false);
         }}
         handleCancel={() => {
-          setSelectItemDialogVisible(false);
+          setSelectItemCategoryDialogVisible(false);
         }}
       />
+
 
 
     </PageContainer>

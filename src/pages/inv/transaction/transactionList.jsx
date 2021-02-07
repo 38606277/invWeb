@@ -27,88 +27,124 @@ const transactionList = (props) => {
             width: '10%'
         },
         {
-            title: '起始',
+            title: '期初',
             children: [
 
                 {
                     title: '单价',
                     dataIndex: 'begin_price',
                     valueType: 'text',
+                    render: (text) => {
+                        return text == '0' ? '' : text;
+                    }
                 },
                 {
                     title: '数量',
                     dataIndex: 'begin_quantity',
                     valueType: 'text',
+                    render: (text) => {
+                        return text == '0' ? '' : text;
+                    }
                 },
                 {
                     title: '金额',
                     dataIndex: 'begin_amount',
                     valueType: 'text',
+                    render: (text) => {
+                        return text == '0' ? '' : text;
+                    }
                 }
 
             ]
         },
         {
-            title: '收入',
+            title: '入库',
             children: [
 
                 {
                     title: '单价',
                     dataIndex: 'in_price',
                     valueType: 'text',
+                    render: (text) => {
+                        return text == '0' ? '' : text;
+                    }
                 },
                 {
                     title: '数量',
                     dataIndex: 'in_quantity',
                     valueType: 'text',
+                    render: (text) => {
+                        return text == '0' ? '' : text;
+                    }
                 },
                 {
                     title: '金额',
                     dataIndex: 'in_amount',
                     valueType: 'text',
+                    render: (text) => {
+                        return text == '0' ? '' : text;
+                    }
                 }
 
             ]
         },
 
         {
-            title: '支出',
+            title: '出库',
             children: [
 
                 {
                     title: '单价',
                     dataIndex: 'out_price',
                     valueType: 'text',
+                    render: (text) => {
+                        return text == '0' ? '' : text;
+                    }
                 },
                 {
                     title: '数量',
                     dataIndex: 'out_quantity',
                     valueType: 'text',
+                    render: (text) => {
+                        return text == '0' ? '' : text;
+                    }
                 },
                 {
                     title: '金额',
                     dataIndex: 'out_amount',
                     valueType: 'text',
+                    render: (text) => {
+                        return text == '0' ? '' : text;
+                    }
                 }
             ]
         },
         {
-            title: '结存',
+            title: '期末',
             children: [
                 {
                     title: '单价',
                     dataIndex: 'end_price',
                     valueType: 'text',
+                    render: (text) => {
+                        return text == '0' ? '' : text;
+                    }
                 },
                 {
                     title: '数量',
                     dataIndex: 'end_quantity',
                     valueType: 'text',
+                    render: (text) => {
+                        return text == '0' ? '' : text;
+                    }
                 },
                 {
                     title: '金额',
                     dataIndex: 'end_amount',
                     valueType: 'text',
+                    render: (text) => {
+                        return text == '0' ? '' : text;
+                    }
                 }
 
             ]

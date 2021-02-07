@@ -61,8 +61,7 @@ const fetchData = async (params, sort, filter) => {
     let requestParam = {
         pageNum: params.current,
         perPage: params.pageSize,
-        ...params,
-        bill_type: 'count'
+        ...params
     };
 
     let userInfo = localStorge.getStorage('userInfo');

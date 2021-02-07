@@ -41,6 +41,9 @@ const TableForm = forwardRef((props, ref) => {
 
   const [data, setData] = useState(value || []); //列表行数据
 
+  console.log('TableForm data', data)
+
+
   const [deleteRecordKeys, setDeleteRecordKeys] = useState([]); //删除记录
   const [deleteRecord, setDeleteRecord] = useState([]); //删除记录
   const [mSelectedRows, setMSelectedRows] = useState([]);
@@ -116,6 +119,8 @@ const TableForm = forwardRef((props, ref) => {
     const newData = data?.map((item) => ({ ...item })) || [];
     newData.push(...newItemList);
     setData(newData);
+    console.log('newMemberList newData', newData)
+    console.log('newMemberList data', data)
   };
 
   //删除选中项目

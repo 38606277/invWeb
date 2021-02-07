@@ -32,6 +32,8 @@ const count = (props) => {
     const [mainForm] = Form.useForm();
 
     const [selectItemDialogVisible, setSelectItemDialogVisible] = useState(false);
+    const [selectPoVisible, setSelectPoVisible] = useState(false);
+
     const [selectItemRecord, setSelectItemRecord] = useState({});
 
     const [disabled, setDisabled] = useState(false);
@@ -128,6 +130,7 @@ const count = (props) => {
                         rules: [{ required: true, message: '请选择物料' }]
                     },
                     widgetParams: {
+                        //disabled: disabled,
                         onSearch: (name, record) => {
                             setSelectItemRecord(record)
                             setSelectItemDialogVisible(true)
@@ -371,7 +374,16 @@ const count = (props) => {
                                 label="产品名称"
                                 rules={[{ required: true, message: '请输入产品名称' }]}
                             >
-                                <Input disabled={disabled} />
+                                <Search
+                                    disabled={disabled}
+                                    onClick={() => {
+                                        setSelectPoVisible(true)
+                                    }}
+                                    onSearch={() => {
+                                        setSelectPoVisible(true)
+                                    }}
+
+                                />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -396,7 +408,7 @@ const count = (props) => {
                 title="行信息"
                 extra={[
                     <Button
-                        disabled={disabled}
+                        //disabled={disabled}
                         icon={<PlusOutlined />}
                         size="small"
                         onClick={() => {
@@ -408,7 +420,7 @@ const count = (props) => {
                         }}
                     ></Button>,
                     <Button
-                        disabled={disabled}
+                        // disabled={disabled}
                         size="small"
                         style={{ marginLeft: '6px' }}
                         icon={<MinusOutlined />}
@@ -438,6 +450,30 @@ const count = (props) => {
                     setSelectItemDialogVisible(false);
                 }}
             />
+
+
+            <SelectItemDialog
+                modalVisible={selectPoVisible}
+                handleOk={(result) => {
+                    console.log('SelectItemDialog : ', result)
+                    // tableRef.current.handleObjChange(
+                    //     {
+                    //         material_id: result.item_id,
+                    //         material_description: result.item_description,
+                    //         uom: result.uom
+                    //     },
+                    //     selectItemRecord);
+                    mainForm.setFieldsValue({
+                        item_id: result.item_id,
+                        bom_name: result.item_description
+                    })
+                    setSelectPoVisible(false);
+                }}
+                handleCancel={() => {
+                    setSelectPoVisible(false);
+                }}
+            />
+
         </PageContainer>
     );
 };

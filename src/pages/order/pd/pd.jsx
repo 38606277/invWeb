@@ -2,16 +2,18 @@
  * 生产订单
  */
 import React, { useRef, useState, useEffect } from 'react';
-import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
+import { message, Form, Button, Row, Col, Select, Input, DatePicker, Tabs } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
 import TableForm_A from '@/components/EditFormA/TableForm_A';
 import SelectItemDialog from '@/components/itemCategory/SelectItemDialog';
 import SelectCustomersDialog from '@/components/Customers/SelectCustomersDialog';
+import SelectBomDialog from '@/components/Bom/SelectBomDialog';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import { SaveOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 
+const { TabPane } = Tabs;
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -29,13 +31,20 @@ const formItemLayout1 = {
 const count = (props) => {
     const tableRef = useRef();
     const [tableForm] = Form.useForm();
+
+    const materialTableRef = useRef();
+    const [materialTableForm] = Form.useForm();
+
     const [mainForm] = Form.useForm();
+
 
     const [selectItemDialogVisible, setSelectItemDialogVisible] = useState(false);
     const [selectItemRecord, setSelectItemRecord] = useState({});
 
     const [selectCustomersDialogVisible, setSelectCustomersDialogVisible] = useState(false);
     const [selectCustomersFiledName, setSelectCustomersFiledName] = useState('');
+
+    const [selectBomDialogVisible, setSelectBomDialogVisible] = useState(false);
 
     const [disabled, setDisabled] = useState(false);
 
@@ -65,7 +74,7 @@ const count = (props) => {
                     widgetParams: {
                         onSearch: (name, record) => {
                             setSelectItemRecord(record)
-                            setSelectItemDialogVisible(true)
+                            setSelectBomDialogVisible(true)
                         }
                     }
                 }
@@ -101,6 +110,99 @@ const count = (props) => {
                         rules: [{ required: true, message: '请输入单价' }]
                     },
                     widgetParams: { disabled: disabled, onChange: calculateAmount }
+                }
+            },
+
+            {
+                title: '数量',
+                dataIndex: 'quantity',
+                renderType: 'InputNumberEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入数量' }]
+
+                    },
+                    widgetParams: { disabled: disabled, precision: 0, onChange: calculateAmount }
+                }
+            },
+            {
+                title: '金额',
+                dataIndex: 'amount',
+                renderType: 'InputNumberEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入合计成本' }]
+                    },
+                    widgetParams: { disabled: true, }
+                }
+            }
+        ]
+
+    }
+
+
+    const materialBuildColumns = () => {
+        return [
+            {
+                title: '原料名称',
+                dataIndex: 'material_description',
+                renderType: 'InputSearchEF',
+                width: '20%',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请选择产品' }]
+                    },
+                    widgetParams: {
+                        onSearch: (name, record) => {
+                            setSelectItemRecord(record)
+                            setSelectBomDialogVisible(true)
+                        }
+                    }
+                }
+            },
+            {
+                title: '原料id',
+                dataIndex: 'material_id',
+                hide: true,
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: false, message: '请选择产品' }]
+                    },
+                    widgetParams: { disabled: true }
+                }
+            },
+            {
+                title: '单位',
+                dataIndex: 'unit_cost',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入单位' }]
+                    },
+                    widgetParams: { disabled: true }
+                }
+            },
+            {
+                title: '单位成本',
+                dataIndex: 'unit_cost',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入单位' }]
+                    },
+                    widgetParams: { disabled: true }
+                }
+            },
+
+            {
+                title: '损耗率',
+                dataIndex: 'lose_rate',
+                renderType: 'InputNumberEF',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入损耗率' }]
+                    },
+                    widgetParams: {
+                        disabled: disabled
+                    },
                 }
             },
 
@@ -328,7 +430,20 @@ const count = (props) => {
                     ></Button>,
                 ]}
             >
-                <TableForm_A ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
+
+                <Tabs defaultActiveKey="1" onChange={(key) => {
+                    console.log(key);
+                }}>
+                    <TabPane tab="产品" key="product">
+                        <TableForm_A ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
+                    </TabPane>
+                    <TabPane tab="原料" key="material">
+                        <TableForm_A ref={materialTableRef} columns={materialBuildColumns()} primaryKey="line_id" tableForm={materialTableForm} />
+                    </TabPane>
+
+                </Tabs>
+
+
             </ProCardCollapse>
             <SelectItemDialog
                 modalVisible={selectItemDialogVisible}
@@ -363,6 +478,42 @@ const count = (props) => {
                     setSelectCustomersDialogVisible(false);
                 }}
             />
+            <SelectBomDialog
+                modalVisible={selectBomDialogVisible}
+                handleOk={(selectBom) => {
+                    console.log('SelectBomDialog', selectBom)
+
+                    HttpService.post('reportServer/bomLines/getBomLinesLeafByItemId', JSON.stringify({
+                        item_id: selectBom.item_id
+                    }))
+                        .then((res) => {
+                            if (res.resultCode == '1000') {
+
+                                tableRef?.current?.handleObjChange(
+                                    {
+                                        item_id: selectBom.item_id,
+                                        item_description: selectBom.bom_name,
+                                        uom: selectBom.uom,
+                                        materialList: res.data
+                                    },
+                                    selectItemRecord);
+
+                                materialTableRef?.current?.addItemList(res.data)
+                                console.log('SelectBomDialog materialTableRef', materialTableRef)
+                                setSelectBomDialogVisible(false);
+                            } else {
+                                message.error(res.message);
+                                setSelectBomDialogVisible(false);
+                            }
+                        });
+                }}
+                handleCancel={() => {
+                    setSelectBomDialogVisible(false);
+                }}
+            />
+
+
+
         </PageContainer>
     );
 };

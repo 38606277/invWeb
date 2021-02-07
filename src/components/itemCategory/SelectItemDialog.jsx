@@ -2,8 +2,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import ProTable from '@ant-design/pro-table';
-import { Button, Space, Modal, message, Row, TreeSelect, Tree, Col,Cascader,Input, Pagination  } from 'antd';
-import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined,PlusCircleOutlined,FormOutlined ,MinusCircleOutlined,CloseCircleOutlined } from '@ant-design/icons';
+import { Button, Space, Modal, message, Row, TreeSelect, Tree, Col, Cascader, Input, Pagination } from 'antd';
+import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined, PlusCircleOutlined, FormOutlined, MinusCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import HttpService from '@/utils/HttpService.jsx';
 
@@ -18,9 +18,10 @@ const SelectItemCategoryDialog = (props) => {
     const [columnData, setColumnData] = useState([]);
     const [catId, setCatId] = useState('-1');// 用于编辑赋初始值
     const [catname, setCatname] = useState('');// 用于编辑赋初始值
-    const [checkVal , setCheckVal] = useState([]);
+    const [checkVal, setCheckVal] = useState([]);
 
     const selectType = props?.selectType || 'radio';
+    const categoryId = props?.categoryId || '-1';
 
     //重置选中状态
     useEffect(() => {
@@ -28,28 +29,38 @@ const SelectItemCategoryDialog = (props) => {
         setCheckRows([]);
         onTreeSelect('-1');
         setCheckVal(['-1']);
-        refreshData();
+        if (categoryId == '-1') {
+            refreshData();
+        }
+        setCatId(categoryId)
+        onTreeSelect(categoryId)
     }, [modalVisible])
 
- 
+
+    //检查类别是否改变
+    useEffect(() => {
+
+    }, [categoryId]);
+
+
 
     const getAllChildrenRecursionById = (catId) => {
-        HttpService.post('reportServer/itemCategory/getAllList',JSON.stringify({"category_pid":catId}))
+        HttpService.post('reportServer/itemCategory/getAllList', JSON.stringify({ "category_pid": catId }))
             .then(res => {
                 if (res.resultCode === "1000") {
-                    if(null!=res.data){
-                      if(res.data.length>0){
-                        const caiid=res.data[0].category_id;
-                        const catname=res.data[0].category_name;
-                        onTreeSelect(caiid);
-                        setCheckVal([]);
-                        setCheckVal([caiid]);
-                        setCatId(caiid)
-                        setCatname(catname)
-                        setTreeData(res.data)
-                      }
+                    if (null != res.data) {
+                        if (res.data.length > 0) {
+                            const caiid = res.data[0].category_id;
+                            const catname = res.data[0].category_name;
+                            onTreeSelect(caiid);
+                            setCheckVal([]);
+                            setCheckVal([caiid]);
+                            setCatId(caiid)
+                            setCatname(catname)
+                            setTreeData(res.data)
+                        }
                     }
-                    
+
                 } else {
                     message.error(res.message);
                 }
@@ -60,7 +71,7 @@ const SelectItemCategoryDialog = (props) => {
             title: '描述',
             dataIndex: 'item_description',
             valueType: 'text',
-            align:"center"
+            align: "center"
         }
     ];
     const refreshData = () => {
@@ -73,7 +84,7 @@ const SelectItemCategoryDialog = (props) => {
         let requestParam = {
             startIndex: params.current,
             perPage: params.pageSize,
-            item_description:params.keyword,
+            item_description: params.keyword,
             ...params
         }
         const result = await HttpService.post('reportServer/item/getAllPage', JSON.stringify(requestParam));
@@ -88,54 +99,54 @@ const SelectItemCategoryDialog = (props) => {
             title: '描述',
             dataIndex: 'item_description',
             valueType: 'text',
-            align:"center"
+            align: "center"
         }];
         setColumnData([]);
         if (catId !== category_id) {
             let params = {
-                "category_id":category_id
+                "category_id": category_id
             }
             HttpService.post('reportServer/itemCategory/getItemCategoryByID', JSON.stringify(params))
-            .then(res => {
-                if (res.resultCode == "1000") {
-                    const resultlist=res.data.lineForm;
-                    resultlist.map((item, index) => {
-                        let json = {
-                            key: item.segment.toLowerCase(), 
-                            title: item.segment_name, 
-                            dataIndex: item.segment.toLowerCase(),
-                            valueType:'text',
-                            align:"center"
-                        };
-                        outlist.push(json);
-                    });
-                    setColumnData(outlist);
-                    
-                } else {
-                    message.error(res.message);
-                }
-            })
+                .then(res => {
+                    if (res.resultCode == "1000") {
+                        const resultlist = res.data.lineForm;
+                        resultlist.map((item, index) => {
+                            let json = {
+                                key: item.segment.toLowerCase(),
+                                title: item.segment_name,
+                                dataIndex: item.segment.toLowerCase(),
+                                valueType: 'text',
+                                align: "center"
+                            };
+                            outlist.push(json);
+                        });
+                        setColumnData(outlist);
+
+                    } else {
+                        message.error(res.message);
+                    }
+                })
         }
     }
     const onChangeOption = (value, selectedOptions) => {
         setCheckVal();
         setCheckVal(value);
-        const catidd=selectedOptions[selectedOptions.length-1]["category_id"];
-        const catname=selectedOptions[selectedOptions.length-1]["category_name"];
+        const catidd = selectedOptions[selectedOptions.length - 1]["category_id"];
+        const catname = selectedOptions[selectedOptions.length - 1]["category_name"];
         setCatId(catidd)
         setCatname(catname)
         onTreeSelect(catidd);
-      }
-      const selectOnChange = (selectedKeys, selectedRows) => {
+    }
+    const selectOnChange = (selectedKeys, selectedRows) => {
         setCheckKeys(selectedKeys);
         setCheckRows(selectedRows)
         // console.log('selectedKeys', selectedKeys)
         // console.log('selectedRows', selectedRows)
     }
-    const exdefault={
-        label:"category_name",
-        value:"category_id",
-        children:"children"
+    const exdefault = {
+        label: "category_name",
+        value: "category_id",
+        children: "children"
     }
     const isCheck = (userId) => {
         for (let index in checkKeys) {
@@ -149,9 +160,9 @@ const SelectItemCategoryDialog = (props) => {
         <Modal title="选择类别" visible={modalVisible} onOk={() => {
             if (0 < checkKeys.length) {
                 if (selectType === 'radio') {
-                    handleOk(checkRows[0], checkKeys[0],columnData,catId,catname)
+                    handleOk(checkRows[0], checkKeys[0], columnData, catId, catname)
                 } else {
-                    handleOk(checkRows, checkKeys,columnData,catId,catname)
+                    handleOk(checkRows, checkKeys, columnData, catId, catname)
                 }
             } else {
                 handleCancel();
@@ -159,26 +170,30 @@ const SelectItemCategoryDialog = (props) => {
         }} onCancel={handleCancel}>
 
             <div style={{ marginTop: '16px' }}>
-                        <Row>
-                            <Col xs={24} sm={24}>
-                                物料类别： <Cascader 
-                                options={treeData} 
-                                placeholder="请选择类别" 
-                                onChange={onChangeOption} 
-                                value={checkVal}
-                                changeOnSelect
-                                allowClear={false} 
-                                fieldNames={exdefault}/>
-                        </Col>
-                        </Row>
-                        <Row>
-                            <Col xs={24} sm={24}>
-                            <ProTable
-                                onRow={record => {
+
+
+                {categoryId == '-1' ? <Row>
+                    <Col xs={24} sm={24}>
+                        物料类别： <Cascader
+                            options={treeData}
+                            placeholder="请选择类别"
+                            onChange={onChangeOption}
+                            value={checkVal}
+                            changeOnSelect
+                            allowClear={false}
+                            fieldNames={exdefault} />
+                    </Col>
+                </Row> : ""
+                }
+
+                <Row>
+                    <Col xs={24} sm={24}>
+                        <ProTable
+                            onRow={record => {
                                 return {
                                     // 点击行
                                     onClick: event => {
-        
+
                                         if (selectType === 'radio') {
                                             setCheckKeys([record.item_id])
                                             setCheckRows([record])
@@ -189,12 +204,12 @@ const SelectItemCategoryDialog = (props) => {
                                                 const newCheckKeys = checkKeys.filter((item) => {
                                                     return item !== record.item_id;
                                                 })
-        
+
                                                 //移除record
                                                 const newCheckRows = checkRows.filter((item) => {
                                                     return item.item_id !== record.item_id;
                                                 })
-        
+
                                                 setCheckKeys(newCheckKeys);
                                                 setCheckRows(newCheckRows);
                                             } else { // 未选中则添加
@@ -205,31 +220,31 @@ const SelectItemCategoryDialog = (props) => {
                                     },
                                 };
                             }}
-                                columns={columnData}
-                                request={fetchData}
-                                rowKey="item_id"
-                                align="center"
-                                params={{ item_category_id: catId }}
-                                rowSelection={{
-                                    type: selectType,
-                                    onChange: selectOnChange,
-                                    selectedRowKeys: checkKeys
-                                }}
-                                tableAlertRender={false}
-                                tableAlertOptionRender={false}
-            
-                                pagination={{
-                                    showQuickJumper: true,
-                                }}
-                                options={{
-                                    search: true,
-                                }}
-                                search={false}
-                                dateFormatter="string"
-                            />
-                        </Col>
-                        </Row> 
-                    </div>
+                            columns={columnData}
+                            request={fetchData}
+                            rowKey="item_id"
+                            align="center"
+                            params={{ item_category_id: catId }}
+                            rowSelection={{
+                                type: selectType,
+                                onChange: selectOnChange,
+                                selectedRowKeys: checkKeys
+                            }}
+                            tableAlertRender={false}
+                            tableAlertOptionRender={false}
+
+                            pagination={{
+                                showQuickJumper: true,
+                            }}
+                            options={{
+                                search: true,
+                            }}
+                            search={false}
+                            dateFormatter="string"
+                        />
+                    </Col>
+                </Row>
+            </div>
         </Modal>
     );
 }
