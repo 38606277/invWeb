@@ -11,6 +11,7 @@ import SelectBomDialog from '@/components/Bom/SelectBomDialog';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
+import moment from 'moment';
 import { SaveOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 
 const { TabPane } = Tabs;
@@ -58,7 +59,54 @@ const count = (props) => {
                 amount: amount
             },
             record);
+        calculateMaterial();
     }
+
+    const calculateMaterial = () => {
+        //获取产品列表
+        const pdList = tableRef?.current?.getTableData();
+
+        const tempMaterialList = []; //统计各类产品的原料
+
+        for (let pdIndex in pdList) { // 遍历
+            const pd = pdList[pdIndex];
+            const pdQuantity = pd.quantity || 1; // 默认为1
+            const materialList = pd.materialList;
+            console.log('materialList', materialList)
+            for (let materialIndex in materialList) { // 遍历原料
+                const material = materialList[materialIndex];
+                let isExist = false;
+                for (let tempIndex in tempMaterialList) {//遍历临时存储的原料
+                    const tempMaterial = tempMaterialList[tempIndex];
+
+                    if (material.item_id == tempMaterial.item_id) { //判断列表是否存在
+                        //合并数量与金额
+                        const quantity = (tempMaterial['quantity'] + material['quantity']) * pdQuantity;
+                        const amount = (tempMaterial['amount'] + material['amount']) * pdQuantity;
+                        const price = amount / quantity;
+
+                        tempMaterial['quantity'] = quantity;
+                        tempMaterial['amount'] = amount;
+                        tempMaterial['price'] = price;
+                        isExist = true;
+                        break;
+
+                    }
+                }
+                if (!isExist) {
+                    //新增
+                    tempMaterialList.push({
+                        ...material
+                    });
+                }
+            }
+        }
+        console.log('tempMaterialList', tempMaterialList)
+
+        materialTableRef?.current?.initData(tempMaterialList);
+    }
+
+
 
     const buildColumns = () => {
         return [
@@ -72,6 +120,7 @@ const count = (props) => {
                         rules: [{ required: true, message: '请选择产品' }]
                     },
                     widgetParams: {
+                        disabled: disabled,
                         onSearch: (name, record) => {
                             setSelectItemRecord(record)
                             setSelectBomDialogVisible(true)
@@ -93,6 +142,7 @@ const count = (props) => {
             {
                 title: '单位',
                 dataIndex: 'uom',
+                width: '80px',
                 renderParams: {
                     formItemParams: {
                         rules: [{ required: true, message: '请输入单位' }]
@@ -140,12 +190,11 @@ const count = (props) => {
 
     }
 
-
     const materialBuildColumns = () => {
         return [
             {
                 title: '原料名称',
-                dataIndex: 'material_description',
+                dataIndex: 'item_description',
                 renderType: 'InputSearchEF',
                 width: '20%',
                 renderParams: {
@@ -153,6 +202,7 @@ const count = (props) => {
                         rules: [{ required: true, message: '请选择产品' }]
                     },
                     widgetParams: {
+                        disabled: disabled,
                         onSearch: (name, record) => {
                             setSelectItemRecord(record)
                             setSelectBomDialogVisible(true)
@@ -162,7 +212,7 @@ const count = (props) => {
             },
             {
                 title: '原料id',
-                dataIndex: 'material_id',
+                dataIndex: 'item_id',
                 hide: true,
                 renderParams: {
                     formItemParams: {
@@ -173,7 +223,8 @@ const count = (props) => {
             },
             {
                 title: '单位',
-                dataIndex: 'unit_cost',
+                dataIndex: 'uom',
+                width: '80px',
                 renderParams: {
                     formItemParams: {
                         rules: [{ required: true, message: '请输入单位' }]
@@ -183,29 +234,14 @@ const count = (props) => {
             },
             {
                 title: '单位成本',
-                dataIndex: 'unit_cost',
+                dataIndex: 'price',
                 renderParams: {
                     formItemParams: {
                         rules: [{ required: true, message: '请输入单位' }]
                     },
-                    widgetParams: { disabled: true }
+                    widgetParams: { disabled: disabled }
                 }
             },
-
-            {
-                title: '损耗率',
-                dataIndex: 'lose_rate',
-                renderType: 'InputNumberEF',
-                renderParams: {
-                    formItemParams: {
-                        rules: [{ required: true, message: '请输入损耗率' }]
-                    },
-                    widgetParams: {
-                        disabled: disabled
-                    },
-                }
-            },
-
             {
                 title: '数量',
                 dataIndex: 'quantity',
@@ -267,8 +303,27 @@ const count = (props) => {
                         setDisabled(true);
                         mainForm.setFieldsValue({
                             ...res.data.mainData,
+                            begin_date: moment(res.data.mainData.begin_date),
+                            end_date: moment(res.data.mainData.end_date),
                         });
-                        tableRef?.current?.initData(res.data.linesData);
+
+                        let linesData = [];
+                        let materialLinesData = [];
+
+                        for (let index in res.data.linesData) {
+                            const line = res.data.linesData[index];
+                            if (line.item_type == '0') {
+                                linesData.push(line)
+                            } else {
+                                materialLinesData.push(line)
+                            }
+                        }
+
+                        tableRef?.current?.initData(linesData);
+                        materialTableRef?.current?.initData(materialLinesData);
+
+
+
                     } else {
                         message.error(res.message);
                     }
@@ -284,6 +339,7 @@ const count = (props) => {
             header={{
                 extra: [
                     <Button
+                        disabled={disabled}
                         key="submit"
                         type="danger"
                         icon={<SaveOutlined />}
@@ -313,33 +369,45 @@ const count = (props) => {
                     tableForm
                         .validateFields()
                         .then(() => {
-                            //验证成功
-                            let tableData = tableRef.current.getTableData();
 
-                            const values = {
-                                ...fieldsValue,
-                            };
+                            materialTableForm.validateFields()
+                                .then(() => {
 
-                            if (action === 'edit') {
-                                let deleteRecordKeys = tableRef.current.getDeleteRecordKeys();
-                                console.log('deleteRecordKeys', deleteRecordKeys);
-                                //过滤deleteRecord中的临时数据
-                                let deleteIds = deleteRecordKeys.filter((element) => {
-                                    return element.toString().indexOf('NEW_TEMP_ID_') < 0;
+                                    //验证成功
+                                    let tableData = tableRef?.current?.getTableData();
+
+                                    let materialTableData = materialTableRef?.current?.getTableData();
+
+                                    const values = {
+                                        ...fieldsValue,
+                                        begin_date: fieldsValue['begin_date'].format('YYYY-MM-DD HH:mm:ss'),
+                                        end_date: fieldsValue['end_date'].format('YYYY-MM-DD HH:mm:ss'),
+                                    };
+
+                                    if (action === 'edit') {
+                                        let deleteRecordKeys = [...tableRef.current.getDeleteRecordKeys(), ...materialTableRef.current.getDeleteRecordKeys()];
+                                        console.log('deleteRecordKeys', deleteRecordKeys);
+                                        //过滤deleteRecord中的临时数据
+                                        let deleteIds = deleteRecordKeys.filter((element) => {
+                                            return element.toString().indexOf('NEW_TEMP_ID_') < 0;
+                                        });
+                                        update({
+                                            mainData: values,
+                                            linesData: [...tableData, ...materialTableData],
+                                            deleteData: deleteIds.toString(), // 删除项
+                                        });
+                                    } else {
+                                        save({
+                                            mainData: values,
+                                            linesData: [...tableData, ...materialTableData],
+                                        });
+                                    }
+
+                                }).catch((errorInfo) => {
+                                    console.log(errorInfo);
+                                    //验证失败
+                                    message.error('原料填写错误');
                                 });
-
-                                update({
-                                    mainData: values,
-                                    linesData: tableData,
-                                    deleteData: deleteIds.toString(), // 删除项
-                                });
-                            } else {
-
-                                save({
-                                    mainData: values,
-                                    linesData: tableData,
-                                });
-                            }
                         })
                         .catch((errorInfo) => {
                             console.log(errorInfo);
@@ -386,7 +454,30 @@ const count = (props) => {
                             </Form.Item>
                         </Col>
                     </Row>
+
                     <Row>
+                        <Col xs={24} sm={10}>
+                            <Form.Item
+                                name="begin_date"
+                                label="开始时间"
+                                rules={[{ required: true, message: '请选择开始时间' }]}
+                            >
+                                <DatePicker style={{ width: "100%" }} disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
+                            </Form.Item>
+                        </Col>
+
+                        <Col xs={24} sm={10}>
+                            <Form.Item
+                                name="end_date"
+                                label="结束时间"
+                                rules={[{ required: true, message: '请选择结束时间' }]}
+                            >
+                                <DatePicker style={{ width: "100%" }} disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    {/* <Row>
                         <Col xs={24} sm={20}>
                             <Form.Item {...formItemLayout1} label="备注" name="remark">
                                 <Input.TextArea
@@ -396,7 +487,7 @@ const count = (props) => {
                                 />
                             </Form.Item>
                         </Col>
-                    </Row>
+                    </Row> */}
 
                 </ProCardCollapse>
 
@@ -434,10 +525,10 @@ const count = (props) => {
                 <Tabs defaultActiveKey="1" onChange={(key) => {
                     console.log(key);
                 }}>
-                    <TabPane tab="产品" key="product">
+                    <TabPane forceRender={true} tab="产品" key="product">
                         <TableForm_A ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
                     </TabPane>
-                    <TabPane tab="原料" key="material">
+                    <TabPane forceRender={true} tab="原料" key="material">
                         <TableForm_A ref={materialTableRef} columns={materialBuildColumns()} primaryKey="line_id" tableForm={materialTableForm} />
                     </TabPane>
 
@@ -453,7 +544,8 @@ const count = (props) => {
                         {
                             item_id: result.item_id,
                             item_description: result.item_description,
-                            uom: result.uom
+                            uom: result.uom,
+                            quantity: 1
                         },
                         selectItemRecord);
                     setSelectItemDialogVisible(false);
@@ -489,17 +581,38 @@ const count = (props) => {
                         .then((res) => {
                             if (res.resultCode == '1000') {
 
+                                const materialList = [];
+                                for (let materialIndex in res.data) {
+                                    let material = res.data[materialIndex];
+                                    materialList.push({
+                                        line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                                        item_id: material.material_id,
+                                        item_description: material.material_description,
+                                        uom: material.uom,
+                                        quantity: material.quantity,
+                                        amount: material.cost,
+                                        price: material.unit_cost,
+                                        lose_rate: material.lose_rate,
+                                        item_type: 1
+                                    })
+                                }
+
                                 tableRef?.current?.handleObjChange(
                                     {
                                         item_id: selectBom.item_id,
                                         item_description: selectBom.bom_name,
                                         uom: selectBom.uom,
-                                        materialList: res.data
+                                        materialList: materialList,
+                                        quantity: 1,
+                                        amount: selectBom.cost,
+                                        price: selectBom.cost,
+                                        item_type: 0,
                                     },
                                     selectItemRecord);
 
-                                materialTableRef?.current?.addItemList(res.data)
-                                console.log('SelectBomDialog materialTableRef', materialTableRef)
+                                //计算原料
+                                calculateMaterial();
+
                                 setSelectBomDialogVisible(false);
                             } else {
                                 message.error(res.message);
