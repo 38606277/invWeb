@@ -129,3 +129,7 @@
     background: #c7000b;
     border-color: #c7000b;
 }
+.site-custom-tab-bar {
+    z-index: 1;
+    background: #fff;
+  }
