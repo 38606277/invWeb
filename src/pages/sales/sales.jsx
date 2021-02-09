@@ -5,16 +5,18 @@ import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import TableForm_A from '@/components/EditFormA/TableForm_A';
 import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
 import SelectPoDialog from '@/components/Po/SelectPoDialog';
-import SelectItemDialog from '@/components/itemCategory/SelectItemDialog';
+import SelectItemOrgDialog from '@/components/itemCategory/SelectItemOrgDialog';
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
 import { SaveOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import 'moment/locale/zh-cn';
+import LocalStorge from '@/utils/LogcalStorge';
 
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 const { Option } = Select;
+const localStorge = new LocalStorge();
 
 const formItemLayout2 = {
   labelCol: { span: 8 },
@@ -43,6 +45,7 @@ export default (props) => {
   const [selectPoDialogVisible, setSelectPoDialogVisible] = useState(false);
   const [selectItemDialogVisible, setSelectItemDialogVisible] = useState(false);
   const [selectItemRecord, setSelectItemRecord] = useState({});
+  const [orgid, setOrgid] = useState();
 
   const [disabled, setDisabled] = useState(false);
 
@@ -310,6 +313,7 @@ export default (props) => {
   };
 
   useEffect(() => {
+    let userInfo = localStorge.getStorage('userInfo');
     if (action === 'edit') {
       //初始化编辑数据
       HttpService.post('reportServer/invStore/getStoreById', JSON.stringify({ bill_id: id })).then(
@@ -326,6 +330,25 @@ export default (props) => {
           }
         },
       );
+    }else{
+      //初始化编辑数据
+      HttpService.post('reportServer/invOrgUser/getOrgListByUserId', JSON.stringify({ user_id: userInfo.id })).then(
+        (res) => {
+          if (res.resultCode == '1000') {
+            console.log(res)
+            setOrgid(res.data[0].org_id)
+            mainForm.setFieldsValue({
+              inv_org_name: res.data[0].org_name,
+              orgid: res.data[0].org_id,
+              });
+          } else {
+            message.error(res.message);
+          }
+        },
+      );
+      mainForm.setFieldsValue({
+        bill_date: moment(new Date()),
+      });
     }
   }, []);
 
@@ -428,19 +451,7 @@ export default (props) => {
                 name="inv_org_name"
                 rules={[{ required: true, message: '请输入选择仓库' }]}
               >
-                <Search
-                  disabled={disabled}
-                  placeholder="请选择仓库"
-                  allowClear
-                  readOnly={true}
-                  enterButton
-                  onClick={() => {
-                    setSelectOrgDialogVisible(true);
-                  }}
-                  onSearch={() => {
-                    setSelectOrgDialogVisible(true);
-                  }}
-                />
+                <Input id="inv_org_name" />
               </Form.Item>
             </Col>
           </Row>
@@ -574,9 +585,10 @@ export default (props) => {
         }}
       />
 
-      <SelectItemDialog
+      <SelectItemOrgDialog
         modalVisible={selectItemDialogVisible}
         //selectType="checkbox"
+        orgid={orgid}
         handleOk={(result) => {
           console.log('SelectItemDialog', result)
           tableRef.current.handleObjChange(
