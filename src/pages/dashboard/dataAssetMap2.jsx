@@ -89,13 +89,13 @@ const columns = [
     key: 'index',
   },
   {
-    title: '数据表名称',
+    title: '产品名称',
     dataIndex: 'keyword',
     key: 'keyword',
     render: (text) => <a href="/">{text}</a>,
   },
   {
-    title: '用户',
+    title: '本月销量',
     dataIndex: 'count',
     key: 'count',
     sorter: (a, b) => a.count - b.count,
@@ -206,7 +206,7 @@ export default () => {
 
   return (
     <GridContent>
-      <Row gutter={24}>
+      <Row gutter={12}>
         <Col {...topColResponsiveProps}>
           <ChartCard
             bordered={false}
@@ -299,13 +299,13 @@ export default () => {
         </Col>
       </Row>
       {/* 第三部分 */}
-      <Row gutter={24}>
+      <Row gutter={12}>
         <Col xl={12} lg={24} md={24} sm={24} xs={24}>
           <Card
             bordered={false}
-            title={'数据表访问排行'}
+            title={'产品销售排行'}
             // extra={iconGroup}
-            style={{ marginTop: 24 }}
+            style={{ minHeight: '300px' }}
           >
             <Table
               rowKey={(record) => record.index}
@@ -323,8 +323,9 @@ export default () => {
           <Card
             className={styles.salesCard}
             bordered={false}
-            title={'数据分布情况'}
-            bodyStyle={{ padding: 24 }}
+            title={'销售产品占比'}
+            bodyStyle={{ padding: 12 }}
+            style={{ minHeight: '375px' }}
             extra={
               <div className={styles.salesCardExtra}>
                 {/* {iconGroup} */}
@@ -338,7 +339,6 @@ export default () => {
                 </div>
               </div>
             }
-            style={{ marginTop: 24, minHeight: 509 }}
           >
             <Pie
               hasLegend
