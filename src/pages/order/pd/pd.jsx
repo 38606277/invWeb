@@ -49,6 +49,9 @@ const count = (props) => {
 
     const [disabled, setDisabled] = useState(false);
 
+    const [tabKey, setTabKey] = useState('product');
+
+
     const action = props?.match?.params?.action || 'add';
     const id = props?.match?.params?.id || -1;
 
@@ -62,12 +65,22 @@ const count = (props) => {
         calculateMaterial();
     }
 
+    const calculateMaterialAmount = (value, name, record) => {
+        const amount = record['price'] * record['quantity'];
+        materialTableRef.current.handleObjChange(
+            {
+                amount: amount
+            },
+            record);
+        //calculateMaterial();
+    }
+
     const calculateMaterial = () => {
         //获取产品列表
         const pdList = tableRef?.current?.getTableData();
 
         const tempMaterialList = []; //统计各类产品的原料
-
+        console.log('calculateMaterial', pdList)
         for (let pdIndex in pdList) { // 遍历
             const pd = pdList[pdIndex];
             const pdQuantity = pd.quantity || 1; // 默认为1
@@ -85,6 +98,9 @@ const count = (props) => {
                         const amount = (tempMaterial['amount'] + material['amount']) * pdQuantity;
                         const price = amount / quantity;
 
+
+                        console.log(`calculateMaterial quantity= ${quantity} , amount= ${amount} ,  price= ${price}`)
+
                         tempMaterial['quantity'] = quantity;
                         tempMaterial['amount'] = amount;
                         tempMaterial['price'] = price;
@@ -94,9 +110,13 @@ const count = (props) => {
                     }
                 }
                 if (!isExist) {
+                    const quantity = material['quantity'] * pdQuantity;
+                    const amount = material['amount'] * pdQuantity;
                     //新增
                     tempMaterialList.push({
-                        ...material
+                        ...material,
+                        quantity,
+                        amount
                     });
                 }
             }
@@ -205,7 +225,7 @@ const count = (props) => {
                         disabled: disabled,
                         onSearch: (name, record) => {
                             setSelectItemRecord(record)
-                            setSelectBomDialogVisible(true)
+                            setSelectItemDialogVisible(true)
                         }
                     }
                 }
@@ -239,7 +259,7 @@ const count = (props) => {
                     formItemParams: {
                         rules: [{ required: true, message: '请输入单位' }]
                     },
-                    widgetParams: { disabled: disabled }
+                    widgetParams: { disabled: disabled, precision: 0, onChange: calculateMaterialAmount }
                 }
             },
             {
@@ -251,7 +271,7 @@ const count = (props) => {
                         rules: [{ required: true, message: '请输入数量' }]
 
                     },
-                    widgetParams: { disabled: disabled, precision: 0, onChange: calculateAmount }
+                    widgetParams: { disabled: disabled, precision: 0, onChange: calculateMaterialAmount }
                 }
             },
             {
@@ -350,7 +370,6 @@ const count = (props) => {
                         保存生产订单
           </Button>,
                     <Button
-                        disabled={disabled}
                         key="reset"
                         onClick={() => {
                             history.goBack();
@@ -502,11 +521,19 @@ const count = (props) => {
                         icon={<PlusOutlined />}
                         size="small"
                         onClick={() => {
-                            //新增一行
-                            tableRef.current.addItem({
-                                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                                material_pid: -1
-                            });
+
+                            if (tabKey == 'product') {//选择产品
+                                //新增一行
+                                tableRef.current.addItem({
+                                    line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                                });
+                            } else {//选择原料
+
+                                materialTableRef.current.addItem({
+                                    line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                                });
+
+                            }
                         }}
                     ></Button>,
                     <Button
@@ -515,15 +542,21 @@ const count = (props) => {
                         style={{ marginLeft: '6px' }}
                         icon={<MinusOutlined />}
                         onClick={() => {
+
                             //删除选中项
-                            tableRef.current.removeRows();
+
+                            if (tabKey == 'product') {//选择产品
+                                tableRef.current.removeRows();
+                            } else {
+                                materialTableRef.current.removeRows();
+                            }
                         }}
                     ></Button>,
                 ]}
             >
 
                 <Tabs defaultActiveKey="1" onChange={(key) => {
-                    console.log(key);
+                    setTabKey(key)
                 }}>
                     <TabPane forceRender={true} tab="产品" key="product">
                         <TableForm_A ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
@@ -540,7 +573,7 @@ const count = (props) => {
                 modalVisible={selectItemDialogVisible}
                 handleOk={(result) => {
                     console.log('SelectItemDialog : ', result)
-                    tableRef.current.handleObjChange(
+                    materialTableRef?.current?.handleObjChange(
                         {
                             item_id: result.item_id,
                             item_description: result.item_description,

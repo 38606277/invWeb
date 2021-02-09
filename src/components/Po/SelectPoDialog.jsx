@@ -289,7 +289,7 @@ const SelectPoDialog = (props) => {
                     }}
                     columns={linesColumns}
                     request={fetchLinesData}
-                    rowKey="po_line_id"
+                    rowKey="line_id"
                     rowSelection={{
                         type: 'checkbox',
                         onChange: selectOnChange,

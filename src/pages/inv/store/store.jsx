@@ -67,42 +67,48 @@ const store = (props) => {
   }
 
 
-  //构建列 
-  const buildColumns = () => {
+
+
+
+  /**
+   *   //构建列 
+   * @param {*} dynamicList 动态列表
+   */
+  const buildColumns = (dynamicList) => {
+
+
     if (type == 'other') {//其他入库
       return [
         {
-          title: '物料id',
-          dataIndex: 'item_id',
-          hide: true,
+          title: '描述',
+          dataIndex: 'item_description',
+          fixed: 'left',
+          width: '200px',
           renderParams: {
             formItemParams: {
-              rules: [{ required: false, message: '请选择物料' }]
+              rules: [{ required: true, message: '请输入描述' }]
             },
             widgetParams: { disabled: true }
           }
         },
+        ...dynamicList, // 动态展示列
         {
-          title: '物料描述',
-          dataIndex: 'item_description',
-          renderType: 'InputSearchEF',
+          title: '单位',
+          dataIndex: 'uom',
+          width: '100px',
           renderParams: {
             formItemParams: {
-              rules: [{ required: true, message: '请选择物料' }]
+              rules: [{ required: true, message: '请输入单位' }]
             },
-            widgetParams: {
-              disabled: disabled,
-              onSearch: (name, record) => {
-                setSelectItemRecord(record)
-                setSelectItemDialogVisible(true)
-              }
-            }
+            widgetParams: { disabled: true }
           }
         },
         {
           title: '单价',
           dataIndex: 'price',
           renderType: 'InputNumberEF',
+          fixed: 'right',
+          width: '100px',
           renderParams: {
             formItemParams: {
               rules: [{ required: true, message: '请输入单价' }]
@@ -111,19 +117,11 @@ const store = (props) => {
           }
         },
         {
-          title: '单位',
-          dataIndex: 'uom',
-          renderParams: {
-            formItemParams: {
-              rules: [{ required: true, message: '请输入单位' }]
-            },
-            widgetParams: { disabled: disabled }
-          }
-        },
-        {
           title: '数量',
           dataIndex: 'quantity',
           renderType: 'InputNumberEF',
+          fixed: 'right',
+          width: '100px',
           renderParams: {
             formItemParams: {
               rules: [{ required: true, message: '请输入数量' }]
@@ -136,6 +134,8 @@ const store = (props) => {
           title: '金额',
           dataIndex: 'amount',
           renderType: 'InputNumberEF',
+          fixed: 'right',
+          width: '100px',
           renderParams: {
             formItemParams: {
               rules: [{ required: true, message: '请输入金额' }]
@@ -148,6 +148,8 @@ const store = (props) => {
         {
           title: '备注',
           dataIndex: 'remark',
+          fixed: 'right',
+          width: '100px',
           renderParams: {
             formItemParams: {
               rules: [{ required: false, message: '请输入备注' }]
@@ -161,20 +163,11 @@ const store = (props) => {
 
       return [
         {
-          title: '物料id',
-          dataIndex: 'item_id',
-          hide: true,
-          renderParams: {
-            formItemParams: {
-              rules: [{ required: false, message: '请选择物料' }]
-            },
-            widgetParams: { disabled: true }
-          }
-        },
-        {
           title: '物料描述',
           dataIndex: 'item_description',
           renderType: 'InputSearchEF',
+          fixed: 'left',
+          width: '200px',
           renderParams: {
             formItemParams: {
               rules: [{ required: true, message: '请选择物料' }]
@@ -182,12 +175,13 @@ const store = (props) => {
             widgetParams: {
               disabled: disabled,
               onSearch: (name, record) => {
-                setSelectItemRecord(record)
-                setSelectItemDialogVisible(true)
+                // setSelectItemRecord(record)
+                // setSelectItemDialogVisible(true)
               }
             }
           }
         },
+        ...dynamicList, // 动态展示列
         {
           title: '单价',
           dataIndex: 'price',
@@ -199,8 +193,11 @@ const store = (props) => {
             widgetParams: {
               disabled: disabled,
               onChange: (value, name, record, tableRef) => {
+                let tableFormData = tableFormListRef?.current?.getTableFormDataList()?.find((item) => {
+                  return item.parimaryId == record.item_category_id;
+                })
                 const amount = record['quantity'] * record['price'];
-                tableRef.current.handleObjChange(
+                tableFormData?.current?.handleObjChange(
                   {
                     amount: amount
                   },
@@ -212,6 +209,7 @@ const store = (props) => {
         {
           title: '单位',
           dataIndex: 'uom',
+          width: '100px',
           renderParams: {
             formItemParams: {
               rules: [{ required: true, message: '请输入单位' }]
@@ -223,6 +221,8 @@ const store = (props) => {
           title: '未接收数量',
           dataIndex: 'not_rcv_quantity',
           renderType: 'InputNumberEF',
+          width: '100px',
+          fixed: 'right',
           renderParams: {
             formItemParams: {
               rules: [{ required: true, message: '请输入数量' }]
@@ -234,6 +234,8 @@ const store = (props) => {
           title: '接收数量',
           dataIndex: 'quantity',
           renderType: 'InputNumberEF',
+          width: '100px',
+          fixed: 'right',
           renderParams: {
             formItemParams: {
               rules: [{ required: true, message: '请输入接收数量' }]
@@ -242,12 +244,15 @@ const store = (props) => {
               disabled: disabled,
               precision: 0,
               onChange: (value, name, record, tableRef) => {
+                let tableFormData = tableFormListRef?.current?.getTableFormDataList()?.find((item) => {
+                  return item.parimaryId == record.item_category_id;
+                })
                 //数量不能大于结存数量
                 if (record['not_rcv_quantity'] < record['quantity']) {
                   message.error('接收数量不能大于未接收数量，请检查');
                   const quantity = record['not_rcv_quantity'];
                   const amount = quantity * record['price'];
-                  tableRef.current.handleObjChange(
+                  tableFormData?.current?.handleObjChange(
                     {
                       quantity: quantity,
                       amount: amount
@@ -255,7 +260,7 @@ const store = (props) => {
                     record);
                 } else {
                   const amount = record['quantity'] * record['price'];
-                  tableRef.current.handleObjChange(
+                  tableFormData?.current?.handleObjChange(
                     {
                       amount: amount
                     },
@@ -269,6 +274,8 @@ const store = (props) => {
           title: '金额',
           dataIndex: 'amount',
           renderType: 'InputNumberEF',
+          width: '100px',
+          fixed: 'right',
           renderParams: {
             formItemParams: {
               rules: [{ required: true, message: '请输入金额' }]
@@ -278,6 +285,8 @@ const store = (props) => {
         }, {
           title: '备注',
           dataIndex: 'remark',
+          width: '100px',
+          fixed: 'right',
           renderParams: {
             formItemParams: {
               rules: [{ required: false, message: '请输入备注' }]
@@ -290,6 +299,44 @@ const store = (props) => {
     }
 
     return [];
+  }
+
+  const buildActionButtonList = () => {
+
+    const btnList = [
+      <Button
+        disabled={disabled}
+        key="submit"
+        type="danger"
+        icon={<SaveOutlined />}
+        onClick={() => {
+          mainForm?.submit();
+        }}
+      >
+        {` 保存${getTypeName(type)}单`}
+      </Button>,
+      <Button
+        key="reset"
+        onClick={() => {
+          history.goBack();
+        }}
+      >
+        返回
+  </Button>];
+
+    if (type == 'other') {
+      btnList.splice(0, 0, <Button
+        key="submit"
+        type="danger"
+        icon={<SaveOutlined />}
+        onClick={() => {
+          setSelectItemCategoryDialogVisible(true);
+        }}
+      >
+        添加类别
+        </Button>)
+    }
+    return btnList;
   }
 
   const save = (params) => {
@@ -328,7 +375,6 @@ const store = (props) => {
               bill_date: moment(res.data.mainData.bill_date),
             });
 
-            //  tableRef?.current?.initData(res.data.linesData);
 
             //回填行信息
             let linesData = res.data.linesData;
@@ -336,102 +382,22 @@ const store = (props) => {
             for (let index in linesData) {
               let lines = linesData[index];
 
-              let columnList = [{
-                title: '描述',
-                dataIndex: 'item_description',
-                fixed: 'left',
-                width: '200px',
-                renderParams: {
-                  formItemParams: {
-                    rules: [{ required: true, message: '请输入描述' }]
-                  },
-                  widgetParams: { disabled: true }
-                }
-              }];
+              let columnList = [];
               for (let columnIndex in lines.columnList) {
                 let column = lines.columnList[columnIndex];
 
                 columnList.push({
                   ...column,
                   renderParams: {
-                    formItemParams: {
-                      rules: [{ required: true, message: `请输入${column.title}` }]
-                    },
                     widgetParams: { disabled: true }
                   }
                 });
               }
-              columnList.push(...[
-                {
-                  title: '单位',
-                  dataIndex: 'uom',
-                  renderParams: {
-                    formItemParams: {
-                      rules: [{ required: true, message: '请输入单位' }]
-                    },
-                    widgetParams: { disabled: true }
-                  }
-                },
-                {
-                  title: '单价',
-                  dataIndex: 'price',
-                  renderType: 'InputNumberEF',
-                  fixed: 'right',
-                  width: '100px',
-                  renderParams: {
-                    formItemParams: {
-                      rules: [{ required: true, message: '请输入单价' }]
-                    },
-                    widgetParams: { disabled: disabled, onChange: calculateAmount }
-                  }
-                },
-                {
-                  title: '数量',
-                  dataIndex: 'quantity',
-                  renderType: 'InputNumberEF',
-                  fixed: 'right',
-                  width: '100px',
-                  renderParams: {
-                    formItemParams: {
-                      rules: [{ required: true, message: '请输入数量' }]
-
-                    },
-                    widgetParams: { disabled: disabled, precision: 0, onChange: calculateAmount }
-                  }
-                },
-                {
-                  title: '金额',
-                  dataIndex: 'amount',
-                  renderType: 'InputNumberEF',
-                  fixed: 'right',
-                  width: '100px',
-                  renderParams: {
-                    formItemParams: {
-                      rules: [{ required: true, message: '请输入金额' }]
-                    },
-                    widgetParams: {
-                      disabled: true
-                    }
-                  }
-                },
-                {
-                  title: '备注',
-                  dataIndex: 'remark',
-                  fixed: 'right',
-                  width: '100px',
-                  renderParams: {
-                    formItemParams: {
-                      rules: [{ required: false, message: '请输入备注' }]
-                    },
-                    widgetParams: { disabled: disabled }
-                  }
-                }])
-
               newLinesData.push({
                 ...lines,
                 title: lines.categoryName,
                 parimaryId: lines.categoryId,
-                columnList,
+                columnList: buildColumns(columnList),
                 tableRef: React.createRef()
               })
             }
@@ -453,37 +419,7 @@ const store = (props) => {
       ghost="true"
       title={getTypeName(type)}
       header={{
-        extra: [
-          <Button
-            key="submit"
-            type="danger"
-            icon={<SaveOutlined />}
-            onClick={() => {
-              setSelectItemCategoryDialogVisible(true);
-            }}
-          >
-            添加类别
-        </Button>,
-          <Button
-            disabled={disabled}
-            key="submit"
-            type="danger"
-            icon={<SaveOutlined />}
-            onClick={() => {
-              mainForm?.submit();
-            }}
-          >
-            {` 保存${getTypeName(type)}单`}
-          </Button>,
-          <Button
-            key="reset"
-            onClick={() => {
-              history.goBack();
-            }}
-          >
-            返回
-          </Button>,
-        ],
+        extra: buildActionButtonList()
       }}
     >
       <Form
@@ -642,8 +578,13 @@ const store = (props) => {
         disable={disabled}
         primaryKey="line_id"
         onAddClick={(tableFormData) => {
-          setCategoryId(tableFormData.parimaryId);
-          setSelectItemDialogVisible(true)
+
+          if (type == 'other') {
+            setCategoryId(tableFormData.parimaryId);
+            setSelectItemDialogVisible(true)
+          } else {
+            setSelectPoDialogVisible(true);
+          }
         }}
       />
       <SelectOrgDialog
@@ -673,19 +614,80 @@ const store = (props) => {
             op_code: mainData.header_code
           });
 
-          const initData = [];
-          for (let i in linesData) {
-            const line = linesData[i];
-            initData.push({
-              line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-              item_id: line.item_id,
-              item_description: line.item_description,
-              price: line.price,
-              not_rcv_quantity: line.not_rcv_quantity
-            })
-          }
-          tableRef?.current?.initData(initData);
-          setSelectPoDialogVisible(false);
+
+          HttpService.post('reportServer/po/getPoLinesColumnById', JSON.stringify({
+            po_header_id: mainData.po_header_id
+          }))
+            .then((res) => {
+              //获取这个订单的所有动态列
+
+              //构建数据
+              //按照 item_category_id 数据分类
+              console.log('getPoLinesColumnById ', res)
+
+              const dataListObj = linesData.reduce(function (acc, obj) {
+                console.log('acc start ', obj);
+                const key = obj['category_id'];
+                if (!acc[key]) {
+                  acc[key] = [];
+                }
+
+                const newObj = {
+                  ...obj,
+                  line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`
+                };
+
+                acc[key].push(newObj);
+                console.log('acc[key] ', acc[key]);
+                return acc;
+              }, {});
+
+              console.log('dataListObj', dataListObj)
+
+              const newLinesData = [];
+              Object.keys(dataListObj).forEach((item) => {
+                const dataList = dataListObj[item]; //数据
+
+                const columnOjb = res.data.find((columnItem) => {
+                  return columnItem.categoryId == item;
+                })
+
+
+                let columnList = [];
+                for (let columnIndex in columnOjb.columnList) {
+                  let column = columnOjb.columnList[columnIndex];
+
+                  columnList.push({
+                    ...column,
+                    renderParams: {
+                      widgetParams: { disabled: true }
+                    }
+                  });
+                }
+                console.log('columnList', columnList)
+
+                newLinesData.push({
+                  dataList,
+                  title: columnOjb.categoryName,
+                  parimaryId: item,
+                  columnList: buildColumns(columnList),
+                  tableRef: React.createRef()
+                })
+
+              })
+
+
+              tableFormListRef?.current?.setTableFormDataList(newLinesData);
+
+              console.log('newLinesData', newLinesData);
+
+              setSelectPoDialogVisible(false);
+            }).catch(() => {
+              setSelectPoDialogVisible(false);
+            });
+
+
+
         }}
         handleCancel={() => {
           setSelectPoDialogVisible(false);
@@ -697,7 +699,6 @@ const store = (props) => {
         modalVisible={selectItemDialogVisible}
         selectType='checkbox'
         handleOk={(checkRows, checkKeys, columnData, catId, catname) => {
-
           const tableFormDataList = tableFormListRef?.current?.getTableFormDataList();
           let tableFormDate = tableFormDataList.find((element) => {
             return element.parimaryId == catId;
@@ -726,7 +727,6 @@ const store = (props) => {
         }}
       />
 
-
       <SelectItemCategoryDialog
         modalVisible={selectItemCategoryDialogVisible}
         handleOk={(checkRows, checkKeys) => {
@@ -745,19 +745,7 @@ const store = (props) => {
           if (tableFormDate) {
             message.warning('类别已存在，请勿重复添加')
           } else {
-
-            const columnList = [{
-              title: '描述',
-              dataIndex: 'item_description',
-              fixed: 'left',
-              width: '200px',
-              renderParams: {
-                formItemParams: {
-                  rules: [{ required: true, message: '请输入描述' }]
-                },
-                widgetParams: { disabled: true }
-              }
-            }];
+            const columnList = [];
             //构建列
             for (let index in checkRows.segmentlist) {
               let column = checkRows.segmentlist[index];
@@ -765,87 +753,16 @@ const store = (props) => {
                 title: column.segment_name,
                 dataIndex: column.segment,
                 renderParams: {
-                  formItemParams: {
-                    rules: [{ required: true, message: `请输入${column.title}` }]
-                  },
                   widgetParams: { disabled: true }
                 }
               });
             }
 
-            columnList.push(...[
-              {
-                title: '单位',
-                dataIndex: 'uom',
-                width: '100px',
-                renderParams: {
-                  formItemParams: {
-                    rules: [{ required: true, message: '请输入单位' }]
-                  },
-                  widgetParams: { disabled: true }
-                }
-              },
-              {
-                title: '单价',
-                dataIndex: 'price',
-                renderType: 'InputNumberEF',
-                fixed: 'right',
-                width: '100px',
-                renderParams: {
-                  formItemParams: {
-                    rules: [{ required: true, message: '请输入单价' }]
-                  },
-                  widgetParams: { disabled: disabled, onChange: calculateAmount }
-                }
-              },
-              {
-                title: '数量',
-                dataIndex: 'quantity',
-                renderType: 'InputNumberEF',
-                fixed: 'right',
-                width: '100px',
-                renderParams: {
-                  formItemParams: {
-                    rules: [{ required: true, message: '请输入数量' }]
-
-                  },
-                  widgetParams: { disabled: disabled, precision: 0, onChange: calculateAmount }
-                }
-              },
-              {
-                title: '金额',
-                dataIndex: 'amount',
-                renderType: 'InputNumberEF',
-                fixed: 'right',
-                width: '100px',
-                renderParams: {
-                  formItemParams: {
-                    rules: [{ required: true, message: '请输入金额' }]
-                  },
-                  widgetParams: {
-                    disabled: true
-                  }
-                }
-              },
-              {
-                title: '备注',
-                dataIndex: 'remark',
-                fixed: 'right',
-                width: '100px',
-                renderParams: {
-                  formItemParams: {
-                    rules: [{ required: false, message: '请输入备注' }]
-                  },
-                  widgetParams: { disabled: disabled }
-                }
-              }])
-
-
             let tableFormData = {
               dataList: [],
               title: checkRows.category_name,
               parimaryId: checkRows.category_id,
-              columnList,
+              columnList: buildColumns(columnList),
               tableRef: React.createRef()
             }
             tableFormDataList.push(tableFormData);
