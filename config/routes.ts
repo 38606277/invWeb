@@ -111,7 +111,7 @@
         path: '/sales/sales/:type/:action/:id',
         component: './sales/sales',
       },
-    ]
+    ],
   },
   {
     name: 'Auth',
@@ -119,7 +119,6 @@
     component: './system/auth/Auth',
     exact: true,
   },
-
   {
     name: 'role',
     path: '/role',
@@ -156,7 +155,6 @@
       },
     ],
   },
-
   {
     name: 'authType',
     path: '/authType',
@@ -181,7 +179,6 @@
       },
     ],
   },
-
   {
     name: 'org',
     path: '/org',
@@ -307,10 +304,9 @@
         name: 'user.user-list',
         path: '/transation/inventoryList',
         component: './inv/inventory/inventoryList',
-      }
+      },
     ],
   },
-
   {
     name: 'order',
     path: '/order',
@@ -338,11 +334,9 @@
         path: '/order/pd/:action/:id',
         component: './order/pd/pd',
         exact: true,
-      }
+      },
     ],
   },
-
-
   {
     name: 'mdm',
     path: '/mdm',
@@ -408,7 +402,7 @@
         path: '/customers/customers/:customer_id',
         component: './customers/customers',
       },
-    ]
+    ],
   },
   {
     name: 'shipment',
@@ -424,7 +418,7 @@
         path: '/shipment/shipment/:vendor_id',
         component: './shipment/shipment',
       },
-    ]
+    ],
   },
   {
     name: 'vendors',
@@ -440,7 +434,7 @@
         path: '/vendors/vendors/:vendor_id',
         component: './vendors/vendors',
       },
-    ]
+    ],
   },
   {
     name: 'user.user-list',
@@ -487,6 +481,18 @@
     path: '/list',
     component: './ListTableList',
     exact: true,
+  },
+  {
+    name: '订单',
+    icon: 'smile',
+    path: '/retail/RetailOrder',
+    component: './sales/RetailOrder',
+  },
+  {
+    name: '商品选择',
+    icon: 'smile',
+    path: '/retail/itemselect',
+    component: './sales/RetailItemSelect',
   },
   {
     path: '/',
