@@ -24,7 +24,6 @@ import { Button } from 'antd';
 import TableForm_A from '@/components/EditFormA/TableForm_A';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
-import { set } from 'lodash';
 
 const TableFormList = forwardRef(({ disabled, primaryKey, onAddClick }, ref) => {
 

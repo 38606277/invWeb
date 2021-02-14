@@ -113,11 +113,12 @@ const fetchData = async (params, sort, filter) => {
 };
 
 const getTypeName = (type) => {
-  console.log('type:', type)
-  if (type === 'other') {
+  if (type == 'other') {
     return '其他入库';
   } else if (type == 'po') {
     return '采购入库';
+  } else if (type == 'pd') {
+    return '生产入库';
   }
   return '其他入库';
 }

@@ -5,13 +5,14 @@ import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import TableFormList_A from '@/components/EditFormA/TableFormList_A';
 import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
 import SelectPoDialog from '@/components/Po/SelectPoDialog';
+import SelectPdDialog from '@/components/Pd/SelectPdDialog';
 import SelectItemDialog from '@/components/itemCategory/SelectItemDialog';
 import SelectItemCategoryDialog from '@/components/itemCategory/SelectItemCategoryDialog';
 
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
-import { SaveOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
+import { SaveOutlined } from '@ant-design/icons';
 import 'moment/locale/zh-cn';
 
 const { Search } = Input;
@@ -32,6 +33,8 @@ const getTypeName = (type) => {
     return '其他入库';
   } else if (type == 'po') {
     return '采购入库';
+  } else if (type == 'pd') {
+    return '生产入库';
   }
   return '其他入库';
 }
@@ -43,6 +46,9 @@ const store = (props) => {
   const [mainForm] = Form.useForm();
   const [selectOrgDialogVisible, setSelectOrgDialogVisible] = useState(false);
   const [selectPoDialogVisible, setSelectPoDialogVisible] = useState(false);
+
+  const [selectPdDialogVisible, setSelectPdDialogVisible] = useState(false);
+
   const [selectItemDialogVisible, setSelectItemDialogVisible] = useState(false);
   const [categoryId, setCategoryId] = useState('-1')
   const [selectItemCategoryDialogVisible, setSelectItemCategoryDialogVisible] = useState(false);
@@ -159,7 +165,7 @@ const store = (props) => {
         }
       ]
 
-    } else if (type == 'po') {//订单入库
+    } else if (type == 'po') {//采购订单入库
 
       return [
         {
@@ -183,30 +189,6 @@ const store = (props) => {
         },
         ...dynamicList, // 动态展示列
         {
-          title: '单价',
-          dataIndex: 'price',
-          renderType: 'InputNumberEF',
-          renderParams: {
-            formItemParams: {
-              rules: [{ required: true, message: '请输入单价' }]
-            },
-            widgetParams: {
-              disabled: disabled,
-              onChange: (value, name, record, tableRef) => {
-                let tableFormData = tableFormListRef?.current?.getTableFormDataList()?.find((item) => {
-                  return item.parimaryId == record.item_category_id;
-                })
-                const amount = record['quantity'] * record['price'];
-                tableFormData?.current?.handleObjChange(
-                  {
-                    amount: amount
-                  },
-                  record);
-              }
-            }
-          }
-        },
-        {
           title: '单位',
           dataIndex: 'uom',
           width: '100px',
@@ -214,7 +196,34 @@ const store = (props) => {
             formItemParams: {
               rules: [{ required: true, message: '请输入单位' }]
             },
-            widgetParams: { disabled: disabled }
+            widgetParams: { disabled: true }
+          }
+        },
+        {
+          title: '单价',
+          dataIndex: 'price',
+          renderType: 'InputNumberEF',
+          fixed: 'right',
+          width: '100px',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入单价' }]
+            },
+            widgetParams: {
+              disabled: disabled,
+              onChange: (value, name, record) => {
+                let tableFormData = tableFormListRef?.current?.getTableFormDataList()?.find((item) => {
+                  return item.parimaryId == record.item_category_id;
+                })
+                const tableRef = tableFormData?.tableRef;
+                const amount = record['quantity'] * record['price'];
+                tableRef?.current?.handleObjChange(
+                  {
+                    amount: amount
+                  },
+                  record);
+              }
+            }
           }
         },
         {
@@ -227,7 +236,7 @@ const store = (props) => {
             formItemParams: {
               rules: [{ required: true, message: '请输入数量' }]
             },
-            widgetParams: { disabled: disabled, precision: 0, }
+            widgetParams: { disabled: true, precision: 0, }
           }
         },
         {
@@ -243,16 +252,18 @@ const store = (props) => {
             widgetParams: {
               disabled: disabled,
               precision: 0,
-              onChange: (value, name, record, tableRef) => {
+              onChange: (value, name, record) => {
                 let tableFormData = tableFormListRef?.current?.getTableFormDataList()?.find((item) => {
                   return item.parimaryId == record.item_category_id;
                 })
+                const tableRef = tableFormData?.tableRef;
                 //数量不能大于结存数量
                 if (record['not_rcv_quantity'] < record['quantity']) {
                   message.error('接收数量不能大于未接收数量，请检查');
                   const quantity = record['not_rcv_quantity'];
                   const amount = quantity * record['price'];
-                  tableFormData?.current?.handleObjChange(
+
+                  tableRef?.current?.handleObjChange(
                     {
                       quantity: quantity,
                       amount: amount
@@ -260,7 +271,7 @@ const store = (props) => {
                     record);
                 } else {
                   const amount = record['quantity'] * record['price'];
-                  tableFormData?.current?.handleObjChange(
+                  tableRef?.current?.handleObjChange(
                     {
                       amount: amount
                     },
@@ -295,9 +306,140 @@ const store = (props) => {
           }
         }
       ]
+    } else if (type == 'pd') {//生产订单入库
 
+      return [
+        {
+          title: '物料描述',
+          dataIndex: 'item_description',
+          renderType: 'InputSearchEF',
+          fixed: 'left',
+          width: '200px',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请选择物料' }]
+            },
+            widgetParams: {
+              disabled: disabled,
+              onSearch: (name, record) => {
+              }
+            }
+          }
+        },
+        ...dynamicList, // 动态展示列
+        {
+          title: '单位',
+          dataIndex: 'uom',
+          width: '100px',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入单位' }]
+            },
+            widgetParams: { disabled: true }
+          }
+        },
+        {
+          title: '单价',
+          dataIndex: 'price',
+          renderType: 'InputNumberEF',
+          width: '100px',
+          fixed: 'right',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入单价' }]
+            },
+            widgetParams: {
+              disabled: disabled,
+              onChange: (value, name, record) => {
+                let tableFormData = tableFormListRef?.current?.getTableFormDataList()?.find((item) => {
+                  return item.parimaryId == record.item_category_id;
+                })
+                const tableRef = tableFormData?.tableRef;
+                const amount = record['quantity'] * record['price'];
+                tableRef?.current?.handleObjChange(
+                  {
+                    amount: amount
+                  },
+                  record);
+              }
+            }
+          }
+        },
+
+        {
+          title: '未接收数量',
+          dataIndex: 'not_rcv_quantity',
+          renderType: 'InputNumberEF',
+          width: '100px',
+          fixed: 'right',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入数量' }]
+            },
+            widgetParams: { disabled: true, precision: 0, }
+          }
+        },
+        {
+          title: '接收数量',
+          dataIndex: 'quantity',
+          renderType: 'InputNumberEF',
+          width: '100px',
+          fixed: 'right',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入接收数量' }]
+            },
+            widgetParams: {
+              disabled: disabled,
+              precision: 0,
+              onChange: (value, name, record) => {
+                const tableFormData = tableFormListRef?.current?.getTableFormDataList()?.find((item) => {
+                  return item.parimaryId == record.item_category_id;
+                })
+
+                const tableRef = tableFormData?.tableRef;
+
+                console.log('接收数量', value, name, record)
+
+                //数量不能大于结存数量
+                if (record['not_rcv_quantity'] < record['quantity']) {
+                  message.error('接收数量不能大于未接收数量，请检查');
+                  const quantity = record['not_rcv_quantity'];
+                  const amount = quantity * record['price'];
+
+                  tableRef?.current?.handleObjChange(
+                    {
+                      quantity: quantity,
+                      amount: amount
+                    },
+                    record);
+                } else {
+                  const amount = record['quantity'] * record['price'];
+                  tableRef?.current?.handleObjChange(
+                    {
+                      amount: amount
+                    },
+                    record);
+                }
+              }
+            }
+
+          }
+        }, {
+          title: '金额',
+          dataIndex: 'amount',
+          renderType: 'InputNumberEF',
+          width: '100px',
+          fixed: 'right',
+          renderParams: {
+            formItemParams: {
+              rules: [{ required: true, message: '请输入金额' }]
+            },
+            widgetParams: { disabled: true }
+          }
+        }
+      ]
     }
-
     return [];
   }
 
@@ -465,7 +607,7 @@ const store = (props) => {
               });
             } else {
 
-              if (type == 'po') {
+              if (type == 'po' || type == 'pd') {
                 values.bill_status = 1;
               } else {
                 values.bill_status = 0;
@@ -530,8 +672,7 @@ const store = (props) => {
             </Col>
 
 
-
-            {type == 'po' ? <Col xs={24} sm={11}>
+            {type == 'po' || type == 'pd' ? <Col xs={24} sm={11}>
 
               <Form.Item hidden label="来源id" name="source_id" />
               <Form.Item hidden label="来源单据" name="source_bill" />
@@ -548,10 +689,19 @@ const store = (props) => {
                   readOnly={true}
                   enterButton
                   onClick={() => {
-                    setSelectPoDialogVisible(true);
+                    if (type == 'po') {
+                      setSelectPoDialogVisible(true);
+                    } else {
+                      setSelectPdDialogVisible(true);
+                    }
+
                   }}
                   onSearch={() => {
-                    setSelectPoDialogVisible(true);
+                    if (type == 'po') {
+                      setSelectPoDialogVisible(true);
+                    } else {
+                      setSelectPdDialogVisible(true);
+                    }
                   }}
                 />
               </Form.Item>
@@ -634,6 +784,8 @@ const store = (props) => {
 
                 const newObj = {
                   ...obj,
+                  quantity: null,
+                  amount: null,
                   line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`
                 };
 
@@ -693,6 +845,104 @@ const store = (props) => {
           setSelectPoDialogVisible(false);
         }}
       />
+
+
+      <SelectPdDialog
+        modalVisible={selectPdDialogVisible}
+        item_type='0'
+        handleOk={(mainData, linesData) => {
+          console.log('SelectPdDialog', mainData, linesData)
+          mainForm.setFieldsValue({
+            source_id: mainData.pd_header_id,
+            source_bill: 'pd',
+            source_system: '0',
+            op_code: mainData.pd_header_code
+          });
+
+
+          HttpService.post('reportServer/pd/getPdLinesColumnById', JSON.stringify({
+            pd_header_id: mainData.pd_header_id
+          }))
+            .then((res) => {
+              //获取这个订单的所有动态列
+
+              //构建数据
+              //按照 item_category_id 数据分类
+
+              const dataListObj = linesData.reduce(function (acc, obj) {
+                console.log('acc start ', obj);
+                const key = obj['item_category_id'];
+                if (!acc[key]) {
+                  acc[key] = [];
+                }
+
+                const newObj = {
+                  ...obj,
+                  quantity: null,
+                  amount: null,
+                  line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`
+                };
+
+                acc[key].push(newObj);
+                console.log('acc[key] ', acc[key]);
+                return acc;
+              }, {});
+
+              console.log('dataListObj', dataListObj)
+
+              const newLinesData = [];
+              Object.keys(dataListObj).forEach((item) => {
+                const dataList = dataListObj[item]; //数据
+
+                const columnOjb = res.data.find((columnItem) => {
+                  return columnItem.categoryId == item;
+                })
+
+
+                console.log('columnOjb', columnOjb)
+
+                let columnList = [];
+                for (let columnIndex in columnOjb.columnList) {
+                  let column = columnOjb.columnList[columnIndex];
+
+                  columnList.push({
+                    ...column,
+                    renderParams: {
+                      widgetParams: { disabled: true }
+                    }
+                  });
+                }
+                console.log('columnList', columnList)
+
+                newLinesData.push({
+                  dataList,
+                  title: columnOjb.categoryName,
+                  parimaryId: item,
+                  columnList: buildColumns(columnList),
+                  tableRef: React.createRef()
+                })
+
+              })
+
+
+              tableFormListRef?.current?.setTableFormDataList(newLinesData);
+
+              console.log('newLinesData', newLinesData);
+
+              setSelectPdDialogVisible(false);
+            }).catch(() => {
+              setSelectPdDialogVisible(false);
+            });
+
+
+
+        }}
+        handleCancel={() => {
+          setSelectPdDialogVisible(false);
+        }}
+      />
+
+
 
       <SelectItemDialog
         categoryId={categoryId}

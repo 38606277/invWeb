@@ -1,4 +1,4 @@
-//选择仓库的对话框
+//选择生产订单的对话框
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Space, message, Tree, Row, Col, Modal, Table, Input, Pagination } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -8,70 +8,24 @@ import HttpService from '@/utils/HttpService.jsx';
 
 const columns = [
     {
-        title: '订单编号',
-        dataIndex: 'header_code',
-        valueType: 'text'
-    },
-    {
-        title: '订单类型',
-        dataIndex: 'po_type_name',
-        key: 'po_type',
+        title: '订单名称',
+        dataIndex: 'pd_header_name',
+        key: 'pd_header_id',
         valueType: 'text',
     },
     {
-        title: '采购员',
-        dataIndex: 'agent_name',
-        key: 'agent_id',
+        title: '制造商',
+        dataIndex: 'manufactory_name',
+        key: 'manufactory_id',
+        valueType: 'text',
     },
     {
-        title: '供应商',
-        dataIndex: 'vendor_name',
-        key: 'vendor_id',
-    },
-    {
-        title: '生效日期',
-        dataIndex: 'po_date',
-        valueType: 'dateTimeRange'
-
-    },
-    {
-        title: '收单地点',
-        dataIndex: 'bill_to_location',
-
-    },
-    {
-        title: '收货地点',
-        dataIndex: 'ship_to_location',
-
-    },
-    {
-        title: '订单状态',
-        dataIndex: 'status',
-    },
-    {
-        title: '合同编号',
-        dataIndex: 'contract_code'
-    },
-    {
-        title: '合同名称',
-        dataIndex: 'contract_name',
-
-    },
-    {
-        title: '合同文件',
-        dataIndex: 'contract_file',
-
-    },
-    {
-        title: '业务描述',
-        dataIndex: 'comments',
-
-    },
-    {
-        title: '创建时间',
-        dataIndex: 'create_date',
-        valueType: 'dateTimeRange'
+        title: '更新时间',
+        dataIndex: 'update_date',
+        valueType: 'dateTime',
     }
+
+
 ];
 
 
@@ -111,13 +65,15 @@ const linesColumns = [
     }
 ]
 
-const SelectPoDialog = (props) => {
+const linesKey = 'line_id';
+
+const SelectPdDialog = (props) => {
 
     const { modalVisible, handleOk, handleCancel } = props;
 
     //主信息
     const [mainCheckKeys, setMainCheckKeys] = useState([]);
-    const [selectPoHeader, setSelectPoHeader] = useState({});
+    const [selectPdHeader, setSelectPdHeader] = useState({});
 
     //行信息
     const [checkKeys, setCheckKeys] = useState([]);
@@ -126,26 +82,28 @@ const SelectPoDialog = (props) => {
     const linesTableRef = useRef();
 
 
+    const item_type = props?.item_type || '0';
+
     //重置选中状态
     useEffect(() => {
         setMainCheckKeys([]);
-        setSelectPoHeader({});
+        setSelectPdHeader({});
         setCheckKeys([]);
         setCheckRows([]);
     }, [modalVisible])
 
     //选择头信息后刷新行信息列表
     useEffect(() => {
+        //console.log('selectPdHeader')
         linesTableRef?.current?.reload();
-    }, [selectPoHeader]);
+    }, [selectPdHeader]);
 
 
 
     //获取行数据
     const fetchLinesData = async (params, sort, filter) => {
 
-
-        if (selectPoHeader?.po_header_id == null) {
+        if (selectPdHeader?.pd_header_id == null) {
             return Promise.resolve({
                 data: [],
                 total: 0,
@@ -157,11 +115,12 @@ const SelectPoDialog = (props) => {
             pageNum: params.current,
             perPage: params.pageSize,
             ...params,
-            po_header_id: selectPoHeader?.po_header_id
+            header_id: selectPdHeader?.pd_header_id,
+            item_type: item_type
         };
 
         const result = await HttpService.post(
-            'reportServer/po/getPoLinesById',
+            'reportServer/pd/getPdOrderLinesById',
             JSON.stringify(requestParam),
         );
 
@@ -181,7 +140,7 @@ const SelectPoDialog = (props) => {
             ...params,
         };
         const result = await HttpService.post(
-            'reportServer/po/getPoListByPage',
+            'reportServer/pd/getListByPage',
             JSON.stringify(requestParam),
         );
 
@@ -195,8 +154,9 @@ const SelectPoDialog = (props) => {
 
 
     const mainSelectOnChange = (selectedKeys, selectedRows) => {
+        console.log('mainSelectOnChange', selectedRows)
         setMainCheckKeys(selectedKeys);
-        setSelectPoHeader(selectedRows[0]);
+        setSelectPdHeader(selectedRows[0]);
     }
 
 
@@ -216,10 +176,10 @@ const SelectPoDialog = (props) => {
 
 
     return (
-        <Modal title="选择采购订单" visible={modalVisible} onOk={() => {
-            if (selectPoHeader?.po_header_id != null) { //判断是否选择了采购订单
+        <Modal title="选择生产订单" visible={modalVisible} onOk={() => {
+            if (selectPdHeader?.pd_header_id != null) { //判断是否选择了采购订单
                 //返回订单头信息，行信息
-                handleOk(selectPoHeader, checkRows)
+                handleOk(selectPdHeader, checkRows)
             } else {
                 handleCancel();
             }
@@ -234,13 +194,13 @@ const SelectPoDialog = (props) => {
                             // 点击行
                             onClick: event => {
                                 setMainCheckKeys([record.po_header_id]);
-                                setSelectPoHeader(record);
+                                setSelectPdHeader(record);
                             },
                         };
                     }}
                     columns={columns}
                     request={fetchData}
-                    rowKey="po_header_id"
+                    rowKey="pd_header_id"
                     rowSelection={{
                         type: 'radio',
                         onChange: mainSelectOnChange,
@@ -257,7 +217,7 @@ const SelectPoDialog = (props) => {
                     }}
                     search={false}
                     dateFormatter="string"
-                    headerTitle="采购订单"
+                    headerTitle="生产订单"
                 />
 
                 <ProTable
@@ -267,21 +227,21 @@ const SelectPoDialog = (props) => {
                             // 点击行
                             onClick: event => {
                                 //有取消的情况
-                                if (isCheck(record.po_line_id)) { // 选中则移除
+                                if (isCheck(record[linesKey])) { // 选中则移除
                                     //移除key
                                     const newCheckKeys = checkKeys.filter((item) => {
-                                        return item !== record.po_line_id;
+                                        return item !== record[linesKey];
                                     })
 
                                     //移除record
                                     const newCheckRows = checkRows.filter((item) => {
-                                        return item.id !== record.po_line_id;
+                                        return item[linesKey] !== record[linesKey];
                                     })
 
                                     setCheckKeys(newCheckKeys);
                                     setCheckRows(newCheckRows);
                                 } else { // 未选中则添加
-                                    setCheckKeys([...checkKeys, record.po_line_id]);
+                                    setCheckKeys([...checkKeys, record[linesKey]]);
                                     setCheckRows([...checkRows, record]);
                                 }
                             },
@@ -317,7 +277,7 @@ const SelectPoDialog = (props) => {
 }
 
 
-export default SelectPoDialog;
+export default SelectPdDialog;
 
 
 

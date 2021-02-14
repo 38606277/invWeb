@@ -555,9 +555,40 @@ const count = (props) => {
                 ]}
             >
 
-                <Tabs defaultActiveKey="1" onChange={(key) => {
-                    setTabKey(key)
-                }}>
+                <Tabs
+                    defaultActiveKey="1"
+                    type="card"
+                    tabBarStyle={{ fontWeight: '800' }}
+                    size="large"
+                    style={{ padding: '10px' }}
+                    tabBarExtraContent={[
+                        <Button
+                            disabled={disabled}
+                            icon={<PlusOutlined />}
+                            size="small"
+                            onClick={() => {
+                                //新增一行
+                                tableRef.current.addItem({
+                                    line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                                    material_pid: -1,
+                                });
+                            }}
+                        ></Button>,
+                        <Button
+                            disabled={disabled}
+                            size="small"
+                            style={{ marginLeft: '6px' }}
+                            icon={<MinusOutlined />}
+                            onClick={() => {
+                                //删除选中项
+                                tableRef.current.removeRows();
+                            }}
+                        ></Button>,
+                    ]}
+
+                    onChange={(key) => {
+                        setTabKey(key)
+                    }}>
                     <TabPane forceRender={true} tab="产品" key="product">
                         <TableForm_A ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
                     </TabPane>
