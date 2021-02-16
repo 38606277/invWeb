@@ -15,6 +15,7 @@ import {
   DatePicker,
   Row,
   Form,
+  Checkbox,
 } from 'antd';
 import { findDOMNode } from 'react-dom';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -46,22 +47,15 @@ const Info = ({ title, value, bordered }) => (
 const ListContent = ({ data: { owner, createdAt, percent, status } }) => (
   <div className={styles.listContent}>
     <div className={styles.listContentItem}>
-      <span>Owner</span>
-      <p>{owner}</p>
+      <span>￥250</span>
+      {/* <p>{owner}</p> */}
     </div>
     <div className={styles.listContentItem}>
-      <span>开始时间</span>
-      <p>{moment(createdAt).format('YYYY-MM-DD HH:mm')}</p>
+      <span>5</span>
+      {/* <p>{moment(createdAt).format('YYYY-MM-DD HH:mm')}</p> */}
     </div>
     <div className={styles.listContentItem}>
-      <Progress
-        percent={percent}
-        status={status}
-        strokeWidth={6}
-        style={{
-          width: 180,
-        }}
-      />
+      <span>￥250</span>
     </div>
   </div>
 );
@@ -253,6 +247,18 @@ export const RetailOrder = (props) => {
             size="large"
             rowKey="id"
             loading={loading}
+            header={
+              <div>
+                <span>
+                  {' '}
+                  <Checkbox style={{ marginRight: '60px' }} />
+                </span>
+                <span style={{ marginRight: '360px' }}>商品名称</span>
+                <span style={{ marginRight: '160px' }}>单价</span>
+                <span style={{ marginRight: '160px' }}>数量</span>
+                <span style={{ marginRight: '160px' }}>小计</span>
+              </div>
+            }
             dataSource={list}
             renderItem={(item) => (
               <List.Item
@@ -269,10 +275,11 @@ export const RetailOrder = (props) => {
                   <MoreBtn key="more" item={item} />,
                 ]}
               >
+                <Checkbox style={{ marginRight: '60px' }} />
                 <List.Item.Meta
                   avatar={<Avatar src={item.logo} shape="square" size="large" />}
-                  title={<a href={item.href}>{item.title}</a>}
-                  description={item.subDescription}
+                  title={<a href={item.href}>皮皮狗 羊绒衫</a>}
+                  description={'红色 XXL'}
                 />
                 <ListContent data={item} />
               </List.Item>

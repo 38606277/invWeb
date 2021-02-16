@@ -64,7 +64,11 @@ const Retail = ({ dispatch, salesAndRetail: { list = [] }, loading }) => {
                 </Paragraph>
               }
             />
-
+            <div>
+              <Space align="center" size={50}>
+                <span>库存量 10</span>
+              </Space>
+            </div>
             <div style={{ fontWeight: 600, fontSize: '18px' }}>
               <Space align="center" size={50}>
                 <span>$1499</span>
@@ -94,7 +98,7 @@ const Retail = ({ dispatch, salesAndRetail: { list = [] }, loading }) => {
         <div style={{ textAlign: 'center' }}>
           <span>
             <Search placeholder="输入查找的商品" enterButton="查找" style={{ width: '800px' }} />
-            <Button onClick={() => history.push(`/retail/order`)}>订单</Button>
+            <Button onClick={() => history.push(`/retail/retailorder`)}>订单</Button>
           </span>
         </div>
       </Card>
@@ -133,6 +137,26 @@ const Retail = ({ dispatch, salesAndRetail: { list = [] }, loading }) => {
                 <TagSelect.Option value="cat10">类目十</TagSelect.Option>
                 <TagSelect.Option value="cat11">类目十一</TagSelect.Option>
                 <TagSelect.Option value="cat12">类目十二</TagSelect.Option>
+              </TagSelect>
+            </FormItem>
+          </StandardFormRow>
+          <StandardFormRow
+            title="仓库"
+            block
+            style={{
+              paddingBottom: 11,
+            }}
+          >
+            <FormItem name="category">
+              <TagSelect expandable>
+                <TagSelect.Option value="cat1">仓库一</TagSelect.Option>
+                <TagSelect.Option value="cat2">类目二</TagSelect.Option>
+                <TagSelect.Option value="cat3">类目三</TagSelect.Option>
+                <TagSelect.Option value="cat4">类目四</TagSelect.Option>
+                <TagSelect.Option value="cat5">类目五</TagSelect.Option>
+                <TagSelect.Option value="cat6">类目六</TagSelect.Option>
+                <TagSelect.Option value="cat7">类目七</TagSelect.Option>
+                <TagSelect.Option value="cat8">类目八</TagSelect.Option>
               </TagSelect>
             </FormItem>
           </StandardFormRow>
