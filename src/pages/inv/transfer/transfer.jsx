@@ -84,12 +84,18 @@ const transfer = (props) => {
                         rules: [{ required: true, message: '请选择物料' }]
                     },
                     widgetParams: {
-                        disabled: true,
-                        onSearch: (name, record) => {
-                            // setSelectItemRecord(record)
-                            // setSelectItemDialogVisible(true)
-                        }
+                        disabled: true
                     }
+                }
+            },
+            {
+                title: '单位',
+                dataIndex: 'uom',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入单位' }]
+                    },
+                    widgetParams: { disabled: true }
                 }
             },
             {
@@ -100,19 +106,10 @@ const transfer = (props) => {
                     formItemParams: {
                         rules: [{ required: true, message: '请输入单价' }]
                     },
-                    widgetParams: { disabled: true, onChange: calculateAmount }
+                    widgetParams: { onChange: calculateAmount }
                 }
             },
-            {
-                title: '单位',
-                dataIndex: 'uom',
-                renderParams: {
-                    formItemParams: {
-                        rules: [{ required: true, message: '请输入单位' }]
-                    },
-                    widgetParams: { disabled: false }
-                }
-            },
+
             {
                 title: '结存数量',
                 dataIndex: 'on_hand_quantity',
@@ -398,7 +395,7 @@ const transfer = (props) => {
                             <Form.Item
                                 label="调出经办人"
                                 name="operator_name"
-                            // rules={[{ required: true, message: '请选择调出经办人' }]}
+                                rules={[{ required: true, message: '请选择调出经办人' }]}
                             >
                                 <Search
                                     disabled={disabled}
@@ -422,7 +419,7 @@ const transfer = (props) => {
                             <Form.Item
                                 label="调入经办人"
                                 name="target_operator_name"
-                            //  rules={[{ required: true, message: '请选择调入经办人' }]}
+                                rules={[{ required: true, message: '请选择调入经办人' }]}
                             >
                                 <Search
                                     disabled={disabled}
@@ -604,6 +601,7 @@ const transfer = (props) => {
                             item_description: line.item_description,
                             price: line.price,
                             on_hand_quantity: line.on_hand_quantity,
+                            uom: line.uom
                             //amount: line.amount
                         })
                     }

@@ -111,7 +111,7 @@ const SelectOnHandDialog = (props) => {
 
 
     return (
-        <Modal title="选择物料" visible={modalVisible} onOk={() => {
+        <Modal title="选择物料" width='1000px' visible={modalVisible} onOk={() => {
             if (0 < checkKeys.length) {
                 if (selectType === 'radio') {
                     handleOk(checkRows[0], checkKeys[0])
