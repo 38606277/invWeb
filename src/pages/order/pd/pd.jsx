@@ -515,44 +515,6 @@ const count = (props) => {
 
             <ProCardCollapse
                 title="行信息"
-                extra={[
-                    <Button
-                        disabled={disabled}
-                        icon={<PlusOutlined />}
-                        size="small"
-                        onClick={() => {
-
-                            if (tabKey == 'product') {//选择产品
-                                //新增一行
-                                tableRef.current.addItem({
-                                    line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                                });
-                            } else {//选择原料
-
-                                materialTableRef.current.addItem({
-                                    line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                                });
-
-                            }
-                        }}
-                    ></Button>,
-                    <Button
-                        disabled={disabled}
-                        size="small"
-                        style={{ marginLeft: '6px' }}
-                        icon={<MinusOutlined />}
-                        onClick={() => {
-
-                            //删除选中项
-
-                            if (tabKey == 'product') {//选择产品
-                                tableRef.current.removeRows();
-                            } else {
-                                materialTableRef.current.removeRows();
-                            }
-                        }}
-                    ></Button>,
-                ]}
             >
 
                 <Tabs
@@ -567,11 +529,18 @@ const count = (props) => {
                             icon={<PlusOutlined />}
                             size="small"
                             onClick={() => {
-                                //新增一行
-                                tableRef.current.addItem({
-                                    line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                                    material_pid: -1,
-                                });
+                                if (tabKey == 'product') {//选择产品
+                                    //新增一行
+                                    tableRef.current.addItem({
+                                        line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                                    });
+                                } else {//选择原料
+
+                                    materialTableRef.current.addItem({
+                                        line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                                    });
+
+                                }
                             }}
                         ></Button>,
                         <Button
@@ -581,7 +550,11 @@ const count = (props) => {
                             icon={<MinusOutlined />}
                             onClick={() => {
                                 //删除选中项
-                                tableRef.current.removeRows();
+                                if (tabKey == 'product') {//选择产品
+                                    tableRef.current.removeRows();
+                                } else {
+                                    materialTableRef.current.removeRows();
+                                }
                             }}
                         ></Button>,
                     ]}

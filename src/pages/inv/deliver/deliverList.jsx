@@ -98,8 +98,7 @@ const fetchData = async (params, sort, filter) => {
     let requestParam = {
         pageNum: params.current,
         perPage: params.pageSize,
-        ...params,
-        bill_type: 'deliver'
+        ...params
     };
     const result = await HttpService.post(
         'reportServer/invStore/getStoreListByPage',
@@ -113,8 +112,24 @@ const fetchData = async (params, sort, filter) => {
     });
 };
 
-const deliverList = () => {
+
+const getTypeName = (type) => {
+    if (type == 'other') {
+        return '其他出库';
+    } else if (type == 'pd') {
+        return '生产出库';
+    }
+    return '其他出库';
+}
+
+const deliverList = (props) => {
     const ref = useRef();
+    const type = props?.match?.params?.type || 'other';
+
+    useEffect(() => {
+        ref?.current?.clearSelected();
+        ref?.current?.reload();
+    }, [type])
 
     //定义列
     const columns = [
@@ -160,7 +175,7 @@ const deliverList = () => {
             render: (text, record) => [
                 <a
                     onClick={() => {
-                        history.push(`/transation/deliver/edit/${record.bill_id}`);
+                        history.push(`/transation/deliver/${type}/edit/${record.bill_id}`);
                     }}
                 >
                     编辑
@@ -179,6 +194,9 @@ const deliverList = () => {
             columns={columns}
             request={fetchData}
             rowKey="bill_id"
+            params={{
+                bill_type: `deliver_${type}`
+            }}
             rowSelection={
                 {
                     // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
@@ -214,9 +232,9 @@ const deliverList = () => {
                 defaultCollapsed: true,
             }}
             dateFormatter="string"
-            headerTitle="出库管理"
+            headerTitle={getTypeName(type)}
             toolBarRender={(action, { selectedRows }) => [
-                <Button type="primary" onClick={() => history.push('/transation/deliver/add/null')}>
+                <Button type="primary" onClick={() => history.push(`/transation/deliver/${type}/add/null`)}>
                     新建
         </Button>,
             ]}

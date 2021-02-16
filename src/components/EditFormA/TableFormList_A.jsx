@@ -27,6 +27,8 @@ import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
 
 const TableFormList = forwardRef(({ disabled, primaryKey, onAddClick }, ref) => {
 
+    console.log('TableFormList 绘制 - ', disabled)
+
     const [data, setData] = useState([]); //列表行数据
 
     //通过ref暴露函数

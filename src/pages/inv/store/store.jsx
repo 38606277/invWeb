@@ -166,7 +166,6 @@ const store = (props) => {
       ]
 
     } else if (type == 'po') {//采购订单入库
-
       return [
         {
           title: '物料描述',
@@ -468,6 +467,7 @@ const store = (props) => {
 
     if (type == 'other') {
       btnList.splice(0, 0, <Button
+        disabled={disabled}
         key="submit"
         type="danger"
         icon={<SaveOutlined />}
@@ -544,9 +544,6 @@ const store = (props) => {
               })
             }
             tableFormListRef?.current?.setTableFormDataList(newLinesData);
-
-
-
           } else {
             message.error(res.message);
           }
@@ -725,7 +722,7 @@ const store = (props) => {
       <TableFormList_A
         ref={tableFormListRef}
         //tableFormDataList={tableFormDataList}
-        disable={disabled}
+        disabled={disabled}
         primaryKey="line_id"
         onAddClick={(tableFormData) => {
 

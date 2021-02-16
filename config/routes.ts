@@ -257,12 +257,12 @@
       },
       {
         name: 'user.user-list',
-        path: '/transation/deliverList',
+        path: '/transation/deliverList/:type',
         component: './inv/deliver/deliverList',
       },
       {
         name: 'user.user-list',
-        path: '/transation/deliver/:action/:id',
+        path: '/transation/deliver/:type/:action/:id',
         component: './inv/deliver/deliver',
       },
       {
