@@ -174,7 +174,7 @@ const salesList = (props) => {
       render: (text, record) => [
         <a
           onClick={() => {
-            history.push(`/transation/store/${type}/edit/${record.bill_id}`);
+            history.push(`/sales/sales/${type}/edit/${record.bill_id}`);
           }}
         >
           编辑
