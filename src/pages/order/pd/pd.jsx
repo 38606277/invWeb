@@ -440,7 +440,15 @@ const count = (props) => {
                     <Form.Item style={{ display: 'none' }} label="产品id" name="item_id" />
                     <Form.Item hidden label="制作商Id" name="manufactory_id" />
                     <Row>
-                        <Col xs={24} sm={10}>
+                        <Col xs={24} sm={11}>
+                            <Form.Item label="订单编号" name="pd_header_code">
+                                <Input disabled placeholder="自动生成" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row>
+
+                        <Col xs={24} sm={11}>
                             <Form.Item
                                 name="pd_header_name"
                                 label="订单名称"
@@ -475,7 +483,7 @@ const count = (props) => {
                     </Row>
 
                     <Row>
-                        <Col xs={24} sm={10}>
+                        <Col xs={24} sm={11}>
                             <Form.Item
                                 name="begin_date"
                                 label="开始时间"
@@ -485,7 +493,7 @@ const count = (props) => {
                             </Form.Item>
                         </Col>
 
-                        <Col xs={24} sm={10}>
+                        <Col xs={24} sm={11}>
                             <Form.Item
                                 name="end_date"
                                 label="结束时间"

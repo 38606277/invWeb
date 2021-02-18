@@ -85,7 +85,12 @@ const countList = () => {
 
     //定义列
     const columns = [
-
+        {
+            title: '订单编号',
+            dataIndex: 'pd_header_code',
+            key: 'pd_header_code',
+            valueType: 'text',
+        },
         {
             title: '订单名称',
             dataIndex: 'pd_header_name',
