@@ -9,6 +9,13 @@
             primaryId: any //tableForm 唯一标识
             title:String  // 标题
             tableFormData:Array //数据
+            columnList:Array //列数据 
+            tableRef: Ref //引用对象
+        },
+        {   
+            primaryId: any //tableForm 唯一标识
+            title:String  // 标题
+            tableFormData:Array //数据
             columnList:Array //列数据
             tableRef: Ref //引用对象
         }

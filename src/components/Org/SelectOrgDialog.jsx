@@ -1,6 +1,6 @@
 //选择仓库的对话框
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Space, message, Tree, Row, Col, Modal, Table } from 'antd';
+import { Button, Space, message, Tree, Row, Col, Modal, Table, Drawer } from 'antd';
 import HttpService from '@/utils/HttpService.jsx';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
@@ -51,7 +51,7 @@ const SelectOrgDialog = (props) => {
     useEffect(() => {
         setCheckKeys([]);
         setCheckRows([]);
-    }, modalVisible)
+    }, [modalVisible])
 
 
     // 获取数据
@@ -68,17 +68,37 @@ const SelectOrgDialog = (props) => {
 
 
     return (
-        <Modal title="选择仓库" visible={modalVisible} onOk={() => {
-            if (0 < checkKeys.length) {
-                if (selectType === 'radio') {
-                    handleOk(checkRows[0], checkKeys[0])
-                } else {
-                    handleOk(checkRows, checkKeys)
-                }
-            } else {
-                handleCancel();
+        <Drawer title="选择仓库"
+            visible={modalVisible}
+            onClose={handleCancel}
+            bodyStyle={{ paddingBottom: 80 }}
+            width={720}
+            footer={
+                <div
+                    style={{
+                        textAlign: 'right',
+                    }}
+                >
+                    <Button onClick={handleCancel} style={{ marginRight: 8 }}>
+                        取消
+              </Button>
+                    <Button onClick={() => {
+                        if (0 < checkKeys.length) {
+                            if (selectType === 'radio') {
+                                handleOk(checkRows[0], checkKeys[0])
+                            } else {
+                                handleOk(checkRows, checkKeys)
+                            }
+                        } else {
+                            handleCancel();
+                        }
+                    }} type="primary">
+                        确定
+              </Button>
+                </div>
             }
-        }} onCancel={handleCancel}>
+
+        >
 
             <Table
                 columns={columns}
@@ -99,7 +119,7 @@ const SelectOrgDialog = (props) => {
                 }}
             />
 
-        </Modal>
+        </Drawer>
     );
 
 

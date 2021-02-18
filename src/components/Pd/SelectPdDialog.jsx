@@ -1,6 +1,6 @@
 //选择生产订单的对话框
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Space, message, Tree, Row, Col, Modal, Table, Input, Pagination } from 'antd';
+import { Button, Space, message, Tree, Row, Col, Modal, Table, Input, Pagination, Drawer } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import ProTable from '@ant-design/pro-table';
 import HttpService from '@/utils/HttpService.jsx';
@@ -176,15 +176,32 @@ const SelectPdDialog = (props) => {
 
 
     return (
-        <Modal title="选择生产订单" visible={modalVisible} onOk={() => {
-            if (selectPdHeader?.pd_header_id != null) { //判断是否选择了采购订单
-                //返回订单头信息，行信息
-                handleOk(selectPdHeader, checkRows)
-            } else {
-                handleCancel();
+        <Drawer title="选择生产订单" visible={modalVisible}
+            onClose={handleCancel}
+            bodyStyle={{ paddingBottom: 80 }}
+            width={720}
+            footer={
+                <div
+                    style={{
+                        textAlign: 'right',
+                    }}
+                >
+                    <Button onClick={handleCancel} style={{ marginRight: 8 }}>
+                        取消
+          </Button>
+                    <Button onClick={() => {
+                        if (selectPdHeader?.pd_header_id != null) { //判断是否选生产订单
+                            //返回订单头信息，行信息
+                            handleOk(selectPdHeader, checkRows)
+                        } else {
+                            handleCancel();
+                        }
+                    }} type="primary">
+                        确定
+          </Button>
+                </div>
             }
-        }} onCancel={handleCancel}
-            width={1000}
+
         >
 
             <div>
@@ -270,7 +287,7 @@ const SelectPdDialog = (props) => {
                     headerTitle="行信息"
                 />
             </div>
-        </Modal>
+        </Drawer>
     );
 
 

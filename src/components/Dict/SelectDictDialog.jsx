@@ -45,12 +45,12 @@ const SelectDictDialog = (props) => {
     useEffect(() => {
         setCheckKeys([]);
         setCheckRows([]);
-    }, modalVisible)
+    }, [modalVisible])
 
 
     // 获取数据
     const getAllChildrenRecursionById = () => {
-        HttpService.post('reportServer/mdmDict/getAll',{})
+        HttpService.post('reportServer/mdmDict/getAll', {})
             .then(res => {
                 if (res.resultCode === "1000") {
                     setTreeData(res.data)

@@ -1,6 +1,6 @@
 //选择库存中的物料
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Input } from 'antd';
+import { Modal, Input, Drawer } from 'antd';
 
 import ProTable from '@ant-design/pro-table';
 import HttpService from '@/utils/HttpService.jsx';
@@ -111,17 +111,37 @@ const SelectOnHandDialog = (props) => {
 
 
     return (
-        <Modal title="选择物料" width='1000px' visible={modalVisible} onOk={() => {
-            if (0 < checkKeys.length) {
-                if (selectType === 'radio') {
-                    handleOk(checkRows[0], checkKeys[0])
-                } else {
-                    handleOk(checkRows, checkKeys)
-                }
-            } else {
-                handleCancel();
+        <Drawer title="选择物料"
+            visible={modalVisible}
+            onClose={handleCancel}
+            bodyStyle={{ paddingBottom: 80 }}
+            width={720}
+            footer={
+                <div
+                    style={{
+                        textAlign: 'right',
+                    }}
+                >
+                    <Button onClick={handleCancel} style={{ marginRight: 8 }}>
+                        取消
+      </Button>
+                    <Button onClick={() => {
+                        if (0 < checkKeys.length) {
+                            if (selectType === 'radio') {
+                                handleOk(checkRows[0], checkKeys[0])
+                            } else {
+                                handleOk(checkRows, checkKeys)
+                            }
+                        } else {
+                            handleCancel();
+                        }
+                    }} type="primary">
+                        确定
+      </Button>
+                </div>
             }
-        }} onCancel={handleCancel}>
+
+        >
 
             <div>
                 <ProTable
@@ -179,7 +199,7 @@ const SelectOnHandDialog = (props) => {
                 />
 
             </div>
-        </Modal>
+        </Drawer>
     );
 
 

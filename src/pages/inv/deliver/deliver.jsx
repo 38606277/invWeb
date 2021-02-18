@@ -74,15 +74,15 @@ const deliver = (props) => {
 
 
 
-
+    const buildColumns = (dynamicList) => {
+        return buildColumns2(dynamicList, disabled);
+    }
 
     /**
      *   //构建列 
      * @param {*} dynamicList 动态列表
      */
-    const buildColumns = (dynamicList) => {
-
-
+    const buildColumns2 = (dynamicList, disabled) => {
         if (type == 'other') {//其他出库
             return [
                 {
@@ -226,7 +226,7 @@ const deliver = (props) => {
                     }
                 },
                 {
-                    title: '未接收数量',
+                    title: '未接出库数量',
                     dataIndex: 'not_rcv_quantity',
                     renderType: 'InputNumberEF',
                     width: '100px',
@@ -239,14 +239,14 @@ const deliver = (props) => {
                     }
                 },
                 {
-                    title: '接收数量',
+                    title: '出库数量',
                     dataIndex: 'quantity',
                     renderType: 'InputNumberEF',
                     width: '100px',
                     fixed: 'right',
                     renderParams: {
                         formItemParams: {
-                            rules: [{ required: true, message: '请输入接收数量' }]
+                            rules: [{ required: true, message: '请输入出库数量' }]
                         },
                         widgetParams: {
                             disabled: disabled,
@@ -258,7 +258,7 @@ const deliver = (props) => {
                                 const tableRef = tableFormData?.tableRef;
                                 //数量不能大于结存数量
                                 if (record['not_rcv_quantity'] < record['quantity']) {
-                                    message.error('接收数量不能大于未接收数量，请检查');
+                                    message.error('出库数量不能大于未出库数量，请检查');
                                     const quantity = record['not_rcv_quantity'];
                                     const amount = quantity * record['price'];
 
@@ -366,7 +366,7 @@ const deliver = (props) => {
                 },
 
                 {
-                    title: '未接收数量',
+                    title: '未出库数量',
                     dataIndex: 'not_rcv_quantity',
                     renderType: 'InputNumberEF',
                     width: '100px',
@@ -379,14 +379,14 @@ const deliver = (props) => {
                     }
                 },
                 {
-                    title: '接收数量',
+                    title: '出库数量',
                     dataIndex: 'quantity',
                     renderType: 'InputNumberEF',
                     width: '100px',
                     fixed: 'right',
                     renderParams: {
                         formItemParams: {
-                            rules: [{ required: true, message: '请输入接收数量' }]
+                            rules: [{ required: true, message: '请输入出库数量' }]
                         },
                         widgetParams: {
                             disabled: disabled,
@@ -398,11 +398,11 @@ const deliver = (props) => {
 
                                 const tableRef = tableFormData?.tableRef;
 
-                                console.log('接收数量', value, name, record)
+                                console.log('出库数量', value, name, record)
 
                                 //数量不能大于结存数量
                                 if (record['not_rcv_quantity'] < record['quantity']) {
-                                    message.error('接收数量不能大于未接收数量，请检查');
+                                    message.error('出库数量不能大于未出库数量，请检查');
                                     const quantity = record['not_rcv_quantity'];
                                     const amount = quantity * record['price'];
 
@@ -510,7 +510,8 @@ const deliver = (props) => {
             HttpService.post('reportServer/invStore/getStoreById', JSON.stringify({ bill_id: id })).then(
                 (res) => {
                     if (res.resultCode == '1000') {
-                        setDisabled(res?.data?.mainData?.bill_status === 1);
+                        const mDisabled = res?.data?.mainData?.bill_status === 1;
+                        setDisabled(mDisabled);
                         mainForm.setFieldsValue({
                             ...res.data.mainData,
                             bill_date: moment(res.data.mainData.bill_date),
@@ -538,7 +539,7 @@ const deliver = (props) => {
                                 ...lines,
                                 title: lines.categoryName,
                                 parimaryId: lines.categoryId,
-                                columnList: buildColumns(columnList),
+                                columnList: buildColumns2(columnList, mDisabled),
                                 tableRef: React.createRef()
                             })
                         }
@@ -728,6 +729,8 @@ const deliver = (props) => {
                     if (type == 'other') {
                         setCategoryId(tableFormData.parimaryId);
                         setSelectItemDialogVisible(true)
+                    } else if (type == 'pd') {
+                        setSelectPdDialogVisible(true);
                     } else {
                         setSelectPoDialogVisible(true);
                     }

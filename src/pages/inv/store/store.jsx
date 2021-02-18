@@ -73,15 +73,17 @@ const store = (props) => {
   }
 
 
-
-
+  const buildColumns = (dynamicList) => {
+    return buildColumns2(dynamicList, disabled);
+  }
 
   /**
    *   //构建列 
    * @param {*} dynamicList 动态列表
    */
-  const buildColumns = (dynamicList) => {
+  const buildColumns2 = (dynamicList, disabled) => {
 
+    console.log('构建列方法中的 disabled -- ', disabled) //false
 
     if (type == 'other') {//其他入库
       return [
@@ -226,7 +228,7 @@ const store = (props) => {
           }
         },
         {
-          title: '未接收数量',
+          title: '未入库数量',
           dataIndex: 'not_rcv_quantity',
           renderType: 'InputNumberEF',
           width: '100px',
@@ -239,14 +241,14 @@ const store = (props) => {
           }
         },
         {
-          title: '接收数量',
+          title: '入库数量',
           dataIndex: 'quantity',
           renderType: 'InputNumberEF',
           width: '100px',
           fixed: 'right',
           renderParams: {
             formItemParams: {
-              rules: [{ required: true, message: '请输入接收数量' }]
+              rules: [{ required: true, message: '请输入入库数量' }]
             },
             widgetParams: {
               disabled: disabled,
@@ -258,7 +260,7 @@ const store = (props) => {
                 const tableRef = tableFormData?.tableRef;
                 //数量不能大于结存数量
                 if (record['not_rcv_quantity'] < record['quantity']) {
-                  message.error('接收数量不能大于未接收数量，请检查');
+                  message.error('入库数量不能大于未入库数量，请检查');
                   const quantity = record['not_rcv_quantity'];
                   const amount = quantity * record['price'];
 
@@ -366,7 +368,7 @@ const store = (props) => {
         },
 
         {
-          title: '未接收数量',
+          title: '未入库数量',
           dataIndex: 'not_rcv_quantity',
           renderType: 'InputNumberEF',
           width: '100px',
@@ -379,14 +381,14 @@ const store = (props) => {
           }
         },
         {
-          title: '接收数量',
+          title: '入库数量',
           dataIndex: 'quantity',
           renderType: 'InputNumberEF',
           width: '100px',
           fixed: 'right',
           renderParams: {
             formItemParams: {
-              rules: [{ required: true, message: '请输入接收数量' }]
+              rules: [{ required: true, message: '请输入入库数量' }]
             },
             widgetParams: {
               disabled: disabled,
@@ -398,11 +400,11 @@ const store = (props) => {
 
                 const tableRef = tableFormData?.tableRef;
 
-                console.log('接收数量', value, name, record)
+                console.log('入库数量', value, name, record)
 
                 //数量不能大于结存数量
                 if (record['not_rcv_quantity'] < record['quantity']) {
-                  message.error('接收数量不能大于未接收数量，请检查');
+                  message.error('入库数量不能大于未入库数量，请检查');
                   const quantity = record['not_rcv_quantity'];
                   const amount = quantity * record['price'];
 
@@ -511,7 +513,9 @@ const store = (props) => {
       HttpService.post('reportServer/invStore/getStoreById', JSON.stringify({ bill_id: id })).then(
         (res) => {
           if (res.resultCode == '1000') {
-            setDisabled(res?.data?.mainData?.bill_status === 1);
+            const mDisabled = res?.data?.mainData?.bill_status == '1';
+            setDisabled(mDisabled);
+
             mainForm.setFieldsValue({
               ...res.data.mainData,
               bill_date: moment(res.data.mainData.bill_date),
@@ -536,14 +540,18 @@ const store = (props) => {
                 });
               }
               newLinesData.push({
+                disabled: disabled,//false
                 ...lines,
                 title: lines.categoryName,
                 parimaryId: lines.categoryId,
-                columnList: buildColumns(columnList),
+                columnList: buildColumns2(columnList, mDisabled),//构建列 disable ：false
                 tableRef: React.createRef()
               })
             }
+
+            //disabled:disabled,//false
             tableFormListRef?.current?.setTableFormDataList(newLinesData);
+
           } else {
             message.error(res.message);
           }
@@ -725,10 +733,11 @@ const store = (props) => {
         disabled={disabled}
         primaryKey="line_id"
         onAddClick={(tableFormData) => {
-
           if (type == 'other') {
             setCategoryId(tableFormData.parimaryId);
             setSelectItemDialogVisible(true)
+          } else if (type == 'pd') {
+            setSelectPdDialogVisible(true);
           } else {
             setSelectPoDialogVisible(true);
           }
