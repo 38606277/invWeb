@@ -29,12 +29,11 @@ const SelectItemCategoryDialog = (props) => {
         setCheckKeys([]);
         setCheckRows([]);
         onTreeSelect('-1');
-        setCheckVal(['-1']);
+         setCheckVal(['-1']);
         if (categoryId == '-1') {
             refreshData();
         }
         setCatId(categoryId)
-        onTreeSelect(categoryId)
     }, [modalVisible])
 
     const getAllChildrenRecursionById = (catId) => {
@@ -43,8 +42,9 @@ const SelectItemCategoryDialog = (props) => {
                 if (res.resultCode === "1000") {
                     if (null != res.data) {
                         if (res.data.length > 0) {
-                            const caiid = res.data[0].category_id;
-                            const catname = res.data[0].category_name;
+                            const caiid = res.data[0].children[0].category_id;
+                            const catname = res.data[0].children[0].category_name;
+                            console.log(catname)
                             onTreeSelect(caiid);
                              setCheckVal([]);
                              setCheckVal([caiid]);
@@ -89,7 +89,6 @@ const SelectItemCategoryDialog = (props) => {
         });
     }
     const onTreeSelect = (category_id) => {
-       
         const outlist = [{
             title: '描述',
             dataIndex: 'item_description',
@@ -132,20 +131,10 @@ const SelectItemCategoryDialog = (props) => {
             setCatId(category_id);
         }
     }
-    // const onChangeOption = (value, selectedOptions) => {
-    //     setCheckVal();
-    //     setCheckVal(value);
-    //     const catidd = selectedOptions[selectedOptions.length - 1]["category_id"];
-    //     const catname = selectedOptions[selectedOptions.length - 1]["category_name"];
-    //     setCatId(catidd)
-    //     setCatname(catname)
-    //     onTreeSelect(catidd);
-    // }
+
     const selectOnChange = (selectedKeys, selectedRows) => {
         setCheckKeys(selectedKeys);
         setCheckRows(selectedRows)
-        // console.log('selectedKeys', selectedKeys)
-        // console.log('selectedRows', selectedRows)
     }
     const exdefault = {
         label: "category_name",
@@ -161,7 +150,6 @@ const SelectItemCategoryDialog = (props) => {
         return false;
     }
     const onSelectTree = (selectedKeys,e) => {
-        console.log(selectedKeys);
         if(selectedKeys.length>0){
             onTreeSelect(selectedKeys[0])
         }
@@ -220,23 +208,20 @@ const SelectItemCategoryDialog = (props) => {
                         <Tree
                             defaultExpandAll="true"
                             style={{
-                            width: '100%',
-                            minHeight: '450px',
-                            padding: '10px',
-                            overflow: 'auto',
-                            maxHeight: '900px',
+                                width: '100%',
+                                minHeight: '450px',
+                                padding: '10px',
+                                overflow: 'auto',
+                                maxHeight: '900px',
                             }}
+                            selectedKeys={checkVal}
                             showLine
                             treeData={treeData}
                             onSelect={onSelectTree}
                             titleRender={(item) => {
                             return (
                                 <div style={{ width: '100%' }} key={item.category_id}>
-                                <span
-                                    // onClick={() => {
-                                    //   onTreeSelect(item.category_id);
-                                    // }}
-                                >
+                                <span>
                                     {item.category_name}
                                 </span>
                                 </div>
@@ -247,7 +232,7 @@ const SelectItemCategoryDialog = (props) => {
                     <Col span={20}>
                         <ProTable
                             onRow={record => {
-                                return {
+                                return record.on_hand_quantity >0?{
                                     // 点击行
                                     onClick: event => {
 
@@ -275,7 +260,7 @@ const SelectItemCategoryDialog = (props) => {
                                             }
                                         }
                                     },
-                                };
+                                }:"";
                             }}
                             columns={columnslist}
                             request={fetchData}
@@ -285,7 +270,13 @@ const SelectItemCategoryDialog = (props) => {
                             rowSelection={{
                                 type: selectType,
                                 onChange: selectOnChange,
-                                selectedRowKeys: checkKeys
+                                selectedRowKeys: checkKeys,
+                                getCheckboxProps: (record) => (
+                                    console.log(record.on_hand_quantity >0),
+                                    {
+                                        
+                                    disabled: record.on_hand_quantity >0?false:true, // Column configuration not to be checked
+                                }),
                             }}
                             tableAlertRender={false}
                             tableAlertOptionRender={false}

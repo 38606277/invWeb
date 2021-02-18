@@ -289,7 +289,7 @@ export default (props) => {
 
 
   const save = (params) => {
-    HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
+    HttpService.post('reportServer/wholeSale/createStore', JSON.stringify(params)).then((res) => {
       if (res.resultCode == '1000') {
         history.goBack();
         message.success(res.message);
@@ -300,7 +300,7 @@ export default (props) => {
   };
 
   const update = (params) => {
-    HttpService.post('reportServer/invStore/updateStoreById', JSON.stringify(params)).then(
+    HttpService.post('reportServer/wholeSale/updateStoreById', JSON.stringify(params)).then(
       (res) => {
         if (res.resultCode == '1000') {
           history.goBack();
@@ -316,7 +316,7 @@ export default (props) => {
     let userInfo = localStorge.getStorage('userInfo');
     if (action === 'edit') {
       //初始化编辑数据
-      HttpService.post('reportServer/invStore/getStoreById', JSON.stringify({ bill_id: id })).then(
+      HttpService.post('reportServer/wholeSale/getStoreById', JSON.stringify({ bill_id: id })).then(
         (res) => {
           if (res.resultCode == '1000') {
             setDisabled(res?.data?.mainData?.bill_status === 1);
@@ -339,7 +339,7 @@ export default (props) => {
             setOrgid(res.data[0].org_id)
             mainForm.setFieldsValue({
               inv_org_name: res.data[0].org_name,
-              orgid: res.data[0].org_id,
+              inv_org_id: res.data[0].org_id,
               });
           } else {
             message.error(res.message);
@@ -588,7 +588,7 @@ export default (props) => {
       <SelectItemOrgDialog
         modalVisible={selectItemDialogVisible}
         //selectType="checkbox"
-        orgid={orgid}
+        orgid={inv_org_id}
         handleOk={(result) => {
           console.log('SelectItemDialog', result)
           tableRef.current.handleObjChange(
