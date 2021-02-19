@@ -168,35 +168,7 @@ const loopMenuItem = (menus: MenuDataItem[]): MenuDataItem[] =>
   });
 
 
-
-
-const CustomerTitle: React.FC<{}> = () => {
-  const { initialState, setInitialState } = useModel('@@initialState');
-  console.log('CustomerTitle', initialState);
-  return (<div>
-    {initialState?.settings?.title}
-    {initialState?.menuCollapsed ? <MenuUnfoldOutlined style={{ marginLeft: '10px' }} onClick={
-      () => {
-        console.log('menuCollapsed: true');
-        setInitialState({
-          ...initialState,
-          menuCollapsed: false
-        });
-      }
-    } /> : <MenuFoldOutlined style={{ marginLeft: '10px' }} onClick={
-      () => {
-        console.log('menuCollapsed: false');
-        setInitialState({
-          ...initialState,
-          menuCollapsed: true
-        });
-      }
-    } />}
-  </div>);
-}
-
-
-export const layout: RunTimeLayoutConfig = ({ initialState }) => {
+export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
 
   return {
     rightContentRender: () => <RightContent />,
@@ -231,12 +203,32 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     // unAccessible: <div>unAccessible</div>,
     ...initialState?.settings,
     //菜单按钮隐藏
-    collapsedButtonRender: false,
-    title: <CustomerTitle />,
+    //collapsedButtonRender: false,
+    title: <div>
+      {initialState?.settings?.title}
+      {initialState?.menuCollapsed ? <MenuUnfoldOutlined style={{ marginLeft: '10px' }} onClick={
+        () => {
+          setInitialState({
+            ...initialState,
+            menuCollapsed: false
+          });
+        }
+      } /> : <MenuFoldOutlined style={{ marginLeft: '10px' }} onClick={
+        () => {
+          setInitialState({
+            ...initialState,
+            menuCollapsed: true
+          });
+        }
+      } />}
+    </div>,
     collapsed: initialState?.menuCollapsed || false,
-    // onCollapse: (collapsed) => {
-    //   console.log(`菜单${collapsed ? '收缩' : '展开'}`)
-    // }
+    onCollapse: (collapsed) => {
+      setInitialState({
+        ...initialState,
+        menuCollapsed: collapsed
+      });
+    }
   };
 };
 
