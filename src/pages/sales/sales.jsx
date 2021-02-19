@@ -330,7 +330,7 @@ export default (props) => {
           }
         },
       );
-    }else{
+    } else {
       //初始化编辑数据
       HttpService.post('reportServer/invOrgUser/getOrgListByUserId', JSON.stringify({ user_id: userInfo.id })).then(
         (res) => {
@@ -340,7 +340,7 @@ export default (props) => {
             mainForm.setFieldsValue({
               inv_org_name: res.data[0].org_name,
               orgid: res.data[0].org_id,
-              });
+            });
           } else {
             message.error(res.message);
           }
@@ -499,10 +499,10 @@ export default (props) => {
           <Row>
             <Col xs={24} sm={22}>
               <Form.Item {...formItemLayout1} label="备注" name="remark">
-                {/* <Input disabled={disabled} placeholde="自动生成" /> */}
+                {/* <Input disabled={disabled} placeholder="自动生成" /> */}
                 <Input.TextArea
                   disabled={disabled}
-                  placeholde="请输入备注"
+                  placeholder="请输入备注"
                   autoSize={{ minRows: 2, maxRows: 3 }}
                 />
               </Form.Item>

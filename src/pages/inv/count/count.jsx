@@ -279,7 +279,7 @@ const count = (props) => {
                     <Row>
                         <Col xs={24} sm={10}>
                             <Form.Item label="盘点编码" name="bill_id">
-                                <Input disabled placeholde="自动生成" />
+                                <Input disabled placeholder="自动生成" />
                             </Form.Item>
                         </Col>
                         <Col xs={24} sm={10}>
@@ -344,10 +344,10 @@ const count = (props) => {
                     <Row>
                         <Col xs={24} sm={20}>
                             <Form.Item {...formItemLayout1} label="备注" name="remark">
-                                {/* <Input disabled={disabled} placeholde="自动生成" /> */}
+                                {/* <Input disabled={disabled} placeholder="自动生成" /> */}
                                 <Input.TextArea
                                     disabled={disabled}
-                                    placeholde="请输入备注"
+                                    placeholder="请输入备注"
                                     autoSize={{ minRows: 2, maxRows: 3 }}
                                 />
                             </Form.Item>
