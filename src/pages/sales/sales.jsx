@@ -318,6 +318,7 @@ export default (props) => {
         (res) => {
           if (res.resultCode == '1000') {
             setDisabled(res?.data?.mainData?.bill_status === 1);
+            setOrgid(res.data.mainData.inv_org_id)
             mainForm.setFieldsValue({
               ...res.data.mainData,
               bill_date: moment(res.data.mainData.bill_date),
@@ -357,7 +358,7 @@ export default (props) => {
   return (
     <PageContainer
       ghost="true"
-      title={getTypeName(type)}
+      title={'批发销售'}
       header={{
         extra: [
           <Button
@@ -369,7 +370,7 @@ export default (props) => {
               mainForm?.submit();
             }}
           >
-            {` 保存${getTypeName(type)}单`}
+            {` 保存批发销售单`}
           </Button>,
           <Button
             disabled={disabled}
