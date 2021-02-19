@@ -331,7 +331,7 @@ export default (props) => {
           }
         },
       );
-    }else{
+    } else {
       //初始化编辑数据
       HttpService.post('reportServer/invOrgUser/getOrgListByUserId', JSON.stringify({ user_id: userInfo.id })).then(
         (res) => {
@@ -340,7 +340,8 @@ export default (props) => {
             mainForm.setFieldsValue({
               inv_org_name: res.data[0].org_name,
               inv_org_id: res.data[0].org_id,
-              });
+            });
+
           } else {
             message.error(res.message);
           }
@@ -439,7 +440,7 @@ export default (props) => {
           title="基础信息"
         >
           <Form.Item style={{ display: 'none' }} name="inv_org_id" />
-          <Form.Item style={{ display: 'none' }}  name="bill_id" />
+          <Form.Item style={{ display: 'none' }} name="bill_id" />
           <Row>
             <Col xs={24} sm={11}>
               <Form.Item label="销售编码" name="bill_code">
@@ -464,7 +465,7 @@ export default (props) => {
                 label="销售时间"
                 rules={[{ required: true, message: '请选择销售时间' }]}
               >
-                <DatePicker style={{ width: "100%" }}  showTime format="YYYY-MM-DD HH:mm:ss" disabled />
+                <DatePicker style={{ width: "100%" }} showTime format="YYYY-MM-DD HH:mm:ss" disabled />
               </Form.Item>
             </Col>
           </Row>
@@ -474,7 +475,7 @@ export default (props) => {
               <Form.Item {...formItemLayout1} label="备注" name="remark">
                 <Input.TextArea
                   disabled={disabled}
-                  placeholde="请输入备注"
+                  placeholder="请输入备注"
                   autoSize={{ minRows: 2, maxRows: 3 }}
                 />
               </Form.Item>
@@ -511,7 +512,7 @@ export default (props) => {
       >
         <TableForm_B ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
       </ProCardCollapse>
-      
+
       <SelectItemOrgDialog
         modalVisible={selectItemDialogVisible}
         //selectType="checkbox"
