@@ -112,23 +112,10 @@ const fetchData = async (params, sort, filter) => {
   });
 };
 
-const getTypeName = (type) => {
-  console.log('type:', type)
-  if (type === 'other') {
-    return '销售出库';
-  } else if (type == 'po') {
-    return '销售出库';
-  }
-  return '销售出库';
-}
+
 const salesList = (props) => {
   const ref = useRef();
-  const type = props?.match?.params?.type || 'other';
-
-  useEffect(() => {
-    ref?.current?.clearSelected();
-    ref?.current?.reload();
-  }, [type])
+  const type = 'wholesales';
 
   //定义列
   const columns = [
@@ -174,7 +161,7 @@ const salesList = (props) => {
       render: (text, record) => [
         <a
           onClick={() => {
-            history.push(`/sales/sales/${type}/edit/${record.bill_id}`);
+            history.push(`/sales/sales/edit/${record.bill_id}`);
           }}
         >
           编辑
@@ -193,15 +180,8 @@ const salesList = (props) => {
       columns={columns}
       request={fetchData}
       rowKey="bill_id"
-      // rowSelection={
-      //   {
-      //     // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
-      //     // 注释该行则默认不显示下拉选项
-      //     //selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-      //   }
-      // }
       params={{
-        bill_type: `store_${type}`
+        bill_type: `deliver_wholesales`
       }}
       rowSelection={
         {
@@ -239,9 +219,9 @@ const salesList = (props) => {
         defaultCollapsed: true,
       }}
       dateFormatter="string"
-      headerTitle={getTypeName(type)}
+      headerTitle={'批量销售'}
       toolBarRender={(action, { selectedRows }) => [
-        <Button type="primary" onClick={() => history.push(`/sales/sales/${type}/add/null`)}>
+        <Button type="primary" onClick={() => history.push(`/sales/sales/add/null`)}>
           新建
         </Button>,
       ]}

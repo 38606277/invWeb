@@ -401,7 +401,7 @@ export default (props) => {
                 bill_date: fieldsValue['bill_date'].format('YYYY-MM-DD HH:mm:ss'),
               };
 
-              values.bill_type = `store_${type}`;
+              values.bill_type = `deliver_wholesales`;
 
               if (action === 'edit') {
                 let deleteRecordKeys = tableRef.current.getDeleteRecordKeys();
@@ -417,13 +417,8 @@ export default (props) => {
                   deleteData: deleteIds.toString(), // 删除项
                 });
               } else {
-
-                if (type == 'po') {
-                  values.bill_status = 1;
-                } else {
-                  values.bill_status = 0;
-                }
-
+                values.bill_status = 0;
+               
                 save({
                   mainData: values,
                   linesData: tableData,
