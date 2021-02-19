@@ -107,7 +107,7 @@ export default defineConfig({
           cacheGroups: {
             vendor: {
               test: /[\\/]node_modules[\\/]/,
-              name(module) {
+              name(module: any) {
                 // get the name. E.g. node_modules/packageName/not/this/part.js
                 // or node_modules/packageName
                 const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];

@@ -318,27 +318,31 @@ export default (props) => {
         (res) => {
           if (res.resultCode == '1000') {
             setDisabled(res?.data?.mainData?.bill_status === 1);
+            setOrgid(res.data.mainData.inv_org_id)
             mainForm.setFieldsValue({
               ...res.data.mainData,
               bill_date: moment(res.data.mainData.bill_date),
             });
-            tableRef?.current?.initData(res.data.linesData);
+            if(res.data.linesData.length>0){
+              tableRef?.current?.initData(res.data.linesData[0].dataList);
+            }
+            
           } else {
             message.error(res.message);
           }
         },
       );
-    }else{
+    } else {
       //初始化编辑数据
       HttpService.post('reportServer/invOrgUser/getOrgListByUserId', JSON.stringify({ user_id: userInfo.id })).then(
         (res) => {
           if (res.resultCode == '1000') {
-            console.log(res)
             setOrgid(res.data[0].org_id)
             mainForm.setFieldsValue({
               inv_org_name: res.data[0].org_name,
               inv_org_id: res.data[0].org_id,
-              });
+            });
+
           } else {
             message.error(res.message);
           }
@@ -354,7 +358,7 @@ export default (props) => {
   return (
     <PageContainer
       ghost="true"
-      title={getTypeName(type)}
+      title={'批发销售'}
       header={{
         extra: [
           <Button
@@ -366,7 +370,7 @@ export default (props) => {
               mainForm?.submit();
             }}
           >
-            {` 保存${getTypeName(type)}单`}
+            {` 保存批发销售单`}
           </Button>,
           <Button
             disabled={disabled}
@@ -437,7 +441,7 @@ export default (props) => {
           title="基础信息"
         >
           <Form.Item style={{ display: 'none' }} name="inv_org_id" />
-          <Form.Item style={{ display: 'none' }}  name="bill_id" />
+          <Form.Item style={{ display: 'none' }} name="bill_id" />
           <Row>
             <Col xs={24} sm={11}>
               <Form.Item label="销售编码" name="bill_code">
@@ -462,7 +466,7 @@ export default (props) => {
                 label="销售时间"
                 rules={[{ required: true, message: '请选择销售时间' }]}
               >
-                <DatePicker style={{ width: "100%" }}  showTime format="YYYY-MM-DD HH:mm:ss" disabled />
+                <DatePicker style={{ width: "100%" }} showTime format="YYYY-MM-DD HH:mm:ss" disabled />
               </Form.Item>
             </Col>
           </Row>
@@ -472,7 +476,7 @@ export default (props) => {
               <Form.Item {...formItemLayout1} label="备注" name="remark">
                 <Input.TextArea
                   disabled={disabled}
-                  placeholde="请输入备注"
+                  placeholder="请输入备注"
                   autoSize={{ minRows: 2, maxRows: 3 }}
                 />
               </Form.Item>
@@ -509,7 +513,7 @@ export default (props) => {
       >
         <TableForm_B ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
       </ProCardCollapse>
-      
+
       <SelectItemOrgDialog
         modalVisible={selectItemDialogVisible}
         //selectType="checkbox"

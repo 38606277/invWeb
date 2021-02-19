@@ -237,25 +237,25 @@ const SelectItemCategoryDialog = (props) => {
                                     onClick: event => {
 
                                         if (selectType === 'radio') {
-                                            setCheckKeys([record.item_id])
+                                            setCheckKeys([record.tempid])
                                             setCheckRows([record])
                                         } else {
                                             //有取消的情况
-                                            if (isCheck(record.item_id)) { // 选中则移除
+                                            if (isCheck(record.tempid)) { // 选中则移除
                                                 //移除key
                                                 const newCheckKeys = checkKeys.filter((item) => {
-                                                    return item !== record.item_id;
+                                                    return item !== record.tempid;
                                                 })
 
                                                 //移除record
                                                 const newCheckRows = checkRows.filter((item) => {
-                                                    return item.item_id !== record.item_id;
+                                                    return item.tempid !== record.tempid;
                                                 })
 
                                                 setCheckKeys(newCheckKeys);
                                                 setCheckRows(newCheckRows);
                                             } else { // 未选中则添加
-                                                setCheckKeys([...checkKeys, record.item_id]);
+                                                setCheckKeys([...checkKeys, record.tempid]);
                                                 setCheckRows([...checkRows, record]);
                                             }
                                         }
@@ -264,7 +264,7 @@ const SelectItemCategoryDialog = (props) => {
                             }}
                             columns={columnslist}
                             request={fetchData}
-                            rowKey="item_id"
+                            rowKey="tempid"
                             align="center"
                             params={{ item_category_id: catId }}
                             rowSelection={{
@@ -272,10 +272,8 @@ const SelectItemCategoryDialog = (props) => {
                                 onChange: selectOnChange,
                                 selectedRowKeys: checkKeys,
                                 getCheckboxProps: (record) => (
-                                    console.log(record.on_hand_quantity >0),
                                     {
-                                        
-                                    disabled: record.on_hand_quantity >0?false:true, // Column configuration not to be checked
+                                        disabled: record.on_hand_quantity >0?false:true, // Column configuration not to be checked
                                 }),
                             }}
                             tableAlertRender={false}

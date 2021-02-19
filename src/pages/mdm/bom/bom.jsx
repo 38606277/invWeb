@@ -392,7 +392,7 @@ const count = (props) => {
                             <Form.Item {...formItemLayout1} label="备注" name="comment">
                                 <Input.TextArea
                                     disabled={disabled}
-                                    placeholde="请输入备注"
+                                    placeholder="请输入备注"
                                     autoSize={{ minRows: 2, maxRows: 3 }}
                                 />
                             </Form.Item>

@@ -1,6 +1,6 @@
 //选择库存中的物料
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Input, Drawer } from 'antd';
+import { Modal, Input, Drawer, Button } from 'antd';
 
 import ProTable from '@ant-design/pro-table';
 import HttpService from '@/utils/HttpService.jsx';

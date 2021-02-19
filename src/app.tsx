@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Settings as LayoutSettings, PageLoading } from '@ant-design/pro-layout';
 import { notification } from 'antd';
-import { history, RequestConfig, RunTimeLayoutConfig } from 'umi';
+import { history, RequestConfig, RunTimeLayoutConfig, useModel } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 import { ResponseError } from 'umi-request';
@@ -30,6 +30,8 @@ import {
   DatabaseOutlined,
   FileImageOutlined,
   UnorderedListOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from '@ant-design/icons';
 
 const IconMap = {
@@ -49,6 +51,8 @@ const IconMap = {
   unorderedList: <UnorderedListOutlined />,
 };
 
+
+
 /**
  * 获取用户信息比较慢的时候会展示一个 loading
  */
@@ -66,6 +70,7 @@ export async function getInitialState(): Promise<{
   menuData?: MenuDataItem[];
   fetchUserInfo?: () => Promise<API.LoginInfoResult | undefined>;
   getMenuConfig?: () => Promise<MenuDataItem[]>;
+  menuCollapsed?: boolean
 }> {
   //console.log('getInitialState', history.location.pathname)
   //获取当前用户信息
@@ -162,7 +167,9 @@ const loopMenuItem = (menus: MenuDataItem[]): MenuDataItem[] =>
     };
   });
 
-export const layout: RunTimeLayoutConfig = ({ initialState }) => {
+
+export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
@@ -191,12 +198,42 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
         return menuData;
       }
     },
-    menuHeaderRender: undefined,
+    menuHeaderRender: false,
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,
     ...initialState?.settings,
+    //菜单按钮隐藏
+    //collapsedButtonRender: false,
+    title: <div>
+      {initialState?.settings?.title}
+      {initialState?.menuCollapsed ? <MenuUnfoldOutlined style={{ marginLeft: '10px' }} onClick={
+        () => {
+          setInitialState({
+            ...initialState,
+            menuCollapsed: false
+          });
+        }
+      } /> : <MenuFoldOutlined style={{ marginLeft: '10px' }} onClick={
+        () => {
+          setInitialState({
+            ...initialState,
+            menuCollapsed: true
+          });
+        }
+      } />}
+    </div>,
+    collapsed: initialState?.menuCollapsed || false,
+    onCollapse: (collapsed) => {
+      setInitialState({
+        ...initialState,
+        menuCollapsed: collapsed
+      });
+    }
   };
 };
+
+
+
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',

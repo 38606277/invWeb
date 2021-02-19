@@ -31,7 +31,7 @@ const transferList = (props) => {
     const columns = [
         {
             title: '编号',
-            dataIndex: 'bill_id',
+            dataIndex: 'bill_code',
             valueType: 'text',
         },
         {

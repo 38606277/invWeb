@@ -302,7 +302,7 @@ const po = (props) => {
                     <Row>
                         <Col xs={24} sm={11}>
                             <Form.Item label="订单编号" name="header_code">
-                                <Input disabled placeholde="自动生成" />
+                                <Input disabled placeholder="自动生成" />
                             </Form.Item>
                         </Col>
                         <Col xs={24} sm={11}>
@@ -437,7 +437,7 @@ const po = (props) => {
                     <Row>
                         <Col xs={24} sm={22}>
                             <Form.Item {...formItemLayout1} label="业务描述" name="comments">
-                                {/* <Input disabled={disabled} placeholde="自动生成" /> */}
+                                {/* <Input disabled={disabled} placeholder="自动生成" /> */}
                                 <Input.TextArea
                                     disabled={disabled}
                                     autoSize={{ minRows: 2, maxRows: 3 }}
