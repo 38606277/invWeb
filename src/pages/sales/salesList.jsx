@@ -36,7 +36,7 @@ const updateStatusByIds = (ref, selectedRowKeys) => {
   }
 
   HttpService.post(
-    'reportServer/invStore/updateStoreStatusByIds',
+    'reportServer/wholeSale/updateStoreStatusByIds',
     JSON.stringify({ ids: selectedRowKeys.toString(), bill_status: 1 }),
   ).then((res) => {
     if (res.resultCode == '1000') {
@@ -77,7 +77,7 @@ const deleteByIds = (ref, selectedRowKeys) => {
   }
 
   HttpService.post(
-    'reportServer/invStore/deleteStoreByIds',
+    'reportServer/wholeSale/deleteStoreByIds',
     JSON.stringify({ ids: selectedRowKeys.toString() }),
   ).then((res) => {
     if (res.resultCode == '1000') {
@@ -101,7 +101,7 @@ const fetchData = async (params, sort, filter) => {
     ...params
   };
   const result = await HttpService.post(
-    'reportServer/invStore/getStoreListByPage',
+    'reportServer/wholeSale/getWholeSaleListByPage',
     JSON.stringify(requestParam),
   );
   console.log('result : ', result);
@@ -174,7 +174,7 @@ const salesList = (props) => {
       render: (text, record) => [
         <a
           onClick={() => {
-            history.push(`/transation/store/${type}/edit/${record.bill_id}`);
+            history.push(`/sales/sales/${type}/edit/${record.bill_id}`);
           }}
         >
           编辑

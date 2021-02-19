@@ -2,9 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
-import TableForm_A from '@/components/EditFormA/TableForm_A';
-import SelectOrgDialog from '@/components/Org/SelectOrgDialog';
-import SelectPoDialog from '@/components/Po/SelectPoDialog';
+import TableForm_B from '@/components/EditFormA/TableForm_B';
 import SelectItemOrgDialog from '@/components/itemCategory/SelectItemOrgDialog';
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
@@ -289,7 +287,7 @@ export default (props) => {
 
 
   const save = (params) => {
-    HttpService.post('reportServer/invStore/createStore', JSON.stringify(params)).then((res) => {
+    HttpService.post('reportServer/wholeSale/createStore', JSON.stringify(params)).then((res) => {
       if (res.resultCode == '1000') {
         history.goBack();
         message.success(res.message);
@@ -300,7 +298,7 @@ export default (props) => {
   };
 
   const update = (params) => {
-    HttpService.post('reportServer/invStore/updateStoreById', JSON.stringify(params)).then(
+    HttpService.post('reportServer/wholeSale/updateStoreById', JSON.stringify(params)).then(
       (res) => {
         if (res.resultCode == '1000') {
           history.goBack();
@@ -316,7 +314,7 @@ export default (props) => {
     let userInfo = localStorge.getStorage('userInfo');
     if (action === 'edit') {
       //初始化编辑数据
-      HttpService.post('reportServer/invStore/getStoreById', JSON.stringify({ bill_id: id })).then(
+      HttpService.post('reportServer/wholeSale/getStoreById', JSON.stringify({ bill_id: id })).then(
         (res) => {
           if (res.resultCode == '1000') {
             setDisabled(res?.data?.mainData?.bill_status === 1);
@@ -339,8 +337,9 @@ export default (props) => {
             setOrgid(res.data[0].org_id)
             mainForm.setFieldsValue({
               inv_org_name: res.data[0].org_name,
-              orgid: res.data[0].org_id,
+              inv_org_id: res.data[0].org_id,
             });
+
           } else {
             message.error(res.message);
           }
@@ -438,10 +437,11 @@ export default (props) => {
         <ProCardCollapse
           title="基础信息"
         >
-          <Form.Item style={{ display: 'none' }} label="仓库Id" name="inv_org_id" />
+          <Form.Item style={{ display: 'none' }} name="inv_org_id" />
+          <Form.Item style={{ display: 'none' }} name="bill_id" />
           <Row>
             <Col xs={24} sm={11}>
-              <Form.Item label="销售编码" name="bill_id">
+              <Form.Item label="销售编码" name="bill_code">
                 <Input disabled placeholder="自动生成" />
               </Form.Item>
             </Col>
@@ -451,7 +451,7 @@ export default (props) => {
                 name="inv_org_name"
                 rules={[{ required: true, message: '请输入选择仓库' }]}
               >
-                <Input id="inv_org_name" />
+                <Input id="inv_org_name" disabled />
               </Form.Item>
             </Col>
           </Row>
@@ -463,43 +463,14 @@ export default (props) => {
                 label="销售时间"
                 rules={[{ required: true, message: '请选择销售时间' }]}
               >
-                <DatePicker style={{ width: "100%" }} disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
+                <DatePicker style={{ width: "100%" }} showTime format="YYYY-MM-DD HH:mm:ss" disabled />
               </Form.Item>
             </Col>
-
-
-
-            {type == 'po' ? <Col xs={24} sm={11}>
-
-              <Form.Item hidden label="来源id" name="source_id" />
-              <Form.Item hidden label="来源单据" name="source_bill" />
-              <Form.Item hidden label="来源系统" name="source_system" />
-
-              <Form.Item
-                label="订单编号"
-                name="op_code"
-                rules={[{ required: true, message: '请选择订单编号' }]}
-              >
-                <Search
-                  disabled={disabled}
-                  allowClear
-                  readOnly={true}
-                  enterButton
-                  onClick={() => {
-                    setSelectPoDialogVisible(true);
-                  }}
-                  onSearch={() => {
-                    setSelectPoDialogVisible(true);
-                  }}
-                />
-              </Form.Item>
-            </Col> : <></>}
           </Row>
 
           <Row>
             <Col xs={24} sm={22}>
               <Form.Item {...formItemLayout1} label="备注" name="remark">
-                {/* <Input disabled={disabled} placeholder="自动生成" /> */}
                 <Input.TextArea
                   disabled={disabled}
                   placeholder="请输入备注"
@@ -537,53 +508,8 @@ export default (props) => {
           ></Button>
         ]}
       >
-        <TableForm_A ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
+        <TableForm_B ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
       </ProCardCollapse>
-      <SelectOrgDialog
-        modalVisible={selectOrgDialogVisible}
-        handleOk={(selectOrg) => {
-          if (selectOrg) {
-            mainForm.setFieldsValue({
-              inv_org_id: selectOrg.org_id,
-              inv_org_name: selectOrg.org_name,
-            });
-          }
-          setSelectOrgDialogVisible(false);
-        }}
-        handleCancel={() => {
-          setSelectOrgDialogVisible(false);
-        }}
-      />
-
-      <SelectPoDialog
-        modalVisible={selectPoDialogVisible}
-        handleOk={(mainData, linesData) => {
-          console.log('SelectPoDialog', mainData, linesData)
-          mainForm.setFieldsValue({
-            source_id: mainData.po_header_id,
-            source_bill: 'po',
-            source_system: '0',
-            op_code: mainData.header_code
-          });
-
-          const initData = [];
-          for (let i in linesData) {
-            const line = linesData[i];
-            initData.push({
-              line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-              item_id: line.item_id,
-              item_description: line.item_description,
-              price: line.price,
-              not_rcv_quantity: line.not_rcv_quantity
-            })
-          }
-          tableRef?.current?.initData(initData);
-          setSelectPoDialogVisible(false);
-        }}
-        handleCancel={() => {
-          setSelectPoDialogVisible(false);
-        }}
-      />
 
       <SelectItemOrgDialog
         modalVisible={selectItemDialogVisible}
