@@ -234,6 +234,7 @@
         path: '/storage/inStorageList',
         component: './storage/inStorage/InStorageList',
       },
+
       {
         name: 'user.user-list',
         path: '/storage',
@@ -305,6 +306,11 @@
         path: '/transation/inventoryList',
         component: './inv/inventory/inventoryList',
       },
+      {
+        name: 'user.user-list',
+        path: '/transation/inventoryQuery',
+        component: './inv/inventory/inventoryQuery',
+      },
     ],
   },
   {
@@ -366,6 +372,7 @@
         path: '/mdm/item/itemList/:category_id',
         component: './mdm/item/itemList',
       },
+
       {
         name: 'user.user-list',
         path: '/mdm/itemCategory/itemCategoryList',
