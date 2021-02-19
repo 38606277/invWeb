@@ -38,7 +38,6 @@ const TableForm = forwardRef((props, ref) => {
   const [deleteRecord, setDeleteRecord] = useState([]); //删除记录
   const [mSelectedRows, setMSelectedRows] = useState([]);
   const [mSelectedRowKeys, setMSelectedRowKeys] = useState([]);
-
   // 选中回调
   const onTableChange = (selectedRowKeys, selectedRows) => {
     setMSelectedRowKeys(selectedRowKeys);
@@ -103,7 +102,6 @@ const TableForm = forwardRef((props, ref) => {
       }
       return true;
     });
-    //console.log('newData', newData);
     setData(newData);
 
     setDeleteRecord([...deleteRecord, ...mSelectedRows]);

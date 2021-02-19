@@ -322,7 +322,10 @@ export default (props) => {
               ...res.data.mainData,
               bill_date: moment(res.data.mainData.bill_date),
             });
-            tableRef?.current?.initData(res.data.linesData);
+            if(res.data.linesData.length>0){
+              tableRef?.current?.initData(res.data.linesData[0].dataList);
+            }
+            
           } else {
             message.error(res.message);
           }
@@ -333,7 +336,6 @@ export default (props) => {
       HttpService.post('reportServer/invOrgUser/getOrgListByUserId', JSON.stringify({ user_id: userInfo.id })).then(
         (res) => {
           if (res.resultCode == '1000') {
-            console.log(res)
             setOrgid(res.data[0].org_id)
             mainForm.setFieldsValue({
               inv_org_name: res.data[0].org_name,
