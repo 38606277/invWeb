@@ -233,6 +233,7 @@ export default (props) => {
             name={record.segment}
             rules={[{ required: true, message: '请选择' + record.segment_name + '!' }]}
           >
+            {record.input_mode=="dict"?
             <Select
               placeholder="请选择"
               name={record.segment}
@@ -247,7 +248,9 @@ export default (props) => {
                       {item['value_name']}
                     </Option>
                   ))}
-            </Select>
+            </Select>:
+            <Input id={record.segment} name={record.segment} />
+            }
           </Form.Item>
         </Col>
       );
