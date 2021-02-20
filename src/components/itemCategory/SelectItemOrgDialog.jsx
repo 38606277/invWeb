@@ -44,7 +44,6 @@ const SelectItemCategoryDialog = (props) => {
                         if (res.data.length > 0) {
                             const caiid = res.data[0].children[0].category_id;
                             const catname = res.data[0].children[0].category_name;
-                            console.log(catname)
                             onTreeSelect(caiid);
                              setCheckVal([]);
                              setCheckVal([caiid]);

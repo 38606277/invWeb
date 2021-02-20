@@ -201,7 +201,7 @@ export default (props) => {
     const valName = 'item_description';
     let vas = '';
     record.dictList.map((item, index) => {
-      if (item.value_id === vale) {
+      if (item.value_name === vale) {
         vas = item.value_name;
       }
     });
@@ -243,7 +243,7 @@ export default (props) => {
               {record.dictList == null
                 ? []
                 : record.dictList.map((item) => (
-                    <Option key={item['value_id']} value={item['value_id']}>
+                    <Option key={item['value_name']} value={item['value_name']}>
                       {item['value_name']}
                     </Option>
                   ))}
@@ -285,7 +285,7 @@ export default (props) => {
               {record.dictList == null
                 ? []
                 : record.dictList.map((item) => (
-                    <Option key={item['value_id']} value={item['value_id']}>
+                    <Option key={item['value_name']} value={item['value_name']}>
                       {item['value_name']}
                     </Option>
                   ))}
@@ -429,7 +429,25 @@ export default (props) => {
                 <Input id="item_description" name="item_description" style={{ width: '100%' }} />
               </Form.Item>
             </Col>
-           
+          </Row>
+          <Row gutter={24}>
+            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
+              <Form.Item label="bar_code" name="bar_code" >
+                <Input
+                  id="bar_code"
+                  name="bar_code"
+                />
+              </Form.Item>
+            </Col>
+            
+            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
+              <Form.Item
+                label="iot_code"
+                name="iot_code"
+              >
+                <Input id="iot_code" name="iot_code" />
+              </Form.Item>
+            </Col>
           </Row>
         </ProCard>
         <ProCard collapsible title="关键信息">
@@ -439,19 +457,19 @@ export default (props) => {
           {inColumn2}
         </ProCard>
         <ProCard collapsible title="价格信息">
-        <Row gutter={24}>
-        <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
+          <Row gutter={24}>
+            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
               <Form.Item
-                label="市场价"
-                name="market_price"
-                rules={[{ required: true, message: '请输入市场价' }]}
+                label="零售价格"
+                name="retail_price"
+                rules={[{ required: true, message: '请输入零售价格' }]}
               >
-                <Input id="market_price" name="market_price" />
+                <Input id="retail_price" name="retail_price" />
               </Form.Item>
             </Col>
             <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
-              <Form.Item label="原价" name="price" rules={[{ required: true, message: '请输入原价' }]} >
-                <Input id="price" name="price" style={{ width: '100%' }} />
+              <Form.Item label="出厂价格" name="factory_price" rules={[{ required: true, message: '请输入出厂价格' }]} >
+                <Input id="factory_price" name="factory_price" style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
@@ -468,9 +486,9 @@ export default (props) => {
             
             <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
               <Form.Item
-                label="成本价"
+                label="成本价格"
                 name="cost_price"
-                rules={[{ required: true, message: '请输入成本价' }]}
+                rules={[{ required: true, message: '请输入成本价格' }]}
               >
                 <Input id="cost_price" name="cost_price" />
               </Form.Item>

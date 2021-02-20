@@ -38,7 +38,7 @@ const TableForm = forwardRef((props, ref) => {
                         rules={[{ required: true, message: "请选择"+item.segment_name }]}
                         handleFieldChange={handleFieldChange}
                         dictData={item.dictList}
-                        keyName={'value_id'}
+                        keyName={'value_name'}
                         valueName={'value_name'}
                         placeholder={'请选择'+item.segment_name+'!' }
                     />

@@ -154,7 +154,7 @@ const onHand = (props) => {
                     <Form.Item style={{ display: 'none' }} label="仓库Id" name="inv_org_id" />
                     <Row>
                         <Col xs={24} sm={10}>
-                            <Form.Item label="出库编码" name="bill_id">
+                            <Form.Item label="出库编码" name="bill_code">
                                 <Input disabled placeholder="自动生成" />
                             </Form.Item>
                         </Col>

@@ -36,7 +36,7 @@ const updateStatusByIds = (ref, selectedRowKeys) => {
   }
 
   HttpService.post(
-    'reportServer/wholeSale/updateStoreStatusByIds',
+    'reportServer/wholeSale/updateWholeSaleStatusByIds',
     JSON.stringify({ ids: selectedRowKeys.toString(), bill_status: 1 }),
   ).then((res) => {
     if (res.resultCode == '1000') {
@@ -77,7 +77,7 @@ const deleteByIds = (ref, selectedRowKeys) => {
   }
 
   HttpService.post(
-    'reportServer/wholeSale/deleteStoreByIds',
+    'reportServer/wholeSale/deleteWholeSaleByIds',
     JSON.stringify({ ids: selectedRowKeys.toString() }),
   ).then((res) => {
     if (res.resultCode == '1000') {
@@ -112,23 +112,10 @@ const fetchData = async (params, sort, filter) => {
   });
 };
 
-const getTypeName = (type) => {
-  console.log('type:', type)
-  if (type === 'other') {
-    return '销售出库';
-  } else if (type == 'po') {
-    return '销售出库';
-  }
-  return '销售出库';
-}
+
 const salesList = (props) => {
   const ref = useRef();
-  const type = props?.match?.params?.type || 'other';
-
-  useEffect(() => {
-    ref?.current?.clearSelected();
-    ref?.current?.reload();
-  }, [type])
+  const type = 'wholesales';
 
   //定义列
   const columns = [
@@ -136,27 +123,32 @@ const salesList = (props) => {
       title: '编号',
       dataIndex: 'bill_id',
       valueType: 'text',
+      align:'center'
     },
     {
       title: '仓库',
       dataIndex: 'inv_org_name',
       key: 'inv_org_id',
       valueType: 'text',
+      align:'center'
     },
     {
       title: '出库时间',
       dataIndex: 'bill_date',
       valueType: 'dateTime',
+      align:'center'
     },
     {
       title: '备注',
       dataIndex: 'remark',
       valueType: 'text',
+      align:'center'
     },
     {
       title: '状态',
       dataIndex: 'bill_status',
       valueType: 'select',
+      align:'center',
       valueEnum: {
         0: { text: '新建', status: 'Warning' },
         1: { text: '已过账', status: 'Success' },
@@ -166,15 +158,17 @@ const salesList = (props) => {
       title: '创建时间',
       dataIndex: 'create_date',
       valueType: 'dateTime',
+      align:'center'
     },
     {
       title: '操作',
       key: 'option',
       valueType: 'option',
+      align:'center',
       render: (text, record) => [
         <a
           onClick={() => {
-            history.push(`/sales/sales/${type}/edit/${record.bill_id}`);
+            history.push(`/sales/sales/edit/${record.bill_id}`);
           }}
         >
           编辑
@@ -193,15 +187,8 @@ const salesList = (props) => {
       columns={columns}
       request={fetchData}
       rowKey="bill_id"
-      // rowSelection={
-      //   {
-      //     // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
-      //     // 注释该行则默认不显示下拉选项
-      //     //selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-      //   }
-      // }
       params={{
-        bill_type: `store_${type}`
+        bill_type: `deliver_wholesales`
       }}
       rowSelection={
         {
@@ -239,9 +226,9 @@ const salesList = (props) => {
         defaultCollapsed: true,
       }}
       dateFormatter="string"
-      headerTitle={getTypeName(type)}
+      headerTitle={'批量销售'}
       toolBarRender={(action, { selectedRows }) => [
-        <Button type="primary" onClick={() => history.push(`/sales/sales/${type}/add/null`)}>
+        <Button type="primary" onClick={() => history.push(`/sales/sales/add/null`)}>
           新建
         </Button>,
       ]}
