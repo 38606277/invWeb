@@ -204,26 +204,35 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     ...initialState?.settings,
     //菜单按钮隐藏
     //collapsedButtonRender: false,
-    title: <div>
-      {initialState?.settings?.title}
-      {initialState?.menuCollapsed ? <MenuUnfoldOutlined style={{ marginLeft: '10px' }} onClick={
-        () => {
-          setInitialState({
-            ...initialState,
-            menuCollapsed: false
-          });
-        }
-      } /> : <MenuFoldOutlined style={{ marginLeft: '10px' }} onClick={
-        () => {
-          setInitialState({
-            ...initialState,
-            menuCollapsed: true
-          });
-        }
-      } />}
-    </div>,
+    title: initialState?.settings?.title,
+    headerTitleRender: (logo, title, props) => {
+      console.log('headerTitleRender', title)
+      return <a>
+        <img src={initialState?.settings?.logo}></img>
+
+        <h1 >{initialState?.settings?.title}</h1>
+        {initialState?.menuCollapsed ? <MenuUnfoldOutlined style={{ marginLeft: '10px' }} onClick={
+          (e) => {
+            e.stopPropagation();
+            setInitialState({
+              ...initialState,
+              menuCollapsed: false
+            });
+          }
+        } /> : <MenuFoldOutlined style={{ marginLeft: '10px' }} onClick={
+          (e) => {
+            e.stopPropagation();
+            setInitialState({
+              ...initialState,
+              menuCollapsed: true
+            });
+          }
+        } />}
+      </a>;
+    },
     collapsed: initialState?.menuCollapsed || false,
     onCollapse: (collapsed) => {
+      console.log('app onCollapse', console)
       setInitialState({
         ...initialState,
         menuCollapsed: collapsed
