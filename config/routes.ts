@@ -108,7 +108,7 @@
       },
       {
         name: 'user.user-list',
-        path: '/sales/sales/:type/:action/:id',
+        path: '/sales/sales/:action/:id',
         component: './sales/sales',
       },
     ],
