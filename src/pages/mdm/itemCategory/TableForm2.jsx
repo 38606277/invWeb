@@ -158,7 +158,6 @@ const TableForm2 = forwardRef((props, ref) => {
         fieldName,
         record,
     ) => {
-        console.log("List");
         let key = record[primaryKey];
         const newData = [...(data)];
         const target = getRowByKey(key, newData);
