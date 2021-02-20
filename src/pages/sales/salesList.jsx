@@ -36,7 +36,7 @@ const updateStatusByIds = (ref, selectedRowKeys) => {
   }
 
   HttpService.post(
-    'reportServer/wholeSale/updateStoreStatusByIds',
+    'reportServer/wholeSale/updateWholeSaleStatusByIds',
     JSON.stringify({ ids: selectedRowKeys.toString(), bill_status: 1 }),
   ).then((res) => {
     if (res.resultCode == '1000') {
@@ -77,7 +77,7 @@ const deleteByIds = (ref, selectedRowKeys) => {
   }
 
   HttpService.post(
-    'reportServer/wholeSale/deleteStoreByIds',
+    'reportServer/wholeSale/deleteWholeSaleByIds',
     JSON.stringify({ ids: selectedRowKeys.toString() }),
   ).then((res) => {
     if (res.resultCode == '1000') {
@@ -123,27 +123,32 @@ const salesList = (props) => {
       title: '编号',
       dataIndex: 'bill_id',
       valueType: 'text',
+      align:'center'
     },
     {
       title: '仓库',
       dataIndex: 'inv_org_name',
       key: 'inv_org_id',
       valueType: 'text',
+      align:'center'
     },
     {
       title: '出库时间',
       dataIndex: 'bill_date',
       valueType: 'dateTime',
+      align:'center'
     },
     {
       title: '备注',
       dataIndex: 'remark',
       valueType: 'text',
+      align:'center'
     },
     {
       title: '状态',
       dataIndex: 'bill_status',
       valueType: 'select',
+      align:'center',
       valueEnum: {
         0: { text: '新建', status: 'Warning' },
         1: { text: '已过账', status: 'Success' },
@@ -153,11 +158,13 @@ const salesList = (props) => {
       title: '创建时间',
       dataIndex: 'create_date',
       valueType: 'dateTime',
+      align:'center'
     },
     {
       title: '操作',
       key: 'option',
       valueType: 'option',
+      align:'center',
       render: (text, record) => [
         <a
           onClick={() => {

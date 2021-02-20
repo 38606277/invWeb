@@ -287,7 +287,7 @@ export default (props) => {
 
 
   const save = (params) => {
-    HttpService.post('reportServer/wholeSale/createStore', JSON.stringify(params)).then((res) => {
+    HttpService.post('reportServer/wholeSale/createWholeSale', JSON.stringify(params)).then((res) => {
       if (res.resultCode == '1000') {
         history.goBack();
         message.success(res.message);
@@ -298,7 +298,7 @@ export default (props) => {
   };
 
   const update = (params) => {
-    HttpService.post('reportServer/wholeSale/updateStoreById', JSON.stringify(params)).then(
+    HttpService.post('reportServer/wholeSale/updateWholeSaleById', JSON.stringify(params)).then(
       (res) => {
         if (res.resultCode == '1000') {
           history.goBack();
@@ -314,7 +314,7 @@ export default (props) => {
     let userInfo = localStorge.getStorage('userInfo');
     if (action === 'edit') {
       //初始化编辑数据
-      HttpService.post('reportServer/wholeSale/getStoreById', JSON.stringify({ bill_id: id })).then(
+      HttpService.post('reportServer/wholeSale/getWholeSaleById', JSON.stringify({ bill_id: id })).then(
         (res) => {
           if (res.resultCode == '1000') {
             setDisabled(res?.data?.mainData?.bill_status === 1);
@@ -373,7 +373,6 @@ export default (props) => {
             {` 保存批发销售单`}
           </Button>,
           <Button
-            disabled={disabled}
             key="reset"
             onClick={() => {
               history.goBack();
