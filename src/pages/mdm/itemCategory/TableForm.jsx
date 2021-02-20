@@ -19,6 +19,7 @@ const TableForm = forwardRef((props, ref) => {
     const [mSkey ,setMSkey] = useState([]);
     const [selectDictDailogVisible, setSelectDictDailogVisible] = useState(false);
     const [rowId, setRowId] = useState([]);
+    const [isInput, setIsInput] = useState([]);
 
     useEffect(() => {
        
@@ -64,7 +65,10 @@ const TableForm = forwardRef((props, ref) => {
             {"rowcolId":"mkey","rowcolname":"主键"},
             {"rowcolId":"skey","rowcolname":"从键"},
         ]);
-
+        setIsInput([
+            {"rowcolId":"dict","rowcolname":"是"},
+            {"rowcolId":"input","rowcolname":"否"},
+        ]);
     }, []);
 
     const onTableChange = (selectedRowKeys, selectedRows) => {
@@ -150,6 +154,24 @@ const TableForm = forwardRef((props, ref) => {
         }
     };
 
+    const handleFieldChangeInput = (
+        filedValue,
+        fieldName,
+        record,
+    ) => {
+        let key = record[primaryKey];
+        const newData = [...(data)];
+        const target = getRowByKey(key, newData);
+        if (target) {
+            target[fieldName] = filedValue;
+            target['dict_id'] = "";
+            target['dict_name'] = "";
+            setData(newData);
+        }
+        if (onChange) {
+            onChange(newData);
+        }
+    };
 
     const handleFieldChangeSelect = (
         filedValue,
@@ -264,29 +286,54 @@ const TableForm = forwardRef((props, ref) => {
 
             },
         },{
+            title: '是否字典',
+            dataIndex: 'input_mode',
+            key: 'input_mode',
+            render: (text, record, index) => {
+                return (
+                    <SelectEF
+                    tableForm={tableForm}
+                    text={text}
+                    record={record}
+                    index={record.row_number}
+                    name="input_mode"
+                    rules={[{ required: true, message: '请选择!' }]}
+                    handleFieldChange={handleFieldChangeInput}
+                    dictData={isInput}
+                    keyName={'rowcolId'}
+                    valueName={'rowcolname'}
+                    placeholder={"请选择"}
+                  />
+                );
+            },   
+        },{
             title: '字典项',
             dataIndex: 'dict_name',
             key: 'dict_name',
             render: (text, record, index) => {
-                return (
-                    <InputSearchEF
-                    tableForm={tableForm}
-                    text={text}
-                    record={record}
-                    index={record[primaryKey]}
-                    name="dict_name"
-                    rules={[{ required: true, message: '请选择字典' }]}
-                    handleFieldChange={handleFieldChange}
-                    onClick={() => {
-                        setRowId(record)
-                        setSelectDictDailogVisible(true);
-                      }}
-                      onSearch={() => {
-                        setRowId(record)
-                        setSelectDictDailogVisible(true);
-                      }}
-                    />
-                );
+                if(record.input_mode=="dict"){
+                    return (
+                        <InputSearchEF
+                        tableForm={tableForm}
+                        text={text}
+                        record={record}
+                        index={record[primaryKey]}
+                        name="dict_name"
+                        rules={[{ required: true, message: '请选择字典' }]}
+                        handleFieldChange={handleFieldChange}
+                        onClick={() => {
+                            setRowId(record)
+                            setSelectDictDailogVisible(true);
+                          }}
+                          onSearch={() => {
+                            setRowId(record)
+                            setSelectDictDailogVisible(true);
+                          }}
+                        />
+                    );
+                }else{
+                    return "";
+                }
 
             },
         },{
