@@ -419,7 +419,10 @@ const po = (props) => {
                             </Form.Item>
                         </Col>
                     </Row>
-                    <Row>
+
+
+
+                    {/* <Row>
                         <Col xs={24} sm={11}>
                             <Form.Item label="合同编号" name="contract_code"
                                 rules={[{ required: true, message: '请选择合同编号' }]}>
@@ -452,15 +455,15 @@ const po = (props) => {
                                 <Input disabled={true} />
                             </Form.Item>
                         </Col>
-                    </Row>
+                    </Row> */}
 
-                    <Row>
+                    {/* <Row>
                         <Col xs={24} sm={11}>
                             <Form.Item label="合同文件" name="contract_file">
                                 <Input disabled={disabled} />
                             </Form.Item>
                         </Col>
-                    </Row>
+                    </Row> */}
 
                     <Row>
                         <Col xs={24} sm={11}>

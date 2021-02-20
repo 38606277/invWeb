@@ -161,22 +161,27 @@ const poList = (props) => {
         {
             title: '订单状态',
             dataIndex: 'status',
+            valueType: 'select',
+            valueEnum: {
+                0: { text: '新建', status: 'Warning' },
+                1: { text: '已过账', status: 'Success' },
+            },
         },
-        {
-            title: '合同编号',
-            dataIndex: 'contract_code',
-            render: (_) => <a>{_}</a>,
-        },
-        {
-            title: '合同名称',
-            dataIndex: 'contract_name',
+        // {
+        //     title: '合同编号',
+        //     dataIndex: 'contract_code',
+        //     render: (_) => <a>{_}</a>,
+        // },
+        // {
+        //     title: '合同名称',
+        //     dataIndex: 'contract_name',
 
-        },
-        {
-            title: '合同文件',
-            dataIndex: 'contract_file',
+        // },
+        // {
+        //     title: '合同文件',
+        //     dataIndex: 'contract_file',
 
-        },
+        // },
         {
             title: '业务描述',
             dataIndex: 'comments',
@@ -185,7 +190,7 @@ const poList = (props) => {
         {
             title: '创建时间',
             dataIndex: 'create_date',
-            valueType: 'dateTimeRange'
+            valueType: 'dateTime'
         },
         {
             title: '操作',
