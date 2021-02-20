@@ -278,7 +278,7 @@ const count = (props) => {
                     <Form.Item style={{ display: 'none' }} label="盘查人id" name="operator" />
                     <Row>
                         <Col xs={24} sm={10}>
-                            <Form.Item label="盘点编码" name="bill_id">
+                            <Form.Item label="盘点编码" name="bill_code">
                                 <Input disabled placeholder="自动生成" />
                             </Form.Item>
                         </Col>
