@@ -442,16 +442,16 @@ export default (props) => {
         <Row gutter={24}>
         <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
               <Form.Item
-                label="市场价"
-                name="market_price"
-                rules={[{ required: true, message: '请输入市场价' }]}
+                label="零售价格"
+                name="wholesale_price"
+                rules={[{ required: true, message: '请输入零售价格' }]}
               >
-                <Input id="market_price" name="market_price" />
+                <Input id="wholesale_price" name="wholesale_price" />
               </Form.Item>
             </Col>
             <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
-              <Form.Item label="原价" name="price" rules={[{ required: true, message: '请输入原价' }]} >
-                <Input id="price" name="price" style={{ width: '100%' }} />
+              <Form.Item label="出厂价格" name="factory_price" rules={[{ required: true, message: '请输入出厂价格' }]} >
+                <Input id="factory_price" name="factory_price" style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
@@ -468,9 +468,9 @@ export default (props) => {
             
             <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
               <Form.Item
-                label="成本价"
+                label="成本价格"
                 name="cost_price"
-                rules={[{ required: true, message: '请输入成本价' }]}
+                rules={[{ required: true, message: '请输入成本价格' }]}
               >
                 <Input id="cost_price" name="cost_price" />
               </Form.Item>
