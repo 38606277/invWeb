@@ -323,10 +323,10 @@ export default (props) => {
               ...res.data.mainData,
               bill_date: moment(res.data.mainData.bill_date),
             });
-            if(res.data.linesData.length>0){
+            if (res.data.linesData.length > 0) {
               tableRef?.current?.initData(res.data.linesData[0].dataList);
             }
-            
+
           } else {
             message.error(res.message);
           }
@@ -409,7 +409,6 @@ export default (props) => {
                 let deleteIds = deleteRecordKeys.filter((element) => {
                   return element.toString().indexOf('NEW_TEMP_ID_') < 0;
                 });
-                values.bill_status = 1;
                 update({
                   mainData: values,
                   linesData: tableData,
@@ -417,7 +416,7 @@ export default (props) => {
                 });
               } else {
                 values.bill_status = 0;
-               
+
                 save({
                   mainData: values,
                   linesData: tableData,

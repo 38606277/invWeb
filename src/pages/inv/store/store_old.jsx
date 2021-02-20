@@ -385,7 +385,6 @@ const store_old = (props) => {
                 let deleteIds = deleteRecordKeys.filter((element) => {
                   return element.toString().indexOf('NEW_TEMP_ID_') < 0;
                 });
-                values.bill_status = 1;
                 update({
                   mainData: values,
                   linesData: tableData,
