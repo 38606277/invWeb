@@ -41,7 +41,7 @@ const SelectItemBatchDialog = (props) => {
                 {record.dictList == null
                     ? []
                     : record.dictList.map((item) => (
-                        <Option key={item['value_id']} value={item['value_id']}>
+                        <Option key={item['value_name']} value={item['value_name']}>
                         {item['value_name']}
                         </Option>
                     ))}
