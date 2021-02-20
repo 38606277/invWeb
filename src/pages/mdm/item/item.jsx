@@ -443,10 +443,10 @@ export default (props) => {
         <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
               <Form.Item
                 label="零售价格"
-                name="wholesale_price"
+                name="retail_price"
                 rules={[{ required: true, message: '请输入零售价格' }]}
               >
-                <Input id="wholesale_price" name="wholesale_price" />
+                <Input id="retail_price" name="retail_price" />
               </Form.Item>
             </Col>
             <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
