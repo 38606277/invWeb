@@ -14,10 +14,12 @@ const FormItem = Form.Item;
 const { Paragraph } = Typography;
 
 const getKey = (id, index) => `${id}-${index}`;
+const imgurl = window.getServerUrl();
 export default () => {
   const [list, setList] = useState([]);
   const [itemCateList, setItemCateList] = useState([]);
   const [orgList, setOrgList] = useState([]);
+  const [toatl, setTotal] = useState(0);
   useEffect(() => {
       HttpService.post('reportServer/sales/getItemCategoryAndOrg', {}).then(
         (res) => {
@@ -26,65 +28,20 @@ export default () => {
             setOrgList(res.data.orgList);
           }
       });
+      fetchList(0);
+      
+      
     }, []);
-    const cardList = (
-      <List
-        rowKey="id"
-        grid={{
-          gutter: 16,
-          xs: 1,
-          sm: 2,
-          md: 3,
-          lg: 3,
-          xl: 5,
-          xxl: 5,
-        }}
-        dataSource={list}
-        renderItem={(item) => (
-          <List.Item>
-            <Card
-              className={styles.card}
-              hoverable
-              cover={
-                <img
-                  alt={item.title}
-                  src={
-                    'https://img11.360buyimg.com/n7/jfs/t22633/109/2567375342/123812/faf849d3/5b862eb9N70c434d2.jpg'
-                  }
-                />
-              }
-            >
-              <Card.Meta
-                title={<a>{'皮皮狗 羊绒衫 '}</a>}
-                description={
-                  <Paragraph
-                    className={styles.item}
-                    ellipsis={{
-                      rows: 2,
-                    }}
-                  >
-                    {' xxl  红色'}
-                  </Paragraph>
-                }
-              />
-              <div>
-                <Space align="center" size={50}>
-                  <span>库存量 10</span>
-                </Space>
-              </div>
-              <div style={{ fontWeight: 600, fontSize: '18px' }}>
-                <Space align="center" size={50}>
-                  <span>$1499</span>
-                  <Button size="small" style={{ float: 'right' }}>
-                    加入订单
-                  </Button>
-                </Space>
-              </div>
-            </Card>
-          </List.Item>
-        )}
-      />
-    );
+    const fetchList = (page) => {
+      HttpService.post('reportServer/sales/getAllPage', {startIndex:page,perPage:10}).then(
+        (res) => {
+          if (res.resultCode == '1000') {
+           console.log(res);
+           setList(res.data.list);
+           setTotal(res.data.total);
+          }
+      });
+    }
     const formItemLayout = {
       wrapperCol: {
         xs: {
@@ -179,7 +136,75 @@ export default () => {
             </StandardFormRow>
           </Form>
         </Card>
-        <div className={styles.cardList}>{cardList}</div>
+        <div className={styles.cardList}>
+          <List
+            rowKey="id"
+            grid={{
+              gutter: 16,
+              xs: 1,
+              sm: 2,
+              md: 3,
+              lg: 3,
+              xl: 5,
+              xxl: 5,
+            }}
+            dataSource={list}
+            pagination={{
+              onChange: page => {
+                fetchList(page);
+              },
+              pageSize: 10,
+              total:toatl
+            }}
+            renderItem={(item) => (
+              <List.Item>
+                <Card
+                  className={styles.card}
+                  hoverable
+                  cover={
+                    item.image_url!=null ? 
+                    <img
+                      alt={item.item_description}
+                      src={imgurl+"/report/"+item.image_url}
+                    />:<img
+                    alt={item.item_description}
+                    src={
+                      'https://img11.360buyimg.com/n7/jfs/t22633/109/2567375342/123812/faf849d3/5b862eb9N70c434d2.jpg'
+                    }
+                  />
+                  }
+                >
+                  <Card.Meta
+                    title={<a>{item.mkeyRes}</a>}
+                    description={
+                      <Paragraph
+                        className={styles.item}
+                        ellipsis={{
+                          rows: 2,
+                        }}
+                      >
+                        {item.skeyRes}
+                      </Paragraph>
+                    }
+                  />
+                  <div>
+                    <Space align="center" size={50}>
+                      <span>库存量 10</span>
+                    </Space>
+                  </div>
+                  <div style={{ fontWeight: 600, fontSize: '18px' }}>
+                    <Space align="center" size={50}>
+                      <span>${item.retail_price}</span>
+                      <Button size="small" style={{ float: 'right' }}>
+                        加入订单
+                      </Button>
+                    </Space>
+                  </div>
+                </Card>
+              </List.Item>
+            )}
+          />
+        </div>
       </div>
     );
 };
