@@ -18,19 +18,16 @@ export default () => {
   const [list, setList] = useState([]);
   const [itemCateList, setItemCateList] = useState([]);
   const [orgList, setOrgList] = useState([]);
-  console.log(itemCateList);
   useEffect(() => {
       HttpService.post('reportServer/sales/getItemCategoryAndOrg', {}).then(
         (res) => {
           if (res.resultCode == '1000') {
-              console.log(res);
-              setItemCateList(res.data.itemcateList);
-              setOrgList(res.data.orgList);
-              
+            setItemCateList(res.data.itemcateList);
+            setOrgList(res.data.orgList);
           }
       });
     }, []);
-    const cardList = list && (
+    const cardList = (
       <List
         rowKey="id"
         grid={{
@@ -126,23 +123,10 @@ export default () => {
             >
               <FormItem name="category">
                 <TagSelect expandable>
-                {itemCateList.map((tag, index) => {
+                {itemCateList.map((tag, index) => 
                    <TagSelect.Option value={tag.category_id}>{tag.category_name}</TagSelect.Option>
-                  })
+                  )
                 }
-
-                  {/* <TagSelect.Option value="cat1">羊毛衫</TagSelect.Option>
-                  <TagSelect.Option value="cat2">类目二</TagSelect.Option>
-                  <TagSelect.Option value="cat3">类目三</TagSelect.Option>
-                  <TagSelect.Option value="cat4">类目四</TagSelect.Option>
-                  <TagSelect.Option value="cat5">类目五</TagSelect.Option>
-                  <TagSelect.Option value="cat6">类目六</TagSelect.Option>
-                  <TagSelect.Option value="cat7">类目七</TagSelect.Option>
-                  <TagSelect.Option value="cat8">类目八</TagSelect.Option>
-                  <TagSelect.Option value="cat9">类目九</TagSelect.Option>
-                  <TagSelect.Option value="cat10">类目十</TagSelect.Option>
-                  <TagSelect.Option value="cat11">类目十一</TagSelect.Option>
-                  <TagSelect.Option value="cat12">类目十二</TagSelect.Option> */}
                 </TagSelect>
               </FormItem>
             </StandardFormRow>
@@ -155,14 +139,10 @@ export default () => {
             >
               <FormItem name="category">
                 <TagSelect expandable>
-                  <TagSelect.Option value="cat1">仓库一</TagSelect.Option>
-                  <TagSelect.Option value="cat2">类目二</TagSelect.Option>
-                  <TagSelect.Option value="cat3">类目三</TagSelect.Option>
-                  <TagSelect.Option value="cat4">类目四</TagSelect.Option>
-                  <TagSelect.Option value="cat5">类目五</TagSelect.Option>
-                  <TagSelect.Option value="cat6">类目六</TagSelect.Option>
-                  <TagSelect.Option value="cat7">类目七</TagSelect.Option>
-                  <TagSelect.Option value="cat8">类目八</TagSelect.Option>
+                {orgList.map((tag, index) => 
+                   <TagSelect.Option value={'v'+tag.org_id}>{tag.org_name}</TagSelect.Option>
+                  )
+                }
                 </TagSelect>
               </FormItem>
             </StandardFormRow>

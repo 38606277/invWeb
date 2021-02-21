@@ -136,6 +136,7 @@ export default (props) => {
             mainForm.setFieldsValue(mainFormV);
             mainForm.setFieldsValue({
               item_category_name: mainFormV.category_name,
+              vendor_name:mainFormV.vendor_name,
             });
           } else {
             message.error(res.message);
@@ -329,7 +330,6 @@ export default (props) => {
             key="submit"
             type="primary"
             onClick={() => {
-              console.log('mainForm', mainForm);
               mainForm?.submit();
             }}
           >
@@ -427,9 +427,17 @@ export default (props) => {
             </Col>
           </Row>
           <Row gutter={24}>
-            <Col xl={{ span: 12, offset: 2 }}  sm={24}>
+            <Col xl={{ span: 10, offset: 2 }}  sm={24}>
               <Form.Item label="商品描述" name="item_description" {...formItemLayout1}>
                 <Input id="item_description" name="item_description" style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col xl={{ span: 10, offset: 2 }}  sm={24}>
+              <Form.Item label="供应商" name="vendor_name" {...formItemLayout1}>
+                <Input id="vendor_name" name="vendor_name" style={{ width: '100%' }} />
+              </Form.Item>
+              <Form.Item name="vendor_id" style={{ display: 'none' }}>
+                <Input id="vendor_id" name="vendor_id" value={mainForm.vendor_id} />
               </Form.Item>
             </Col>
           </Row>

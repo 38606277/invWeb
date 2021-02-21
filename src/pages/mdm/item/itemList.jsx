@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Space, Modal, message, Row, TreeSelect, Tree, Col, Cascader } from 'antd';
+import { Button, Form, Space, Modal, message, Row, TreeSelect, Tree, Col, Input, Cascader   } from 'antd';
 import {
   EllipsisOutlined,
   QuestionCircleOutlined,
@@ -22,13 +22,16 @@ const { confirm } = Modal;
 
 const itemList = (props) => {
   const ref = useRef();
-  const [visible, setVisible] = useState(false);
-  const [initColData, setInitColData] = useState({});
+  const [dialogVisible, setDialogVisible] = useState(false);
   const [treeData, setTreeData] = useState([]);
+  const [treeSelectData, setTreeSelectData] = useState([]);
   const [columnData, setColumnData] = useState([]);
   const [catId, setCatId] = useState('-1'); // 用于编辑赋初始值
   const [checkVal, setCheckVal] = useState([]);
+  const [checkItemcategoryVal ,setCheckItemcategoryVal]=useState();
   const [minHeight, setMinHeight] = useState(window.innerHeight - 92 + 'px'); // 用于编辑赋初始值
+  const [mainForm] = Form.useForm();
+  const [selectRows, setSelectRows] = useState([]);
 
   const getAllChildrenRecursionById = (catId) => {
     HttpService.post(
@@ -37,14 +40,10 @@ const itemList = (props) => {
     ).then((res) => {
       if (res.resultCode === '1000') {
         if (null != res.data) {
-          console.log(res.data);
           if (res.data.length > 0) {
-            // const caiid=res.data[0].category_id;
-            // onTreeSelect(caiid);
             setCheckVal([]);
-            // setCheckVal([caiid]);
-            // setCatId(caiid)
             setTreeData(res.data);
+            setTreeSelectData(res.data[0].children)
           }
         }
       } else {
@@ -243,22 +242,25 @@ const itemList = (props) => {
       setColumnData(outlist);
     }
   };
-  // const onChangeOption = (value, selectedOptions) => {
-  //     setCheckVal();
-  //     setCheckVal(value);
-  //     const catidd=selectedOptions[selectedOptions.length-1]["category_id"];
-  //     setCatId(catidd)
-  //     onTreeSelect(catidd);
-  //   }
+  const batchUpdateClickListener = (ref,selectedRowKeys,selectedRows) => {
+    console.log(selectedRows);
+    setSelectRows(selectedRowKeys);
+    setDialogVisible(true);
+  }
+  const onOk = () => {
+    mainForm?.submit();
+  }
+  const onChangeOption = (value) => {
+    setCheckItemcategoryVal(value);
+ }
 
-  //   const exdefault={
-  //     label:"category_name",
-  //     value:"category_id",
-  //     children:"children"
-  //   }
+  const exdefault = {
+    title: "category_name",
+    value: "category_id",
+    children: "children"
+  }
   return (
     <PageContainer ghost="true" title="商品列表">
-      {/* <ProCard> */}
       <div style={{ backgroundColor: 'white' }}>
         <SplitPane split="vertical" minSize={0} defaultSize={180}  style={{minHeight:minHeight,overflow:'auto'}}>
           <Tree
@@ -314,6 +316,7 @@ const itemList = (props) => {
             )}
             tableAlertOptionRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
               <Space size={16}>
+                <a onClick={() => batchUpdateClickListener(ref, selectedRowKeys,selectedRows)}> 批量修改</a>|
                 <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
               </Space>
             )}
@@ -342,7 +345,122 @@ const itemList = (props) => {
           />
         </SplitPane>
       </div>
-      {/* </ProCard> */}
+      <Modal
+        width={1000}
+        visible={dialogVisible}
+        title="批量修改"
+        onOk={onOk}
+        onCancel={() => {
+          setDialogVisible(false);
+        }}
+      >
+        <Form
+        form={mainForm}
+        onFinish={async (values) => {
+          //验证tableForm
+          console.log(values)
+          console.log(selectRows)
+          setDialogVisible(false);
+          if(undefined== values.cost_price && 
+            undefined== values.factory_price &&
+            undefined== values.promotion_price &&
+            undefined== values.retail_price &&
+            undefined== values.item_category_id &&
+            undefined== values.vendor_id            
+            ){
+              setDialogVisible(false);
+            }else {
+              let postData = {
+                ...values,
+                arrid:selectRows.join(",")
+              };
+              console.log(postData);
+              HttpService.post('reportServer/item/batchUpdateItem', JSON.stringify(postData)).then(
+                (res) => {
+                  if (res.resultCode == '1000') {
+                    //刷新
+                    message.success('提交成功');
+                    history.push('/mdm/item/itemList/' + catId);
+                  } else {
+                    message.error(res.message);
+                  }
+                },
+              );
+            }
+        }}
+        >
+          <ProCard collapsible title="类别信息">
+            <Row gutter={24}>
+              <Col xl={{ span: 12, offset: 2 }} lg={{ span: 12 }} md={{ span: 12 }} sm={24}>
+              <Form.Item
+                label="类别"
+                name="item_category_id"
+                rules={[{ required: false, message: '请选择类别' }]}
+              >
+                <TreeSelect
+                treeData={treeSelectData}
+                placeholder="请选择类别"
+                treeDefaultExpandAll
+                dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                fieldNames={exdefault} />
+              </Form.Item>
+             </Col>
+            </Row>
+          </ProCard>
+          <ProCard collapsible title="价格信息">
+            <Row gutter={24}>
+              <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
+                <Form.Item
+                  label="零售价格"
+                  name="retail_price"
+                  rules={[{ required: false, message: '请输入零售价格' }]}
+                >
+                  <Input id="retail_price" name="retail_price" />
+                </Form.Item>
+              </Col>
+              <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
+                <Form.Item label="出厂价格" name="factory_price" 
+                rules={[{ required: false, message: '请输入出厂价格' }]} >
+                  <Input id="factory_price" name="factory_price" style={{ width: '100%' }} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
+              <Form.Item
+                  label="促销价格"
+                  name="promotion_price"
+                  rules={[{ required: false, message: '请输入促销价格' }]}
+                >
+                  <Input id="promotion_price" name="promotion_price" />
+                </Form.Item>
+              </Col>
+              <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
+                <Form.Item
+                  label="成本价格"
+                  name="cost_price"
+                  rules={[{ required: false, message: '请输入成本价格' }]}
+                >
+                  <Input id="cost_price" name="cost_price" />
+                </Form.Item>
+              </Col>
+            </Row>
+          </ProCard>
+          <ProCard collapsible title="供应商信息">
+            <Row gutter={24}>
+              <Col xl={{ span: 12, offset: 2 }} lg={{ span: 12 }} md={{ span: 12 }} sm={24}>
+              <Form.Item
+                label="供应商信息"
+                name="vendor_id"
+                rules={[{ required: false, message: '请输入供应商信息' }]}
+              >
+                <Input id="vendor_id" name="vendor_id" />
+              </Form.Item>
+              </Col>
+            </Row>
+          </ProCard>
+        </Form>
+      </Modal>
     </PageContainer>
   );
 };
