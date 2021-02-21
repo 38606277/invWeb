@@ -10,6 +10,7 @@ import ProCardCollapse from '@/components/ProCard/ProCardCollapse';
 import SelectEF from '@/components/EditForm/SelectEF';
 import SelectItemCategoryDialog from '@/components/itemCategory/SelectItemCategoryDialog';
 import SelectItemBatchDialog  from '@/components/itemCategory/SelectItemBatchDialog';
+import SelectVendorDialog from '@/components/Customers/SelectVendorDialog';
 import StandardFormRow from '@/components/StandardFormRow';
 import LocalStorge  from '../../../utils/LogcalStorge.jsx';
 
@@ -60,6 +61,7 @@ export default (props) => {
   const [columnSkey, setColumnSkey] = useState([]);
   const [selectItemCategoryDialogVisible, setSelectItemCategoryDialogVisible] = useState(false);
   const [selectItemBatchDialogVisible, setSelectItemBatchDialogVisible] = useState(false);
+  const [selectVendorDialogVisible, setSelectVendorDialogVisible] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
   const [names, setNames] = useState({});
   const [loading, setLoading] = useState(false);
@@ -513,12 +515,30 @@ export default (props) => {
             </Col>
           </Row>
           <Row gutter={24}>
-            <Col xl={{ span: 12, offset: 2 }}  sm={24}>
+            <Col xl={{ span: 10, offset: 2 }}  sm={24}>
               <Form.Item label="商品描述" name="item_description" {...formItemLayout1}>
                 <Input id="item_description" name="item_description" style={{ width: '100%' }} />
               </Form.Item>
             </Col>
-           
+            <Col xl={{ span: 10, offset: 2 }}  sm={24}>
+              <Form.Item label="供应商" name="vendor_name" {...formItemLayout1}>
+              <Search
+                  placeholder="请选择供应商"
+                  allowClear
+                  readOnly={true}
+                  enterButton
+                  onClick={() => {
+                    setSelectVendorDialogVisible(true);
+                  }}
+                  onSearch={() => {
+                    setSelectVendorDialogVisible(true);
+                  }}
+                />
+              </Form.Item>
+              <Form.Item name="vendor_id" style={{ display: 'none' }}>
+                <Input id="vendor_id" name="vendor_id" value={mainForm.vendor_id} />
+              </Form.Item>
+            </Col>
           </Row>
           <Row gutter={24}>
             <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
@@ -665,6 +685,21 @@ export default (props) => {
           }}
           handleCancel={() => {
             setSelectItemBatchDialogVisible(false);
+          }}
+        />
+        <SelectVendorDialog
+          modalVisible={selectVendorDialogVisible}
+          handleOk={(selectitem) => {
+            if (selectitem) {
+              mainForm.setFieldsValue({
+                vendor_id: selectitem.vendor_id,
+                vendor_name: selectitem.vendor_name,
+              });
+            }
+            setSelectVendorDialogVisible(false);
+          }}
+          handleCancel={() => {
+            setSelectVendorDialogVisible(false);
           }}
         />
       </Form>
