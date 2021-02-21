@@ -1,4 +1,4 @@
-﻿export default [
+export default [
   {
     name: 'loginTest',
     layout: false,
@@ -234,7 +234,6 @@
         path: '/storage/inStorageList',
         component: './storage/inStorage/InStorageList',
       },
-
       {
         name: 'user.user-list',
         path: '/storage',
@@ -372,7 +371,6 @@
         path: '/mdm/item/itemList/:category_id',
         component: './mdm/item/itemList',
       },
-
       {
         name: 'user.user-list',
         path: '/mdm/itemCategory/itemCategoryList',
@@ -461,6 +459,12 @@
     icon: 'smile',
     component: './Welcome',
     exact: true,
+  },
+  {
+    name: '工作台',
+    icon: 'smile',
+    path: '/dashboardworkplace',
+    component: './dashboard/DashboardWorkplace',
   },
   {
     path: '/dashboard',

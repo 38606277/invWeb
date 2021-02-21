@@ -46,7 +46,7 @@ export default defineConfig({
   // Theme for antd: https://ant.design/docs/react/customize-theme-cn
   theme: {
     'primary-color': defaultSettings.primaryColor,
-    'font-size-base': '14px',
+    'font-size-base': '10px',
     'badge-font-size': '12px',
     // 'font-family': '微软雅黑 Regular,微软雅黑,宋体',
     'btn-font-size-lg': '@font-size-base',
