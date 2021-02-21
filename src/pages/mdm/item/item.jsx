@@ -8,6 +8,7 @@ import { history } from 'umi';
 import { PlusOutlined, MinusOutlined, ConsoleSqlOutlined,UploadOutlined,LoadingOutlined  } from '@ant-design/icons';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse';
 import SelectItemCategoryDialog from '@/components/itemCategory/SelectItemCategoryDialog';
+import SelectVendorDialog from '@/components/Customers/SelectVendorDialog';
 import StandardFormRow from '@/components/StandardFormRow';
 import LocalStorge  from '../../../utils/LogcalStorge.jsx';
 
@@ -56,6 +57,7 @@ export default (props) => {
   const [columnData, setColumnData] = useState([]);
   const [columnData2, setColumnData2] = useState([]);
   const [selectItemCategoryDialogVisible, setSelectItemCategoryDialogVisible] = useState(false);
+  const [selectVendorDialogVisible, setSelectVendorDialogVisible] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
   const [names, setNames] = useState({});
   const [loading, setLoading] = useState(false);
@@ -434,7 +436,18 @@ export default (props) => {
             </Col>
             <Col xl={{ span: 10, offset: 2 }}  sm={24}>
               <Form.Item label="供应商" name="vendor_name" {...formItemLayout1}>
-                <Input id="vendor_name" name="vendor_name" style={{ width: '100%' }} />
+              <Search
+                  placeholder="请选择供应商"
+                  allowClear
+                  readOnly={true}
+                  enterButton
+                  onClick={() => {
+                    setSelectVendorDialogVisible(true);
+                  }}
+                  onSearch={() => {
+                    setSelectVendorDialogVisible(true);
+                  }}
+                />
               </Form.Item>
               <Form.Item name="vendor_id" style={{ display: 'none' }}>
                 <Input id="vendor_id" name="vendor_id" value={mainForm.vendor_id} />
@@ -546,6 +559,21 @@ export default (props) => {
           }}
           handleCancel={() => {
             setSelectItemCategoryDialogVisible(false);
+          }}
+        />
+        <SelectVendorDialog
+          modalVisible={selectVendorDialogVisible}
+          handleOk={(selectitem) => {
+            if (selectitem) {
+              mainForm.setFieldsValue({
+                vendor_id: selectitem.vendor_id,
+                vendor_name: selectitem.vendor_name,
+              });
+            }
+            setSelectVendorDialogVisible(false);
+          }}
+          handleCancel={() => {
+            setSelectVendorDialogVisible(false);
           }}
         />
       </Form>
