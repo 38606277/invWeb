@@ -25,16 +25,6 @@ const formItemLayout1 = {
   wrapperCol: { span: 20 },
 };
 
-const getTypeName = (type) => {
-  if (type === 'other') {
-    return 'POS销售';
-  } else if (type == 'po') {
-    return '采购入库';
-  }
-  return '销售单';
-}
-
-
 export default (props) => {
   const tableRef = useRef();
   const [tableForm] = Form.useForm();

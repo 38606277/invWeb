@@ -1,4 +1,4 @@
-import { Button, Space, Input, Card, Col, Form, List, Row, Select, Typography } from 'antd';
+import { Button, Space, Input, Card, Col, Form, List, Row, Select, Typography, message } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'umi';
 import { history } from 'umi';
@@ -15,7 +15,7 @@ const { Search } = Input;
 const FormItem = Form.Item;
 const { Paragraph } = Typography;
 const localStorge = new LocalStorge();
-
+const userInfo = localStorge.getStorage('userInfo');
 const getKey = (id, index) => `${id}-${index}`;
 const imgurl = window.getServerUrl();
 export default () => {
@@ -29,7 +29,7 @@ export default () => {
   const [orgid, setOrgid] = useState();
 
   useEffect( async () => {
-    let userInfo = localStorge.getStorage('userInfo');
+    
     await  HttpService.post('reportServer/invOrgUser/getOrgListByUserId', JSON.stringify({ user_id: userInfo.id })).then(
       (res) => {
         if (res.resultCode == '1000') {
@@ -100,6 +100,22 @@ export default () => {
 
     const addPo = (item) => {
       console.log(item);
+      let newitem = {
+        ...item,
+        category_id:item.item_category_id,
+        sales_id:userInfo.id,
+        inv_org_id:orgid
+      }
+      HttpService.post('reportServer/sales/addCategory', 
+      
+      newitem
+      
+      ).then(
+        (res) => {
+          if (res.resultCode == '1000') {
+            message.success("添加成功")
+          }
+      });
     }
 
     return (
@@ -240,6 +256,10 @@ export default () => {
                   <div>
                     <Space align="center" size={50}>
                       <span>仓库:{item.org_name}</span>
+                    </Space>
+                  </div>
+                  <div>
+                    <Space align="center" size={50}>
                       <span>库存量 {item.quantity==null?0:<span style={{color:'blue'}}>{item.quantity}</span>}</span>
                     </Space>
                   </div>

@@ -23,6 +23,8 @@ import { connect } from 'umi';
 import moment from 'moment';
 import OperationModal from './components/OperationModal';
 import styles from './style.less';
+import HttpService from '../../../utils/HttpService';
+
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const { Search } = Input;
@@ -44,40 +46,45 @@ const Info = ({ title, value, bordered }) => (
   </div>
 );
 
-const ListContent = ({ data: { owner, createdAt, percent, status } }) => (
+const ListContent = (item) => (
   <div className={styles.listContent}>
     <div className={styles.listContentItem}>
-      <span>￥250</span>
+      <span>￥{item.cost_price}</span>
       {/* <p>{owner}</p> */}
     </div>
     <div className={styles.listContentItem}>
-      <span>5</span>
+      <span>{item.quantity}</span>
       {/* <p>{moment(createdAt).format('YYYY-MM-DD HH:mm')}</p> */}
     </div>
     <div className={styles.listContentItem}>
-      <span>￥250</span>
+      <span>￥{item.retail_price}</span>
     </div>
   </div>
 );
 
-export const RetailOrder = (props) => {
+export default () => {
   const addBtn = useRef(null);
-  const {
-    loading,
-    dispatch,
-    salesAndRetailList: { list },
-  } = props;
   const [done, setDone] = useState(false);
   const [visible, setVisible] = useState(false);
   const [current, setCurrent] = useState(undefined);
+  const [list, setList] = useState([]);
+  const [tableForm] = Form.useForm();
+  const [mainForm] = Form.useForm();
+
   useEffect(() => {
-    dispatch({
-      type: 'salesAndRetailList/fetch',
-      payload: {
-        count: 5,
+    HttpService.post('reportServer/sales/getCarSales', null).then(
+      (res) => {
+        if (res.resultCode == '1000') {
+         // setList(res.data);
+         mainForm.setFieldsValue({
+          ...res.data.maindata,
+          so_date: moment(res.data.maindata.so_date),
+        });
+        setList(res.data.lines);
+        }
       },
-    });
-  }, [1]);
+    );
+  }, []);
   const paginationProps = {
     showSizeChanger: true,
     showQuickJumper: true,
@@ -96,12 +103,7 @@ export const RetailOrder = (props) => {
   };
 
   const deleteItem = (id) => {
-    dispatch({
-      type: 'salesAndRetailList/submit',
-      payload: {
-        id,
-      },
-    });
+    
   };
 
   const editAndDelete = (key, currentItem) => {
@@ -166,22 +168,24 @@ export const RetailOrder = (props) => {
     const id = current ? current.id : '';
     setAddBtnblur();
     setDone(true);
-    dispatch({
-      type: 'salesAndRetailList/submit',
-      payload: {
-        id,
-        ...values,
-      },
-    });
+    
   };
 
   return (
     <div>
       <div className={styles.standardList}>
+      <Form
+        {...formItemLayout2}
+        form={mainForm}
+        onFinish={async (fieldsValue) => {
+          //验证tableForm
+          console.log(fieldsValue)
+        }}
+      >
         <Card bordered={false}>
           <Row>
             <Col xs={24} sm={8}>
-              <Form.Item label="* 销售编码" name="bill_id">
+              <Form.Item label="* 销售编码" name="header_code">
                 <Input placeholder="自动生成" />
               </Form.Item>
             </Col>
@@ -199,7 +203,7 @@ export const RetailOrder = (props) => {
           <Row>
             <Col xs={24} sm={8}>
               <Form.Item
-                name="bill_date"
+                name="so_date"
                 label="销售时间"
                 rules={[{ required: true, message: '请选择销售时间' }]}
               >
@@ -208,11 +212,11 @@ export const RetailOrder = (props) => {
             </Col>
             <Col xs={24} sm={8}>
               <Form.Item
-                name="bill_date"
+                name="sales_id"
                 label="销售员"
                 rules={[{ required: true, message: '请选择销售时间' }]}
               >
-                <Input id="inv_org_name" />
+                <Input id="sales_id" />
               </Form.Item>
             </Col>
           </Row>
@@ -246,7 +250,6 @@ export const RetailOrder = (props) => {
           <List
             size="large"
             rowKey="id"
-            loading={loading}
             header={
               <div>
                 <span>
@@ -277,15 +280,28 @@ export const RetailOrder = (props) => {
               >
                 <Checkbox style={{ marginRight: '60px' }} />
                 <List.Item.Meta
-                  avatar={<Avatar src={item.logo} shape="square" size="large" />}
-                  title={<a href={item.href}>皮皮狗 羊绒衫</a>}
+                  avatar={<Avatar src={item.image_url} shape="square" size="large" />}
+                  title={item.item_description}
                   description={'红色 XXL'}
                 />
-                <ListContent data={item} />
+                <div className={styles.listContent}>
+                  <div className={styles.listContentItem}>
+                    <span>￥{item.cost_price}</span>
+                    {/* <p>{owner}</p> */}
+                  </div>
+                  <div className={styles.listContentItem}>
+                    <span>{item.quantity}</span>
+                    {/* <p>{moment(createdAt).format('YYYY-MM-DD HH:mm')}</p> */}
+                  </div>
+                  <div className={styles.listContentItem}>
+                    <span>￥{item.retail_price}</span>
+                  </div>
+                </div>
               </List.Item>
             )}
           />
         </Card>
+      </Form>
       </div>
 
       <OperationModal
@@ -299,7 +315,4 @@ export const RetailOrder = (props) => {
     </div>
   );
 };
-export default connect(({ salesAndRetailList, loading }) => ({
-  salesAndRetailList,
-  loading: loading.models.salesAndRetailList,
-}))(RetailOrder);
+
