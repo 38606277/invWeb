@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Space, message, Modal } from 'antd';
-import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import ProTable from '@ant-design/pro-table';
 import { PageContainer } from '@ant-design/pro-layout';
 import { history } from 'umi';
 import HttpService from '@/utils/HttpService.jsx';
+import LocalStorge from '@/utils/LogcalStorge.jsx';
+
+const localStorge = new LocalStorge();
 
 const { confirm } = Modal;
 
@@ -25,28 +27,6 @@ const onUpdateClickListener = (ref, selectedRowKeys) => {
       updateStatusByIds(ref, selectedRowKeys);
     },
     onCancel() {},
-  });
-};
-
-//删除
-const updateStatusByIds = (ref, selectedRowKeys) => {
-  if (selectedRowKeys.length < 1) {
-    message.error('请选择需要过账的内容');
-    return;
-  }
-
-  HttpService.post(
-    'reportServer/wholeSale/updateWholeSaleStatusByIds',
-    JSON.stringify({ ids: selectedRowKeys.toString(), status: 1 }),
-  ).then((res) => {
-    if (res.resultCode == '1000') {
-      //刷新
-      // 清空选中项
-      ref.current.clearSelected();
-      ref.current.reload();
-    } else {
-      message.error(res.message);
-    }
   });
 };
 
@@ -77,7 +57,7 @@ const deleteByIds = (ref, selectedRowKeys) => {
   }
 
   HttpService.post(
-    'reportServer/wholeSale/deleteWholeSaleByIds',
+    'reportServer/ap/invoice/deleteInvoiceByIds',
     JSON.stringify({ ids: selectedRowKeys.toString() }),
   ).then((res) => {
     if (res.resultCode == '1000') {
@@ -100,8 +80,12 @@ const fetchData = async (params, sort, filter) => {
     perPage: params.pageSize,
     ...params,
   };
+
+  let userInfo = localStorge.getStorage('userInfo');
+  requestParam.operator = userInfo.id;
+
   const result = await HttpService.post(
-    'reportServer/wholeSale/getWholeSaleListByPage',
+    'reportServer/ap/invoice/getInvoiceListByPage',
     JSON.stringify(requestParam),
   );
   console.log('result : ', result);
@@ -112,69 +96,75 @@ const fetchData = async (params, sort, filter) => {
   });
 };
 
-const salesList = (props) => {
+const invoiceList = () => {
   const ref = useRef();
-  const type = 'wholesales';
 
   //定义列
   const columns = [
     {
       title: '编号',
-      dataIndex: 'header_code',
+      dataIndex: 'invoice_num',
       valueType: 'text',
-      align: 'center',
+    },
+    {
+      title: '已付金额',
+      dataIndex: 'invoice_type',
+      key: 'invoice_type',
+      valueType: 'text',
     },
     {
       title: '供应商',
-      dataIndex: 'inv_org_name',
+      dataIndex: 'vendor_name',
       key: 'inv_org_id',
       valueType: 'text',
-      align: 'center',
     },
     {
-      title: '销售时间',
-      dataIndex: 'so_date',
-      valueType: 'dateTime',
-      align: 'center',
-    },
-    {
-      title: '备注',
-      dataIndex: 'comments',
+      title: '金额',
+      dataIndex: 'invoice_amount',
+      key: 'inv_org_id',
       valueType: 'text',
-      align: 'center',
+    },
+    {
+      title: '已付金额',
+      dataIndex: 'amount_paid',
+      key: 'amount_paid',
+      valueType: 'text',
     },
     {
       title: '状态',
-      dataIndex: 'status',
+      dataIndex: 'payment_status',
       valueType: 'select',
-      align: 'center',
       valueEnum: {
-        0: { text: '新建', status: 'Warning' },
-        1: { text: '已过账', status: 'Success' },
+        0: { text: '未付款', status: 'Error' },
+        1: { text: '付款中', status: 'Warning' },
+        2: { text: '已完成', status: 'Success' },
       },
+    },
+    {
+      title: '描述',
+      dataIndex: 'description',
+      valueType: 'text',
     },
     {
       title: '创建时间',
       dataIndex: 'create_date',
       valueType: 'dateTime',
-      align: 'center',
     },
     {
       title: '操作',
       key: 'option',
       valueType: 'option',
-      align: 'center',
       render: (text, record) => [
         <a
           onClick={() => {
-            history.push(`/sales/sales/edit/${record.so_header_id}`);
+            history.push(`/ap/invoice/edit/${record.invoice_id}`);
           }}
         >
           编辑
         </a>,
         <a
           onClick={() => {
-            onDeleteClickListener(ref, [record.so_header_id]);
+            onDeleteClickListener(ref, [record.invoice_id]);
           }}
         >
           删除
@@ -189,10 +179,7 @@ const salesList = (props) => {
       actionRef={ref}
       columns={columns}
       request={fetchData}
-      rowKey="so_header_id"
-      params={{
-        so_type: `deliver_wholesales`,
-      }}
+      rowKey="invoice_id"
       rowSelection={
         {
           // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
@@ -218,8 +205,7 @@ const salesList = (props) => {
       tableAlertOptionRender={({ selectedRowKeys }) => (
         <Space size={16}>
           <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
-
-          <a onClick={() => onUpdateClickListener(ref, selectedRowKeys)}> 批量过账</a>
+          {/* <a onClick={() => onUpdateClickListener(ref, selectedRowKeys)}> 批量过账</a> */}
         </Space>
       )}
       pagination={{
@@ -229,9 +215,9 @@ const salesList = (props) => {
         defaultCollapsed: true,
       }}
       dateFormatter="string"
-      headerTitle={'批量销售'}
+      headerTitle="发票管理"
       toolBarRender={(action, { selectedRows }) => [
-        <Button type="primary" onClick={() => history.push(`/sales/sales/add/null`)}>
+        <Button type="primary" onClick={() => history.push('/ap/invoice/add/null')}>
           新建
         </Button>,
       ]}
@@ -239,4 +225,4 @@ const salesList = (props) => {
     // </PageContainer>
   );
 };
-export default salesList;
+export default invoiceList;

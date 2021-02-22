@@ -505,6 +505,34 @@ export default [
     path: '/retail/itemselect',
     component: './sales/RetailItemSelect',
   },
+
+  {
+    name: 'ap',
+    path: '/ap',
+    routes: [
+      {
+        name: 'user.user-list',
+        path: '/ap/invoiceList',
+        component: './inv/ap/invoiceList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/ap/invoice/:action/:id',
+        component: './inv/ap/invoice',
+      },
+      // {
+      //   name: 'user.user-list',
+      //   path: '/ap/payment',
+      //   component: './inv/ap/paymentList',
+      // },
+      // {
+      //   name: 'user.user-list',
+      //   path: '/ap/payment/:action/:id',
+      //   component: './inv/ap/payment',
+      // },
+    ],
+  },
+
   {
     path: '/',
     //redirect: '/user',

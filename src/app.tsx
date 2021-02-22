@@ -202,7 +202,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     //collapsedButtonRender: false,
     title: initialState?.settings?.title,
     headerTitleRender: (logo, title, props) => {
-      console.log('headerTitleRender', title);
+      //console.log('headerTitleRender', title)
       return (
         <a>
           <img src={initialState?.settings?.logo}></img>
@@ -210,7 +210,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
           <h1>{initialState?.settings?.title}</h1>
           {initialState?.menuCollapsed ? (
             <MenuUnfoldOutlined
-              style={{ marginLeft: '10px' }}
+              style={{ fontSize: '16px', marginLeft: '10px' }}
               onClick={(e) => {
                 e.stopPropagation();
                 setInitialState({
@@ -221,7 +221,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
             />
           ) : (
             <MenuFoldOutlined
-              style={{ marginLeft: '10px' }}
+              style={{ fontSize: '16px', marginLeft: '10px' }}
               onClick={(e) => {
                 e.stopPropagation();
                 setInitialState({
@@ -236,7 +236,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     },
     collapsed: initialState?.menuCollapsed || false,
     onCollapse: (collapsed) => {
-      console.log('app onCollapse', console);
+      //console.log('app onCollapse', console)
       setInitialState({
         ...initialState,
         menuCollapsed: collapsed,
