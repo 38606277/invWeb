@@ -218,7 +218,7 @@ export default () => {
                   />
                   <div>
                     <Space align="center" size={50}>
-                      <span>库存量 <span style={{color:'blue'}}>{item.quantity}</span></span>
+                      <span>库存量 {item.quantity==null?0:<span style={{color:'blue'}}>{item.quantity}</span>}</span>
                     </Space>
                   </div>
                   <div style={{ fontWeight: 600, fontSize: '18px' }}>
