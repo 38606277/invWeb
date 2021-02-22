@@ -283,6 +283,11 @@ const SelectPoDialog = (props) => {
                         return {
                             // 点击行
                             onClick: event => {
+
+                                if (record.not_rcv_quantity == '0') {
+                                    return;
+                                }
+
                                 //有取消的情况
                                 if (isCheck(record.po_line_id)) { // 选中则移除
                                     //移除key

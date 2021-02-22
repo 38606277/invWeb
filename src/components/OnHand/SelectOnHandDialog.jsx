@@ -150,6 +150,9 @@ const SelectOnHandDialog = (props) => {
                         return {
                             // 点击行
                             onClick: event => {
+                                if ((record.on_hand_quantity || 0) == '0') {
+                                    return;
+                                }
 
                                 if (selectType === 'radio') {
                                     setCheckKeys([record.item_id])
@@ -183,7 +186,13 @@ const SelectOnHandDialog = (props) => {
                     rowSelection={{
                         type: selectType,
                         onChange: selectOnChange,
-                        selectedRowKeys: checkKeys
+                        selectedRowKeys: checkKeys,
+                        getCheckboxProps: (record) => {
+                            console.log('0 < (record.on_hand_quantity || 0)', 0 < (record.on_hand_quantity || 0));
+                            return ({
+                                disabled: (record.on_hand_quantity || 0) == '0', // Column configuration not to be checked
+                            })
+                        },
                     }}
                     tableAlertRender={false}
                     tableAlertOptionRender={false}
