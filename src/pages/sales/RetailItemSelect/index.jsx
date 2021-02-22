@@ -8,10 +8,13 @@ import StandardFormRow from './components/StandardFormRow';
 import TagSelect from './components/TagSelect';
 import HttpService from '../../../utils/HttpService';
 import styles from './style.less';
+import LocalStorge from '@/utils/LogcalStorge';
+
 const { Option } = Select;
 const { Search } = Input;
 const FormItem = Form.Item;
 const { Paragraph } = Typography;
+const localStorge = new LocalStorge();
 
 const getKey = (id, index) => `${id}-${index}`;
 const imgurl = window.getServerUrl();
@@ -23,19 +26,33 @@ export default () => {
   const [categoryCheckVal, setCategoryCheckVal] = useState([]);
   const [orgCheckVal, setOrgCheckVal] = useState([]);
   const [itemDescription, setItemDescription] = useState();
-  
-  useEffect(() => {
-      HttpService.post('reportServer/sales/getItemCategoryAndOrg', {}).then(
-        (res) => {
-          if (res.resultCode == '1000') {
-            setItemCateList(res.data.itemcateList);
-            setOrgList(res.data.orgList);
-          }
-      });
-      fetchList(0,"",[],[]);
-      
-      
-    }, []);
+  const [orgid, setOrgid] = useState();
+
+  useEffect( async () => {
+    let userInfo = localStorge.getStorage('userInfo');
+    await  HttpService.post('reportServer/invOrgUser/getOrgListByUserId', JSON.stringify({ user_id: userInfo.id })).then(
+      (res) => {
+        if (res.resultCode == '1000') {
+          setOrgid(res.data[0].org_id)
+        } else {
+          message.error(res.message);
+        }
+      },
+    );
+
+    await HttpService.post('reportServer/sales/getItemCategoryAndOrg', {}).then(
+      (res) => {
+        if (res.resultCode == '1000') {
+          setItemCateList(res.data.itemcateList);
+          setOrgList(res.data.orgList);
+        }
+    });
+    
+    fetchList(0,"",[],[]);
+    
+  }, []);
+
+
     const fetchList = (page,itemDescription,categoryCheckVal,orgCheckVal) => {
       HttpService.post('reportServer/sales/getAllPage', 
       {
@@ -78,9 +95,13 @@ export default () => {
     }
 
     const onSearch = (val) => {
-      console.log(categoryCheckVal)
       fetchList(0,val,categoryCheckVal,orgCheckVal);
     }
+
+    const addPo = (item) => {
+      console.log(item);
+    }
+
     return (
       <div className={styles.coverCardList}>
         <Card bordered={false}>
@@ -218,13 +239,17 @@ export default () => {
                   />
                   <div>
                     <Space align="center" size={50}>
+                      <span>仓库:{item.org_name}</span>
                       <span>库存量 {item.quantity==null?0:<span style={{color:'blue'}}>{item.quantity}</span>}</span>
                     </Space>
                   </div>
                   <div style={{ fontWeight: 600, fontSize: '18px' }}>
                     <Space align="center" size={50}>
                       <span>${item.retail_price}</span>
-                      <Button size="small" style={{ float: 'right' }} disabled={item.quantity>0?false:true}>
+                      <Button size="small" style={{ float: 'right' }} 
+                      disabled={item.quantity>0?item.org_id==orgid?false:true:true}
+                      onClick={()=>addPo(item)}
+                      >
                         加入订单
                       </Button>
                     </Space>
