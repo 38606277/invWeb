@@ -76,11 +76,13 @@ export default () => {
       (res) => {
         if (res.resultCode == '1000') {
          // setList(res.data);
-         mainForm.setFieldsValue({
-          ...res.data.maindata,
-          so_date: moment(res.data.maindata.so_date),
-        });
-        setList(res.data.lines);
+         if(null!=res.data.maindata){
+            mainForm.setFieldsValue({
+              ...res.data.maindata,
+              so_date: moment(res.data.maindata.so_date),
+            });
+            setList(res.data.lines);
+          }
         }
       },
     );
