@@ -22,6 +22,8 @@ export default () => {
   const [toatl, setTotal] = useState(0);
   const [categoryCheckVal, setCategoryCheckVal] = useState([]);
   const [orgCheckVal, setOrgCheckVal] = useState([]);
+  const [itemDescription, setItemDescription] = useState();
+  
   useEffect(() => {
       HttpService.post('reportServer/sales/getItemCategoryAndOrg', {}).then(
         (res) => {
@@ -30,26 +32,29 @@ export default () => {
             setOrgList(res.data.orgList);
           }
       });
-      fetchList(0,[],[]);
+      fetchList(0,"",[],[]);
       
       
     }, []);
-    const fetchList = (page,categoryCheckVal,orgCheckVal) => {
+    const fetchList = (page,itemDescription,categoryCheckVal,orgCheckVal) => {
       HttpService.post('reportServer/sales/getAllPage', 
       {
         startIndex:page,
         perPage:10,
+        item_description:itemDescription,
         category_id:categoryCheckVal.join(","),
         org_id:orgCheckVal.join(",")
       }
       ).then(
         (res) => {
           if (res.resultCode == '1000') {
-           console.log(res);
            setList(res.data.list);
            setTotal(res.data.total);
           }
       });
+    }
+    const changePage = (page) => {
+      fetchList(page,itemDescription,categoryCheckVal,orgCheckVal);
     }
     const formItemLayout = {
       wrapperCol: {
@@ -63,22 +68,25 @@ export default () => {
     };
 
     const handleChangeCategory = (selectValue) => {
-      console.log(selectValue);
       setCategoryCheckVal(selectValue);
-      fetchList(0,selectValue,orgCheckVal);
+      fetchList(0,itemDescription,selectValue,orgCheckVal);
     }
 
     const handleChangeOrg = (selectValue) => {
-      console.log(selectValue);
       setOrgCheckVal(selectValue);
-      fetchList(0,categoryCheckVal,selectValue);
+      fetchList(0,itemDescription,categoryCheckVal,selectValue);
+    }
+
+    const onSearch = (val) => {
+      console.log(categoryCheckVal)
+      fetchList(0,val,categoryCheckVal,orgCheckVal);
     }
     return (
       <div className={styles.coverCardList}>
         <Card bordered={false}>
           <div style={{ textAlign: 'center' }}>
             <span>
-              <Search placeholder="输入查找的商品" enterButton="查找" style={{ width: '800px' }} />
+              <Search placeholder="输入查找的商品" enterButton="查找" onSearch={onSearch} style={{ width: '800px' }} />
               <Button onClick={() => history.push(`/retail/retailorder`)}>订单</Button>
             </span>
           </div>
@@ -172,7 +180,7 @@ export default () => {
             dataSource={list}
             pagination={{
               onChange: page => {
-                fetchList(page);
+                changePage(page);
               },
               pageSize: 10,
               total:toatl
