@@ -60,9 +60,7 @@ export default (props) => {
       record);
   }
 
-  const buildColumns = () => {
-    if (type == 'other') {//其他入库
-      return [
+  const buildColumns= [
         {
           title: '物料id',
           dataIndex: 'item_id',
@@ -136,153 +134,19 @@ export default (props) => {
               disabled: true
             }
           }
-        },
-        {
-          title: '备注',
-          dataIndex: 'remark',
-          renderParams: {
-            formItemParams: {
-              rules: [{ required: false, message: '请输入备注' }]
-            },
-            widgetParams: { disabled: disabled }
-          }
+        // },
+        // {
+        //   title: '备注',
+        //   dataIndex: 'remark',
+        //   renderParams: {
+        //     formItemParams: {
+        //       rules: [{ required: false, message: '请输入备注' }]
+        //     },
+        //     widgetParams: { disabled: disabled }
+        //   }
         }
-      ]
-
-    } else if (type == 'po') {//订单入库
-
-      return [
-        {
-          title: '物料id',
-          dataIndex: 'item_id',
-          hide: true,
-          renderParams: {
-            formItemParams: {
-              rules: [{ required: false, message: '请选择物料' }]
-            },
-            widgetParams: { disabled: true }
-          }
-        },
-        {
-          title: '物料描述',
-          dataIndex: 'item_description',
-          renderType: 'InputSearchEF',
-          renderParams: {
-            formItemParams: {
-              rules: [{ required: true, message: '请选择物料' }]
-            },
-            widgetParams: {
-              disabled: disabled,
-              onSearch: (name, record) => {
-                setSelectItemRecord(record)
-                setSelectItemDialogVisible(true)
-              }
-            }
-          }
-        },
-        {
-          title: '单价',
-          dataIndex: 'price',
-          renderType: 'InputNumberEF',
-          renderParams: {
-            formItemParams: {
-              rules: [{ required: true, message: '请输入单价' }]
-            },
-            widgetParams: {
-              disabled: disabled,
-              onChange: (value, name, record, tableRef) => {
-                const amount = record['quantity'] * record['price'];
-                tableRef.current.handleObjChange(
-                  {
-                    amount: amount
-                  },
-                  record);
-              }
-            }
-          }
-        },
-        {
-          title: '单位',
-          dataIndex: 'uom',
-          renderParams: {
-            formItemParams: {
-              rules: [{ required: true, message: '请输入单位' }]
-            },
-            widgetParams: { disabled: disabled }
-          }
-        },
-        {
-          title: '未接收数量',
-          dataIndex: 'not_rcv_quantity',
-          renderType: 'InputNumberEF',
-          renderParams: {
-            formItemParams: {
-              rules: [{ required: true, message: '请输入数量' }]
-            },
-            widgetParams: { disabled: disabled, precision: 0, }
-          }
-        },
-        {
-          title: '接收数量',
-          dataIndex: 'quantity',
-          renderType: 'InputNumberEF',
-          renderParams: {
-            formItemParams: {
-              rules: [{ required: true, message: '请输入接收数量' }]
-            },
-            widgetParams: {
-              disabled: disabled,
-              precision: 0,
-              onChange: (value, name, record, tableRef) => {
-                //数量不能大于结存数量
-                if (record['not_rcv_quantity'] < record['quantity']) {
-                  message.error('接收数量不能大于未接收数量，请检查');
-                  const quantity = record['not_rcv_quantity'];
-                  const amount = quantity * record['price'];
-                  tableRef.current.handleObjChange(
-                    {
-                      quantity: quantity,
-                      amount: amount
-                    },
-                    record);
-                } else {
-                  const amount = record['quantity'] * record['price'];
-                  tableRef.current.handleObjChange(
-                    {
-                      amount: amount
-                    },
-                    record);
-                }
-              }
-            }
-
-          }
-        }, {
-          title: '金额',
-          dataIndex: 'amount',
-          renderType: 'InputNumberEF',
-          renderParams: {
-            formItemParams: {
-              rules: [{ required: true, message: '请输入金额' }]
-            },
-            widgetParams: { disabled: true }
-          }
-        }, {
-          title: '备注',
-          dataIndex: 'remark',
-          renderParams: {
-            formItemParams: {
-              rules: [{ required: false, message: '请输入备注' }]
-            },
-            widgetParams: { disabled: disabled }
-          }
-        }
-      ]
-
-    }
-
-    return [];
-  }
+      ];
+  
 
 
 
@@ -314,14 +178,14 @@ export default (props) => {
     let userInfo = localStorge.getStorage('userInfo');
     if (action === 'edit') {
       //初始化编辑数据
-      HttpService.post('reportServer/wholeSale/getWholeSaleById', JSON.stringify({ bill_id: id })).then(
+      HttpService.post('reportServer/wholeSale/getWholeSaleById', JSON.stringify({ so_header_id: id })).then(
         (res) => {
           if (res.resultCode == '1000') {
-            setDisabled(res?.data?.mainData?.bill_status === 1);
+            setDisabled(res?.data?.mainData?.status === 1);
             setOrgid(res.data.mainData.inv_org_id)
             mainForm.setFieldsValue({
               ...res.data.mainData,
-              bill_date: moment(res.data.mainData.bill_date),
+              so_date: moment(res.data.mainData.so_date),
             });
             if (res.data.linesData.length > 0) {
               tableRef?.current?.initData(res.data.linesData[0].dataList);
@@ -349,7 +213,8 @@ export default (props) => {
         },
       );
       mainForm.setFieldsValue({
-        bill_date: moment(new Date()),
+        so_date: moment(new Date()),
+        sales_id:userInfo.id
       });
     }
   }, []);
@@ -397,10 +262,10 @@ export default (props) => {
 
               const values = {
                 ...fieldsValue,
-                bill_date: fieldsValue['bill_date'].format('YYYY-MM-DD HH:mm:ss'),
+                so_date: fieldsValue['so_date'].format('YYYY-MM-DD HH:mm:ss'),
               };
 
-              values.bill_type = `deliver_wholesales`;
+              values.so_type = `deliver_wholesales`;
 
               if (action === 'edit') {
                 let deleteRecordKeys = tableRef.current.getDeleteRecordKeys();
@@ -415,7 +280,7 @@ export default (props) => {
                   deleteData: deleteIds.toString(), // 删除项
                 });
               } else {
-                values.bill_status = 0;
+                values.status = 0;
 
                 save({
                   mainData: values,
@@ -434,10 +299,10 @@ export default (props) => {
           title="基础信息"
         >
           <Form.Item style={{ display: 'none' }} name="inv_org_id" />
-          <Form.Item style={{ display: 'none' }} name="bill_id" />
+          <Form.Item style={{ display: 'none' }} name="so_header_id" />
           <Row>
             <Col xs={24} sm={11}>
-              <Form.Item label="销售编码" name="bill_code">
+              <Form.Item label="销售编码" name="header_code">
                 <Input disabled placeholder="自动生成" />
               </Form.Item>
             </Col>
@@ -455,18 +320,46 @@ export default (props) => {
           <Row>
             <Col xs={24} sm={11}>
               <Form.Item
-                name="bill_date"
+                name="so_date"
                 label="销售时间"
                 rules={[{ required: true, message: '请选择销售时间' }]}
               >
                 <DatePicker style={{ width: "100%" }} showTime format="YYYY-MM-DD HH:mm:ss" disabled />
               </Form.Item>
             </Col>
+            <Col xs={24} sm={11}>
+              <Form.Item
+                label="收货地址"
+                name="ship_to_location"
+                rules={[{ required: true, message: '请输入选择仓库' }]}
+              >
+                <Input id="ship_to_location" disabled={disabled} />
+              </Form.Item>
+            </Col>
           </Row>
-
+          <Row>
+            <Col xs={24} sm={11}>
+              <Form.Item
+                name="bill_to_location"
+                label="收单地点"
+                rules={[{ required: true, message: '请输入收单地点' }]}
+              >
+                <Input id="bill_to_location" disabled={disabled}/>
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={11}>
+              <Form.Item
+                label="供应商"
+                name="customer_id"
+                rules={[{ required: true, message: '请输入供应商' }]}
+              >
+                <Input id="customer_id" disabled={disabled}/>
+              </Form.Item>
+            </Col>
+          </Row>
           <Row>
             <Col xs={24} sm={22}>
-              <Form.Item {...formItemLayout1} label="备注" name="remark">
+              <Form.Item {...formItemLayout1} label="备注" name="comments">
                 <Input.TextArea
                   disabled={disabled}
                   placeholder="请输入备注"
@@ -504,7 +397,7 @@ export default (props) => {
           ></Button>
         ]}
       >
-        <TableForm_B ref={tableRef} columns={buildColumns()} primaryKey="line_id" tableForm={tableForm} />
+        <TableForm_B ref={tableRef} columns={buildColumns} primaryKey="line_id" tableForm={tableForm} />
       </ProCardCollapse>
 
       <SelectItemOrgDialog

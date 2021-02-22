@@ -37,7 +37,7 @@ const updateStatusByIds = (ref, selectedRowKeys) => {
 
   HttpService.post(
     'reportServer/wholeSale/updateWholeSaleStatusByIds',
-    JSON.stringify({ ids: selectedRowKeys.toString(), bill_status: 1 }),
+    JSON.stringify({ ids: selectedRowKeys.toString(), status: 1 }),
   ).then((res) => {
     if (res.resultCode == '1000') {
       //刷新
@@ -121,32 +121,32 @@ const salesList = (props) => {
   const columns = [
     {
       title: '编号',
-      dataIndex: 'bill_id',
+      dataIndex: 'header_code',
       valueType: 'text',
       align:'center'
     },
     {
-      title: '仓库',
+      title: '供应商',
       dataIndex: 'inv_org_name',
       key: 'inv_org_id',
       valueType: 'text',
       align:'center'
     },
     {
-      title: '出库时间',
-      dataIndex: 'bill_date',
+      title: '销售时间',
+      dataIndex: 'so_date',
       valueType: 'dateTime',
       align:'center'
     },
     {
       title: '备注',
-      dataIndex: 'remark',
+      dataIndex: 'comments',
       valueType: 'text',
       align:'center'
     },
     {
       title: '状态',
-      dataIndex: 'bill_status',
+      dataIndex: 'status',
       valueType: 'select',
       align:'center',
       valueEnum: {
@@ -168,12 +168,12 @@ const salesList = (props) => {
       render: (text, record) => [
         <a
           onClick={() => {
-            history.push(`/sales/sales/edit/${record.bill_id}`);
+            history.push(`/sales/sales/edit/${record.so_header_id}`);
           }}
         >
           编辑
         </a>,
-        <a onClick={() => { onDeleteClickListener(ref, [record.bill_id]) }}>
+        <a onClick={() => { onDeleteClickListener(ref, [record.so_header_id]) }}>
           删除
         </a>,
       ],
@@ -186,9 +186,9 @@ const salesList = (props) => {
       actionRef={ref}
       columns={columns}
       request={fetchData}
-      rowKey="bill_id"
+      rowKey="so_header_id"
       params={{
-        bill_type: `deliver_wholesales`
+        so_type: `deliver_wholesales`
       }}
       rowSelection={
         {
