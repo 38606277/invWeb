@@ -20,6 +20,8 @@ export default () => {
   const [itemCateList, setItemCateList] = useState([]);
   const [orgList, setOrgList] = useState([]);
   const [toatl, setTotal] = useState(0);
+  const [categoryCheckVal, setCategoryCheckVal] = useState([]);
+  const [orgCheckVal, setOrgCheckVal] = useState([]);
   useEffect(() => {
       HttpService.post('reportServer/sales/getItemCategoryAndOrg', {}).then(
         (res) => {
@@ -28,12 +30,19 @@ export default () => {
             setOrgList(res.data.orgList);
           }
       });
-      fetchList(0);
+      fetchList(0,[],[]);
       
       
     }, []);
-    const fetchList = (page) => {
-      HttpService.post('reportServer/sales/getAllPage', {startIndex:page,perPage:10}).then(
+    const fetchList = (page,categoryCheckVal,orgCheckVal) => {
+      HttpService.post('reportServer/sales/getAllPage', 
+      {
+        startIndex:page,
+        perPage:10,
+        category_id:categoryCheckVal.join(","),
+        org_id:orgCheckVal.join(",")
+      }
+      ).then(
         (res) => {
           if (res.resultCode == '1000') {
            console.log(res);
@@ -52,6 +61,18 @@ export default () => {
         },
       },
     };
+
+    const handleChangeCategory = (selectValue) => {
+      console.log(selectValue);
+      setCategoryCheckVal(selectValue);
+      fetchList(0,selectValue,orgCheckVal);
+    }
+
+    const handleChangeOrg = (selectValue) => {
+      console.log(selectValue);
+      setOrgCheckVal(selectValue);
+      fetchList(0,categoryCheckVal,selectValue);
+    }
     return (
       <div className={styles.coverCardList}>
         <Card bordered={false}>
@@ -78,8 +99,8 @@ export default () => {
                 paddingBottom: 11,
               }}
             >
-              <FormItem name="category">
-                <TagSelect expandable>
+              <FormItem name="categorySelect">
+                <TagSelect expandable onChange={handleChangeCategory}>
                 {itemCateList.map((tag, index) => 
                    <TagSelect.Option value={tag.category_id}>{tag.category_name}</TagSelect.Option>
                   )
@@ -94,10 +115,10 @@ export default () => {
                 paddingBottom: 11,
               }}
             >
-              <FormItem name="category">
-                <TagSelect expandable>
+              <FormItem name="orgSelect">
+                <TagSelect expandable onChange={handleChangeOrg}>
                 {orgList.map((tag, index) => 
-                   <TagSelect.Option value={'v'+tag.org_id}>{tag.org_name}</TagSelect.Option>
+                   <TagSelect.Option value={tag.org_id}>{tag.org_name}</TagSelect.Option>
                   )
                 }
                 </TagSelect>
@@ -189,13 +210,13 @@ export default () => {
                   />
                   <div>
                     <Space align="center" size={50}>
-                      <span>库存量 10</span>
+                      <span>库存量 <span style={{color:'blue'}}>{item.quantity}</span></span>
                     </Space>
                   </div>
                   <div style={{ fontWeight: 600, fontSize: '18px' }}>
                     <Space align="center" size={50}>
                       <span>${item.retail_price}</span>
-                      <Button size="small" style={{ float: 'right' }}>
+                      <Button size="small" style={{ float: 'right' }} disabled={item.quantity>0?false:true}>
                         加入订单
                       </Button>
                     </Space>
