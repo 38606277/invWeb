@@ -4,8 +4,9 @@ import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import TableForm_A from '@/components/EditFormA/TableForm_A';
 
 import DictSelect from '@/components/Select/DictSelect';
-import SelectCustomersDialog from '@/components/Customers/SelectCustomersDialog';
-
+import SelectVendorDialog from '@/components/Customers/SelectVendorDialog';
+import SelectBankAccountDialog from '@/components/BankAccount/SelectBankAccountDialog';
+import SelectInvoiceDialog from '@/components/Invoice/SelectInvoiceDialog';
 
 
 
@@ -34,8 +35,11 @@ const payment = (props) => {
     const [tableForm] = Form.useForm();
     const [mainForm] = Form.useForm();
 
-    const [selectCustomersDialogVisible, setSelectCustomersDialogVisible] = useState(false);
-    const [selectCustomersFiledName, setSelectCustomersFiledName] = useState('');
+    const [selectVendorDialogVisible, setSelectVendorDialogVisible] = useState(false);
+    const [selectBankAccountVisible, setSelectBankAccountVisible] = useState(false);
+    const [selectInvoiceVisible, setSelectInvoiceVisible] = useState(false);
+
+
     const [disabled, setDisabled] = useState(false);
 
     const action = props?.match?.params?.action || 'add';
@@ -44,11 +48,11 @@ const payment = (props) => {
     const buildColumns = () => {
         return [
             {
-                title: '付款编号',
+                title: '发票编号',
                 dataIndex: 'invoice_num',
                 renderParams: {
                     formItemParams: {
-                        rules: [{ required: false, message: '请选择付款' }]
+                        rules: [{ required: false, message: '请输入发票编号' }]
                     },
                     widgetParams: { disabled: true }
                 }
@@ -71,7 +75,7 @@ const payment = (props) => {
 
 
     const save = (params) => {
-        HttpService.post('reportServer/ap/payment/createInvoice', JSON.stringify(params)).then((res) => {
+        HttpService.post('reportServer/ap/payment/createPayment', JSON.stringify(params)).then((res) => {
             if (res.resultCode == '1000') {
                 history.push(`/ap/paymentList`);
                 message.success(res.message);
@@ -82,7 +86,7 @@ const payment = (props) => {
     };
 
     const update = (params) => {
-        HttpService.post('reportServer/ap/payment/updateInvoiceById', JSON.stringify(params)).then(
+        HttpService.post('reportServer/ap/payment/updatePaymentById', JSON.stringify(params)).then(
             (res) => {
                 if (res.resultCode == '1000') {
                     history.push(`/ap/paymentList`);
@@ -97,7 +101,7 @@ const payment = (props) => {
     useEffect(() => {
         if (action === 'edit') {
             //初始化编辑数据
-            HttpService.post('reportServer/ap/payment/getInvoiceById', JSON.stringify({ payment_id: id })).then(
+            HttpService.post('reportServer/ap/payment/getPaymentById', JSON.stringify({ payment_id: id })).then(
                 (res) => {
                     if (res.resultCode == '1000') {
                         setDisabled(true);
@@ -121,7 +125,7 @@ const payment = (props) => {
             header={{
                 extra: [
                     <Button
-
+                        disabled={disabled}
                         key="submit"
                         type="danger"
                         icon={<SaveOutlined />}
@@ -130,9 +134,9 @@ const payment = (props) => {
                         }}
                     >
                         保存付款单据
-          </Button>,
+                </Button>,
                     <Button
-                        disabled={disabled}
+
                         key="reset"
                         onClick={() => {
                             history.goBack();
@@ -206,12 +210,10 @@ const payment = (props) => {
                                 name="payment_type"
                                 rules={[{ required: true, message: '请选择付款类型' }]}
                             >
-                                <DictSelect disabled={disabled} dictCode="ap_payment" />
+                                <DictSelect disabled={disabled} dictCode="payment_type" />
                             </Form.Item>
                         </Col>
                     </Row>
-
-
                     <Row>
                         <Col xs={24} sm={10}>
                             <Form.Item
@@ -225,12 +227,10 @@ const payment = (props) => {
                                     readOnly={true}
                                     enterButton
                                     onClick={() => {
-                                        setSelectCustomersFiledName('vendor')
-                                        setSelectCustomersDialogVisible(true);
+                                        setSelectVendorDialogVisible(true);
                                     }}
                                     onSearch={() => {
-                                        setSelectCustomersFiledName('vendor')
-                                        setSelectCustomersDialogVisible(true);
+                                        setSelectVendorDialogVisible(true);
                                     }}
                                 />
                             </Form.Item>
@@ -240,9 +240,20 @@ const payment = (props) => {
                             <Form.Item
                                 name="bank_account_name"
                                 label="付款账户"
-                                rules={[{ required: true, message: '请选择付款时间' }]}
+                                rules={[{ required: true, message: '请选择付款账户' }]}
                             >
-                                <DatePicker style={{ width: "100%" }} disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
+                                <Search
+                                    disabled={disabled}
+                                    allowClear
+                                    readOnly={true}
+                                    enterButton
+                                    onClick={() => {
+                                        setSelectBankAccountVisible(true);
+                                    }}
+                                    onSearch={() => {
+                                        setSelectBankAccountVisible(true);
+                                    }}
+                                />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -280,8 +291,6 @@ const payment = (props) => {
                     </Row>
 
                 </ProCardCollapse>
-
-
             </Form>
 
             <ProCardCollapse
@@ -293,7 +302,7 @@ const payment = (props) => {
                         size="small"
                         onClick={() => {
 
-
+                            setSelectInvoiceVisible(true);
 
                         }}
                     ></Button>,
@@ -313,23 +322,80 @@ const payment = (props) => {
             </ProCardCollapse>
 
 
-            <SelectCustomersDialog
-                modalVisible={selectCustomersDialogVisible}
-                handleOk={(selectCustomers) => {
-                    console.log('selectCustomers', selectCustomers)
-                    if (selectCustomers) {
+            <SelectVendorDialog
+                modalVisible={selectVendorDialogVisible}
+                handleOk={(selectVendor) => {
+                    console.log('selectVendor', selectVendor)
+                    if (selectVendor) {
                         mainForm.setFieldsValue({
-                            [`${selectCustomersFiledName}_id`]: selectCustomers.customer_id,
-                            [`${selectCustomersFiledName}_name`]: selectCustomers.customer_name,
+                            vendor_id: selectVendor.vendor_id,
+                            vendor_name: selectVendor.vendor_name,
                         });
                     }
-                    setSelectCustomersDialogVisible(false);
+                    setSelectVendorDialogVisible(false);
                 }}
                 handleCancel={() => {
-                    setSelectCustomersDialogVisible(false);
+                    setSelectVendorDialogVisible(false);
+                }}
+            />
+            <SelectBankAccountDialog
+                modalVisible={selectBankAccountVisible}
+                handleOk={(selectBankAccount) => {
+                    console.log('SelectBankAccount', selectBankAccount)
+                    if (selectBankAccount) {
+                        mainForm.setFieldsValue({
+                            bank_account_id: selectBankAccount.bank_account_id,
+                            bank_account_name: selectBankAccount.bank_account_name,
+                        });
+                    }
+                    setSelectBankAccountVisible(false);
+                }}
+                handleCancel={() => {
+                    setSelectBankAccountVisible(false);
                 }}
             />
 
+            <SelectInvoiceDialog
+                selectType='checkbox'
+                modalVisible={selectInvoiceVisible}
+                handleOk={(selectInvoiceList) => {
+                    console.log('selectInvoiceList', selectInvoiceList)
+                    if (selectInvoiceList) {
+
+                        let tableData = tableRef.current.getTableData();
+                        let newLinesData = [];
+
+                        for (let i = 0; i < selectInvoiceList.length; i++) {
+                            const item = selectInvoiceList[i];
+
+                            //检查改行是否存在
+                            let isAdd = true;
+
+                            for (let j = 0; j < tableData.length; j++) {
+                                const isLine = item['invoice_id'] == tableData[j]['invoice_id'];
+                                if (isHeader && isLine) {
+                                    isAdd = false;
+                                    break;
+                                }
+                            }
+
+                            if (isAdd) {
+                                newLinesData.push({
+                                    line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                                    invoice_num: item.invoice_num,
+                                    invoice_id: item.invoice_id,
+                                });
+                            }
+                        }
+
+                        tableRef.current.addItemList(newLinesData);
+                    }
+                    setSelectInvoiceVisible(false);
+                }}
+                handleCancel={() => {
+                    setSelectInvoiceVisible(false);
+                }}
+            />
 
 
 

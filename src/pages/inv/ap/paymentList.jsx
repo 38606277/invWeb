@@ -105,7 +105,7 @@ const paymentList = () => {
     const columns = [
         {
             title: '付款编号',
-            dataIndex: 'invoice_num',
+            dataIndex: 'payment_number',
             valueType: 'text',
         },
         {
@@ -159,12 +159,12 @@ const paymentList = () => {
             render: (text, record) => [
                 <a
                     onClick={() => {
-                        history.push(`/ap/payment/edit/${record.invoice_id}`);
+                        history.push(`/ap/payment/edit/${record.payment_id}`);
                     }}
                 >
                     编辑
                 </a>,
-                <a onClick={() => { onDeleteClickListener(ref, [record.invoice_id]) }}>
+                <a onClick={() => { onDeleteClickListener(ref, [record.payment_id]) }}>
                     删除
                 </a>,
             ],

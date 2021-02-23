@@ -353,14 +353,6 @@ const invoice = (props) => {
             for (let j = 0; j < tableData.length; j++) {
               const isHeader = mainData.po_header_id == tableData[j]['po_id'];
               const isLine = item['line_id'] == tableData[j]['line_id'];
-
-              console.log(
-                ` mainData.po_header_id == tableData[j]['po_id']; ${mainData.po_header_id} == ${tableData[j]['po_id']}`,
-              );
-              console.log(
-                ` linesData[i]['line_id'] == tableData[j]['line_id']; ${linesData[i]['line_id']} == ${tableData[j]['line_id']}`,
-              );
-
               if (isHeader && isLine) {
                 isAdd = false;
                 break;
