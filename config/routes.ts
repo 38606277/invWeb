@@ -386,6 +386,16 @@
         path: '/mdm/bomList',
         component: './mdm/bom/bomList',
       },
+      {
+        name: 'user.user-list',
+        path: '/mdm/bankAccountList',
+        component: './mdm/bankAccount/bankAccountList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/mdm/bankAccount/:action/:id',
+        component: './mdm/bankAccount/bankAccount',
+      },
     ],
   },
   {
@@ -509,16 +519,16 @@
         path: '/ap/invoice/:action/:id',
         component: './inv/ap/invoice',
       },
-      // {
-      //   name: 'user.user-list',
-      //   path: '/ap/payment',
-      //   component: './inv/ap/paymentList',
-      // },
-      // {
-      //   name: 'user.user-list',
-      //   path: '/ap/payment/:action/:id',
-      //   component: './inv/ap/payment',
-      // },
+      {
+        name: 'user.user-list',
+        path: '/ap/paymentList',
+        component: './inv/ap/paymentList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/ap/payment/:action/:id',
+        component: './inv/ap/payment',
+      },
     ],
   },
 
