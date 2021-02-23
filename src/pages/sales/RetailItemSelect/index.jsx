@@ -1,4 +1,4 @@
-import { Button, Space, Input, Card, Col, Form, List, Row, Select, Typography } from 'antd';
+import { Button, Space, Input, Card, Col, Form, List, Row, Select, Typography, message } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'umi';
 import { history } from 'umi';
@@ -15,7 +15,7 @@ const { Search } = Input;
 const FormItem = Form.Item;
 const { Paragraph } = Typography;
 const localStorge = new LocalStorge();
-
+const userInfo = localStorge.getStorage('userInfo');
 const getKey = (id, index) => `${id}-${index}`;
 const imgurl = window.getServerUrl();
 export default () => {
@@ -28,18 +28,17 @@ export default () => {
   const [itemDescription, setItemDescription] = useState();
   const [orgid, setOrgid] = useState();
 
-  useEffect(async () => {
-    let userInfo = localStorge.getStorage('userInfo');
-    await HttpService.post(
-      'reportServer/invOrgUser/getOrgListByUserId',
-      JSON.stringify({ user_id: userInfo.id }),
-    ).then((res) => {
-      if (res.resultCode == '1000') {
-        setOrgid(res.data[0].org_id);
-      } else {
-        message.error(res.message);
-      }
-    });
+  useEffect( async () => {
+    
+    await  HttpService.post('reportServer/invOrgUser/getOrgListByUserId', JSON.stringify({ user_id: userInfo.id })).then(
+      (res) => {
+        if (res.resultCode == '1000') {
+          setOrgid(res.data[0].org_id)
+        } else {
+          message.error(res.message);
+        }
+      },
+    );
 
     await HttpService.post('reportServer/sales/getItemCategoryAndOrg', {}).then((res) => {
       if (res.resultCode == '1000') {
@@ -93,9 +92,25 @@ export default () => {
     fetchList(0, val, categoryCheckVal, orgCheckVal);
   };
 
-  const addPo = (item) => {
-    console.log(item);
-  };
+    const addPo = (item) => {
+      console.log(item);
+      let newitem = {
+        ...item,
+        category_id:item.item_category_id,
+        sales_id:userInfo.id,
+        inv_org_id:orgid
+      }
+      HttpService.post('reportServer/sales/addCategory', 
+      
+      newitem
+      
+      ).then(
+        (res) => {
+          if (res.resultCode == '1000') {
+            message.success("添加成功")
+          }
+      });
+    }
 
   return (
     <div className={styles.coverCardList}>
@@ -233,37 +248,46 @@ export default () => {
                       {item.skeyRes}
                     </Paragraph>
                   }
-                />
-                <div>
-                  <Space align="center" size={50}>
-                    <span>仓库:{item.org_name}</span>
-                    <span>
-                      库存量{' '}
-                      {item.quantity == null ? (
-                        0
-                      ) : (
-                        <span style={{ color: 'blue' }}>{item.quantity}</span>
-                      )}
-                    </span>
-                  </Space>
-                </div>
-                <div style={{ fontWeight: 600, fontSize: '18px' }}>
-                  <Space align="center" size={50}>
-                    <span>${item.retail_price}</span>
-                    <Button
-                      size="small"
-                      style={{ float: 'right' }}
-                      disabled={item.quantity > 0 ? (item.org_id == orgid ? false : true) : true}
-                      onClick={() => addPo(item)}
-                    >
-                      加入订单
-                    </Button>
-                  </Space>
-                </div>
-              </Card>
-            </List.Item>
-          )}
-        />
+                >
+                  <Card.Meta
+                    title={<a>{item.mkeyRes}</a>}
+                    description={
+                      <Paragraph
+                        className={styles.item}
+                        ellipsis={{
+                          rows: 2,
+                        }}
+                      >
+                        {item.skeyRes}
+                      </Paragraph>
+                    }
+                  />
+                  <div>
+                    <Space align="center" size={50}>
+                      <span>仓库:{item.org_name}</span>
+                    </Space>
+                  </div>
+                  <div>
+                    <Space align="center" size={50}>
+                      <span>库存量 {item.quantity==null?0:<span style={{color:'blue'}}>{item.quantity}</span>}</span>
+                    </Space>
+                  </div>
+                  <div style={{ fontWeight: 600, fontSize: '18px' }}>
+                    <Space align="center" size={50}>
+                      <span>${item.retail_price}</span>
+                      <Button size="small" style={{ float: 'right' }} 
+                      disabled={item.quantity>0?item.org_id==orgid?false:true:true}
+                      onClick={()=>addPo(item)}
+                      >
+                        加入订单
+                      </Button>
+                    </Space>
+                  </div>
+                </Card>
+              </List.Item>
+            )}
+          />
+        </div>
       </div>
     </div>
   );

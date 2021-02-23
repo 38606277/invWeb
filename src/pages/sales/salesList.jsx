@@ -125,7 +125,7 @@ const salesList = (props) => {
       align: 'center',
     },
     {
-      title: '供应商',
+      title: '仓库',
       dataIndex: 'inv_org_name',
       key: 'inv_org_id',
       valueType: 'text',
