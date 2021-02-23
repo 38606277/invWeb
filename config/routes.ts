@@ -1,4 +1,4 @@
-﻿export default [
+export default [
   {
     name: 'loginTest',
     layout: false,
@@ -305,6 +305,11 @@
         path: '/transation/inventoryList',
         component: './inv/inventory/inventoryList',
       },
+      {
+        name: 'user.user-list',
+        path: '/transation/inventoryQuery',
+        component: './inv/inventory/inventoryQuery',
+      },
     ],
   },
   {
@@ -464,6 +469,12 @@
     icon: 'smile',
     component: './Welcome',
     exact: true,
+  },
+  {
+    name: '工作台',
+    icon: 'smile',
+    path: '/dashboardworkplace',
+    component: './dashboard/DashboardWorkplace',
   },
   {
     path: '/dashboard',

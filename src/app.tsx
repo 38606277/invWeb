@@ -51,8 +51,6 @@ const IconMap = {
   unorderedList: <UnorderedListOutlined />,
 };
 
-
-
 /**
  * 获取用户信息比较慢的时候会展示一个 loading
  */
@@ -70,7 +68,7 @@ export async function getInitialState(): Promise<{
   menuData?: MenuDataItem[];
   fetchUserInfo?: () => Promise<API.LoginInfoResult | undefined>;
   getMenuConfig?: () => Promise<MenuDataItem[]>;
-  menuCollapsed?: boolean
+  menuCollapsed?: boolean;
 }> {
   //console.log('getInitialState', history.location.pathname)
   //获取当前用户信息
@@ -167,9 +165,7 @@ const loopMenuItem = (menus: MenuDataItem[]): MenuDataItem[] =>
     };
   });
 
-
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
-
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
@@ -207,42 +203,47 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     title: initialState?.settings?.title,
     headerTitleRender: (logo, title, props) => {
       //console.log('headerTitleRender', title)
-      return <a>
-        <img src={initialState?.settings?.logo}></img>
+      return (
+        <a>
+          <img src={initialState?.settings?.logo}></img>
 
-        <h1 >{initialState?.settings?.title}</h1>
-        {initialState?.menuCollapsed ? <MenuUnfoldOutlined style={{ fontSize: '16px', marginLeft: '10px' }} onClick={
-          (e) => {
-            e.stopPropagation();
-            setInitialState({
-              ...initialState,
-              menuCollapsed: false
-            });
-          }
-        } /> : <MenuFoldOutlined style={{ fontSize: '16px', marginLeft: '10px' }} onClick={
-          (e) => {
-            e.stopPropagation();
-            setInitialState({
-              ...initialState,
-              menuCollapsed: true
-            });
-          }
-        } />}
-      </a>;
+          <h1>{initialState?.settings?.title}</h1>
+          {initialState?.menuCollapsed ? (
+            <MenuUnfoldOutlined
+              style={{ fontSize: '16px', marginLeft: '10px' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setInitialState({
+                  ...initialState,
+                  menuCollapsed: false,
+                });
+              }}
+            />
+          ) : (
+            <MenuFoldOutlined
+              style={{ fontSize: '16px', marginLeft: '10px' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setInitialState({
+                  ...initialState,
+                  menuCollapsed: true,
+                });
+              }}
+            />
+          )}
+        </a>
+      );
     },
     collapsed: initialState?.menuCollapsed || false,
     onCollapse: (collapsed) => {
       //console.log('app onCollapse', console)
       setInitialState({
         ...initialState,
-        menuCollapsed: collapsed
+        menuCollapsed: collapsed,
       });
-    }
+    },
   };
 };
-
-
-
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',

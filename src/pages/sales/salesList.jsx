@@ -24,7 +24,7 @@ const onUpdateClickListener = (ref, selectedRowKeys) => {
     onOk() {
       updateStatusByIds(ref, selectedRowKeys);
     },
-    onCancel() { },
+    onCancel() {},
   });
 };
 
@@ -37,7 +37,7 @@ const updateStatusByIds = (ref, selectedRowKeys) => {
 
   HttpService.post(
     'reportServer/wholeSale/updateWholeSaleStatusByIds',
-    JSON.stringify({ ids: selectedRowKeys.toString(), bill_status: 1 }),
+    JSON.stringify({ ids: selectedRowKeys.toString(), status: 1 }),
   ).then((res) => {
     if (res.resultCode == '1000') {
       //刷新
@@ -66,7 +66,7 @@ const onDeleteClickListener = (ref, selectedRowKeys) => {
     onOk() {
       deleteByIds(ref, selectedRowKeys);
     },
-    onCancel() { },
+    onCancel() {},
   });
 };
 //删除
@@ -98,7 +98,7 @@ const fetchData = async (params, sort, filter) => {
   let requestParam = {
     pageNum: params.current,
     perPage: params.pageSize,
-    ...params
+    ...params,
   };
   const result = await HttpService.post(
     'reportServer/wholeSale/getWholeSaleListByPage',
@@ -112,7 +112,6 @@ const fetchData = async (params, sort, filter) => {
   });
 };
 
-
 const salesList = (props) => {
   const ref = useRef();
   const type = 'wholesales';
@@ -121,34 +120,34 @@ const salesList = (props) => {
   const columns = [
     {
       title: '编号',
-      dataIndex: 'bill_id',
+      dataIndex: 'header_code',
       valueType: 'text',
-      align:'center'
+      align: 'center',
     },
     {
       title: '仓库',
       dataIndex: 'inv_org_name',
       key: 'inv_org_id',
       valueType: 'text',
-      align:'center'
+      align: 'center',
     },
     {
-      title: '出库时间',
-      dataIndex: 'bill_date',
+      title: '销售时间',
+      dataIndex: 'so_date',
       valueType: 'dateTime',
-      align:'center'
+      align: 'center',
     },
     {
       title: '备注',
-      dataIndex: 'remark',
+      dataIndex: 'comments',
       valueType: 'text',
-      align:'center'
+      align: 'center',
     },
     {
       title: '状态',
-      dataIndex: 'bill_status',
+      dataIndex: 'status',
       valueType: 'select',
-      align:'center',
+      align: 'center',
       valueEnum: {
         0: { text: '新建', status: 'Warning' },
         1: { text: '已过账', status: 'Success' },
@@ -158,22 +157,26 @@ const salesList = (props) => {
       title: '创建时间',
       dataIndex: 'create_date',
       valueType: 'dateTime',
-      align:'center'
+      align: 'center',
     },
     {
       title: '操作',
       key: 'option',
       valueType: 'option',
-      align:'center',
+      align: 'center',
       render: (text, record) => [
         <a
           onClick={() => {
-            history.push(`/sales/sales/edit/${record.bill_id}`);
+            history.push(`/sales/sales/edit/${record.so_header_id}`);
           }}
         >
           编辑
         </a>,
-        <a onClick={() => { onDeleteClickListener(ref, [record.bill_id]) }}>
+        <a
+          onClick={() => {
+            onDeleteClickListener(ref, [record.so_header_id]);
+          }}
+        >
           删除
         </a>,
       ],
@@ -186,9 +189,9 @@ const salesList = (props) => {
       actionRef={ref}
       columns={columns}
       request={fetchData}
-      rowKey="bill_id"
+      rowKey="so_header_id"
       params={{
-        bill_type: `deliver_wholesales`
+        so_type: `deliver_wholesales`,
       }}
       rowSelection={
         {
