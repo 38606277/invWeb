@@ -391,6 +391,16 @@ export default [
         path: '/mdm/bomList',
         component: './mdm/bom/bomList',
       },
+      {
+        name: 'user.user-list',
+        path: '/mdm/bankAccountList',
+        component: './mdm/bankAccount/bankAccountList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/mdm/bankAccount/:action/:id',
+        component: './mdm/bankAccount/bankAccount',
+      },
     ],
   },
   {
@@ -525,6 +535,19 @@ export default [
         path: '/ap/invoice/:action/:id',
         component: './inv/ap/invoice',
       },
+<<<<<<< HEAD
+=======
+      {
+        name: 'user.user-list',
+        path: '/ap/paymentList',
+        component: './inv/ap/paymentList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/ap/payment/:action/:id',
+        component: './inv/ap/payment',
+      },
+>>>>>>> b08ea330264a2c35a01459c6fd6f94cc41f1ad55
     ],
   },
   {
