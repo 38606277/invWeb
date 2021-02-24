@@ -16,6 +16,8 @@ import {
   Row,
   Form,
   Checkbox,
+  Tabs,
+  Divider  
 } from 'antd';
 import { findDOMNode } from 'react-dom';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -24,10 +26,12 @@ import moment from 'moment';
 import OperationModal from './components/OperationModal';
 import styles from './style.less';
 import HttpService from '../../../utils/HttpService';
+import ProTable from '@ant-design/pro-table';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const { Search } = Input;
+const { TabPane } = Tabs;
 
 const formItemLayout2 = {
   labelCol: { span: 8 },
@@ -37,6 +41,7 @@ const formItemLayout1 = {
   labelCol: { span: 4 },
   wrapperCol: { span: 20 },
 };
+const url = window.getServerUrl();
 
 const Info = ({ title, value, bordered }) => (
   <div className={styles.headerInfo}>
@@ -167,9 +172,133 @@ export default () => {
     setAddBtnblur();
     setDone(true);
   };
+/****列表 开始 */
+
+  const ref = useRef();
+  const type = 'wholesales';
+
+  //获取数据
+  const fetchData = async (params, sort, filter) => {
+    console.log('getByKeyword', params, sort, filter);
+    // current: 1, pageSize: 20
+    let requestParam = {
+      pageNum: params.current,
+      perPage: params.pageSize,
+      ...params,
+    };
+    const result = await HttpService.post(
+      'reportServer/sales/getListPage',
+      JSON.stringify(requestParam),
+    );
+    console.log('result : ', result);
+    return Promise.resolve({
+      data: result.data.list,
+      total: result.data.total,
+      success: result.resultCode == '1000',
+    });
+  };
+
+  //定义列
+  const columns = [
+    {
+      title: '编号',
+      dataIndex: 'header_code',
+      valueType: 'text',
+      align: 'center',
+    },
+    {
+      title: '仓库',
+      dataIndex: 'inv_org_name',
+      key: 'inv_org_id',
+      valueType: 'text',
+      align: 'center',
+    },
+    {
+      title: '销售时间',
+      dataIndex: 'so_date',
+      valueType: 'dateTime',
+      align: 'center',
+    },
+    {
+      title: '备注',
+      dataIndex: 'comments',
+      valueType: 'text',
+      align: 'center',
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      valueType: 'select',
+      align: 'center',
+      valueEnum: {
+        0: { text: '新建', status: 'Warning' },
+        1: { text: '已过账', status: 'Success' },
+      },
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'create_date',
+      valueType: 'dateTime',
+      align: 'center',
+    },
+    {
+      title: '操作',
+      key: 'option',
+      valueType: 'option',
+      align: 'center',
+      render: (text, record) => [
+        <a
+          onClick={() => {
+            
+          }}
+        >
+          查看
+        </a>,
+        <a
+          onClick={() => {
+            onDeleteClickListener(ref, [record.so_header_id]);
+          }}
+        >
+          删除
+        </a>,
+      ],
+    },
+  ];
 
   return (
     <div>
+     
+      <Tabs  type="card" defaultActiveKey="1" size='small' style={{ marginBottom: 32 }}>
+        <TabPane tab="我的订单" key="1">
+          <ProTable
+            actionRef={ref}
+            columns={columns}
+            request={fetchData}
+            rowKey="so_header_id"
+            params={{
+              so_type: `deliver_wholesales`,
+            }}
+            rowSelection={
+              {
+                // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
+                // 注释该行则默认不显示下拉选项
+                //selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+              }
+            }
+            tableAlertRender={false}
+            tableAlertOptionRender={false}
+            pagination={{
+              showQuickJumper: true,
+            }}
+            search={{
+              defaultCollapsed: true,
+            }}
+            dateFormatter="string"
+            headerTitle={'零售'}
+            toolBarRender={false}
+          />
+        </TabPane>
+      <TabPane tab="进行中" key="2">
       <div className={styles.standardList}>
         <Form
           {...formItemLayout2}
@@ -182,20 +311,19 @@ export default () => {
           <Card bordered={false}>
             <Row>
               <Col xs={24} sm={8}>
-                <Form.Item label="* 销售编码" name="header_code">
-                  <Input placeholder="自动生成" />
+                <Form.Item label="销售编码" name="header_code">
+                  <Input placeholder="自动生成" readOnly bordered={0} />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={8}>
                 <Form.Item
                   label="仓库名称"
                   name="inv_org_name"
-                  rules={[{ required: true, message: '请输入选择仓库' }]}
                 >
-                  <Input id="inv_org_name" />
+                  <Input id="inv_org_name" readOnly bordered={0} />
                 </Form.Item>
               </Col>
-            </Row>
+            {/* </Row>
 
             <Row>
               <Col xs={24} sm={8}>
@@ -204,54 +332,28 @@ export default () => {
                   label="销售时间"
                   rules={[{ required: true, message: '请选择销售时间' }]}
                 >
-                  <DatePicker style={{ width: '100%' }} showTime format="YYYY-MM-DD HH:mm:ss" />
+                  {mainForm.so_date}
+                  <DatePicker style={{ width: '100%' }} disabled  bordered={0} format="YYYY-MM-DD HH:mm:ss" />
                 </Form.Item>
-              </Col>
+              </Col> */}
               <Col xs={24} sm={8}>
                 <Form.Item
-                  name="sales_id"
+                  name="USER_NAME"
                   label="销售员"
-                  rules={[{ required: true, message: '请选择销售时间' }]}
                 >
-                  <Input id="sales_id" />
+                  <Input id="USER_NAME" readOnly bordered={0} />
                 </Form.Item>
               </Col>
             </Row>
-          </Card>
-
-          <Card
-            className={styles.listCard}
-            bordered={false}
-            title="订单列表"
-            style={{
-              marginTop: 24,
-            }}
-            bodyStyle={{
-              padding: '0 32px 40px 32px',
-            }}
-            extra={extraContent}
-          >
-            {/* <Button
-              type="dashed"
-              style={{
-                width: '100%',
-                marginBottom: 8,
-              }}
-              onClick={showModal}
-              ref={addBtn}
-            >
-              <PlusOutlined />
-              添加
-            </Button> */}
-
+          <Divider ></Divider>
+          
             <List
               size="large"
               rowKey="id"
               header={
                 <div>
                   <span>
-                    {' '}
-                    <Checkbox style={{ marginRight: '60px' }} />
+                    <Checkbox style={{ marginLeft:'24px',marginRight: '50px' }} />
                   </span>
                   <span style={{ marginRight: '360px' }}>商品名称</span>
                   <span style={{ marginRight: '160px' }}>单价</span>
@@ -277,9 +379,13 @@ export default () => {
                 >
                   <Checkbox style={{ marginRight: '60px' }} />
                   <List.Item.Meta
-                    avatar={<Avatar src={item.image_url} shape="square" size="large" />}
-                    title={item.item_description}
-                    description={'红色 XXL'}
+                    avatar={
+                      item.image_url == null ?
+                        <Avatar src='https://img11.360buyimg.com/n7/jfs/t22633/109/2567375342/123812/faf849d3/5b862eb9N70c434d2.jpg' shape="square" size="large" />
+                        : <Avatar src={url + "/report/" + item.image_url} shape="square" size="large" />
+                        }
+                    title={item.mkeyRes}
+                    description={item.skeyRes}
                   />
                   <div className={styles.listContent}>
                     <div className={styles.listContentItem}>
@@ -297,10 +403,11 @@ export default () => {
                 </List.Item>
               )}
             />
-          </Card>
+            </Card>
         </Form>
-      </div>
-
+        </div>
+      </TabPane>
+    </Tabs>
       <OperationModal
         done={done}
         current={current}
