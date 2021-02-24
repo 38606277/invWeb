@@ -543,6 +543,20 @@ export default [
     ],
   },
 
+
+  {
+    name: 'task',
+    path: '/task',
+    routes: [
+      {
+        name: 'user.user-list',
+        path: '/task/taskList',
+        component: './inv/task/taskList',
+      }
+    ],
+  },
+
+
   {
     path: '/',
     //redirect: '/user',

@@ -179,10 +179,10 @@ const count = (props) => {
     useEffect(() => {
         if (action === 'edit') {
             //初始化编辑数据
-            HttpService.post('reportServer/invStore/getStoreById', JSON.stringify({ bill_id: id })).then(
+            HttpService.post('reportServer/invStore/getStoreByIdOld', JSON.stringify({ bill_id: id })).then(
                 (res) => {
                     if (res.resultCode == '1000') {
-                        setDisabled(true);
+                        setDisabled(res.data.mainData.bill_status == '1');
                         mainForm.setFieldsValue({
                             ...res.data.mainData,
                             bill_date: moment(res.data.mainData.bill_date),
@@ -203,7 +203,6 @@ const count = (props) => {
             header={{
                 extra: [
                     <Button
-
                         key="submit"
                         type="danger"
                         icon={<SaveOutlined />}
@@ -251,6 +250,7 @@ const count = (props) => {
                                 let deleteIds = deleteRecordKeys.filter((element) => {
                                     return element.toString().indexOf('NEW_TEMP_ID_') < 0;
                                 });
+                                values.bill_status = 1;
                                 update({
                                     mainData: values,
                                     linesData: tableData,
@@ -460,7 +460,8 @@ const count = (props) => {
                             item_description: line.item_description,
                             price: line.price,
                             quantity: line.on_hand_quantity,
-                            amount: line.amount
+                            amount: line.amount,
+                            uom: line.uom
                         })
                     }
                     tableRef?.current?.initData(initData);

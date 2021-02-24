@@ -212,7 +212,7 @@ const transfer = (props) => {
         if (action === 'edit') {
             setDisabled(true)
             //初始化编辑数据
-            HttpService.post('reportServer/invStore/getStoreById', JSON.stringify({ bill_id: id })).then(
+            HttpService.post('reportServer/invStore/getStoreByIdOld', JSON.stringify({ bill_id: id })).then(
                 (res) => {
                     if (res.resultCode == '1000') {
                         let mainD = {

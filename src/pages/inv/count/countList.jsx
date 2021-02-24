@@ -40,7 +40,7 @@ const updateStatusByIds = (ref, selectedRowKeys) => {
 
     HttpService.post(
         'reportServer/invStore/updateStoreStatusByIds',
-        JSON.stringify({ ids: selectedRowKeys.toString() }),
+        JSON.stringify({ ids: selectedRowKeys.toString(), bill_status: 1 }),
     ).then((res) => {
         if (res.resultCode == '1000') {
             //刷新
