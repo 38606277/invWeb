@@ -48,12 +48,12 @@ export default defineConfig({
     'primary-color': defaultSettings.primaryColor,
     'font-size-base': '10px',
     'badge-font-size': '12px',
-    // 'font-family': '微软雅黑 Regular,微软雅黑,宋体',
+    'font-family': '微软雅黑 Regular,微软雅黑,宋体',
     'btn-font-size-lg': '@font-size-base',
-    'menu-dark-bg': '#00182E',
-    'menu-dark-submenu-bg': '#000B14',
-    'layout-sider-background': '#00182E',
-    'layout-body-background': '#f0f2f5',
+    // 'menu-dark-bg': '#4d5b69',
+    // 'menu-dark-submenu-bg': '#4d5b69',
+    // 'layout-sider-background': '#4d5b69',
+    // 'layout-body-background': '#f0f2f5',
     'heading-color': 'rgba(0, 0, 0, 0.85)', // 标题色
     'text-color': 'rgba(0, 0, 0, 0.65)', // 主文本色
   },
