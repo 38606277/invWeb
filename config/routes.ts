@@ -487,6 +487,12 @@ export default [
     ],
   },
   {
+    name: '搜索列表（应用）',
+    icon: 'smile',
+    path: '/listsearchapplications',
+    component: './dashboard/ListSearchApplications',
+  },
+  {
     name: 'list.table-list',
     icon: 'table',
     path: '/list',
@@ -505,7 +511,6 @@ export default [
     path: '/retail/itemselect',
     component: './sales/RetailItemSelect',
   },
-
   {
     name: 'ap',
     path: '/ap',
@@ -520,19 +525,8 @@ export default [
         path: '/ap/invoice/:action/:id',
         component: './inv/ap/invoice',
       },
-      // {
-      //   name: 'user.user-list',
-      //   path: '/ap/payment',
-      //   component: './inv/ap/paymentList',
-      // },
-      // {
-      //   name: 'user.user-list',
-      //   path: '/ap/payment/:action/:id',
-      //   component: './inv/ap/payment',
-      // },
     ],
   },
-
   {
     path: '/',
     //redirect: '/user',
