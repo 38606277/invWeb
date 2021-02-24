@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Space, message, Modal } from 'antd';
-import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import ProTable from '@ant-design/pro-table';
 import { PageContainer } from '@ant-design/pro-layout';
 import { history } from 'umi';
@@ -10,48 +9,6 @@ import LocalStorge from '@/utils/LogcalStorge.jsx';
 const localStorge = new LocalStorge();
 
 const { confirm } = Modal;
-
-//过账按钮事件
-const onUpdateClickListener = (ref, selectedRowKeys) => {
-  if (selectedRowKeys.length < 1) {
-    message.error('请选择需要过账的内容');
-    return;
-  }
-
-  confirm({
-    title: '温馨提示',
-    content: `您确定要过账吗？`,
-    okText: '确定',
-    cancelText: '取消',
-    okType: 'danger',
-    onOk() {
-      updateStatusByIds(ref, selectedRowKeys);
-    },
-    onCancel() {},
-  });
-};
-
-//删除
-const updateStatusByIds = (ref, selectedRowKeys) => {
-  if (selectedRowKeys.length < 1) {
-    message.error('请选择需要过账的内容');
-    return;
-  }
-
-  HttpService.post(
-    'reportServer/invStore/updateStoreStatusByIds',
-    JSON.stringify({ ids: selectedRowKeys.toString(), bill_status: 1 }),
-  ).then((res) => {
-    if (res.resultCode == '1000') {
-      //刷新
-      // 清空选中项
-      ref.current.clearSelected();
-      ref.current.reload();
-    } else {
-      message.error(res.message);
-    }
-  });
-};
 
 //删除按钮事件
 const onDeleteClickListener = (ref, selectedRowKeys) => {
@@ -80,7 +37,7 @@ const deleteByIds = (ref, selectedRowKeys) => {
   }
 
   HttpService.post(
-    'reportServer/invStore/deleteStoreByIds',
+    'reportServer/fndTask/deleteFndTaskByIds',
     JSON.stringify({ ids: selectedRowKeys.toString() }),
   ).then((res) => {
     if (res.resultCode == '1000') {
@@ -102,14 +59,13 @@ const fetchData = async (params, sort, filter) => {
     pageNum: params.current,
     perPage: params.pageSize,
     ...params,
-    bill_type: 'count',
   };
 
   let userInfo = localStorge.getStorage('userInfo');
-  requestParam.operator = userInfo.id;
+  requestParam.assigner_id = userInfo.id;
 
   const result = await HttpService.post(
-    'reportServer/invStore/getStoreListByPage',
+    'reportServer/fndTask/getFndTaskListByPage',
     JSON.stringify(requestParam),
   );
   console.log('result : ', result);
@@ -120,46 +76,55 @@ const fetchData = async (params, sort, filter) => {
   });
 };
 
-const countList = () => {
+const taskList = () => {
   const ref = useRef();
 
   //定义列
   const columns = [
     {
-      title: '编号',
-      dataIndex: 'bill_code',
+      title: '任务名称',
+      dataIndex: 'task_name',
       valueType: 'text',
     },
+
     {
-      title: '盘查仓库',
-      dataIndex: 'inv_org_name',
-      key: 'inv_org_id',
-      valueType: 'text',
-    },
-    {
-      title: '盘点人',
-      dataIndex: 'operator_name',
-      key: 'inv_org_id',
-      valueType: 'text',
-    },
-    {
-      title: '盘点时间',
-      dataIndex: 'bill_date',
-      key: 'bill_date',
-      valueType: 'text',
-    },
-    {
-      title: '状态',
-      dataIndex: 'bill_status',
+      title: '任务级别',
+      dataIndex: 'task_level',
       valueType: 'select',
       valueEnum: {
-        0: { text: '未盘', status: 'Warning' },
-        1: { text: '已盘', status: 'Success' },
+        0: { text: '普通' },
+        1: { text: '紧急' },
       },
     },
     {
+      title: '任务状态',
+      dataIndex: 'task_status',
+      valueType: 'select',
+      valueEnum: {
+        0: { text: '未完成', status: 'Warning' },
+        1: { text: '未完成', status: 'Warning' },
+        2: { text: '已完成', status: 'Success' },
+      },
+    },
+    {
+      title: '描述',
+      dataIndex: 'task_description',
+      valueType: 'text',
+    },
+    {
+      title: '执行人',
+      dataIndex: 'assigner_name',
+      valueType: 'text',
+    },
+    {
+      title: '创建人',
+      dataIndex: 'owner_name',
+      key: 'owner_name',
+      valueType: 'text',
+    },
+    {
       title: '创建时间',
-      dataIndex: 'create_date',
+      dataIndex: 'assign_date',
       valueType: 'dateTime',
     },
     {
@@ -169,14 +134,14 @@ const countList = () => {
       render: (text, record) => [
         <a
           onClick={() => {
-            history.push(`/transation/count/edit/${record.bill_id}`);
+            history.push(record.func_url);
           }}
         >
-          {record.bill_status == 0 ? '盘查' : '查看详情'}
+          查看详情
         </a>,
         <a
           onClick={() => {
-            onDeleteClickListener(ref, [record.bill_id]);
+            onDeleteClickListener(ref, [record.task_id]);
           }}
         >
           删除
@@ -191,7 +156,7 @@ const countList = () => {
       actionRef={ref}
       columns={columns}
       request={fetchData}
-      rowKey="bill_id"
+      rowKey="task_id"
       rowSelection={
         {
           // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
@@ -217,7 +182,7 @@ const countList = () => {
       tableAlertOptionRender={({ selectedRowKeys }) => (
         <Space size={16}>
           <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
-          <a onClick={() => onUpdateClickListener(ref, selectedRowKeys)}> 批量过账</a>
+          {/* <a onClick={() => onUpdateClickListener(ref, selectedRowKeys)}> 批量过账</a> */}
         </Space>
       )}
       pagination={{
@@ -227,14 +192,14 @@ const countList = () => {
         defaultCollapsed: true,
       }}
       dateFormatter="string"
-      headerTitle="盘点管理"
-      toolBarRender={(action, { selectedRows }) => [
-        <Button type="primary" onClick={() => history.push('/transation/count/add/null')}>
-          新建
-        </Button>,
-      ]}
+      headerTitle="任务管理"
+      // toolBarRender={(action, { selectedRows }) => [
+      //   <Button type="primary" onClick={() => history.push('/ap/invoice/add/null')}>
+      //     新建
+      //   </Button>,
+      // ]}
     />
     // </PageContainer>
   );
 };
-export default countList;
+export default taskList;

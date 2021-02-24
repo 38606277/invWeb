@@ -203,7 +203,7 @@ const invoice = (props) => {
           <Row>
             <Col xs={24} sm={10}>
               <Form.Item label="发票编码" name="invoice_num">
-                <Input placeholder="请输入发票编码" />
+                <Input disabled={disabled} placeholder="请输入发票编码" />
               </Form.Item>
             </Col>
 

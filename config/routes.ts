@@ -1,4 +1,4 @@
-export default [
+﻿export default [
   {
     name: 'loginTest',
     layout: false,
@@ -535,8 +535,6 @@ export default [
         path: '/ap/invoice/:action/:id',
         component: './inv/ap/invoice',
       },
-<<<<<<< HEAD
-=======
       {
         name: 'user.user-list',
         path: '/ap/paymentList',
@@ -547,9 +545,21 @@ export default [
         path: '/ap/payment/:action/:id',
         component: './inv/ap/payment',
       },
->>>>>>> b08ea330264a2c35a01459c6fd6f94cc41f1ad55
     ],
   },
+
+  {
+    name: 'task',
+    path: '/task',
+    routes: [
+      {
+        name: 'user.user-list',
+        path: '/task/taskList',
+        component: './inv/task/taskList',
+      },
+    ],
+  },
+
   {
     path: '/',
     //redirect: '/user',
