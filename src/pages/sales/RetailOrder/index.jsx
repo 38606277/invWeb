@@ -23,6 +23,7 @@ import {
 import { findDOMNode } from 'react-dom';
 import { PageContainer } from '@ant-design/pro-layout';
 import { connect } from 'umi';
+import { history } from 'umi';
 import moment from 'moment';
 import OperationModal from './components/OperationModal';
 import styles from './style.less';
@@ -93,6 +94,9 @@ export default () => {
           setamountToatl(res.data.amountAll);
           setcountTotal(res.data.countnum);
           setHeaderId(res.data.maindata.so_header_id)
+        }else{
+          setamountToatl("0");
+          setcountTotal("0");
         }
       }
     });
@@ -428,7 +432,7 @@ const updateStatusByIds = () => {
             <div style={{float: 'right',    fontSize: 'large'}}>
             已选商品&nbsp;<span style={{color:'red'}}>{ countTotal }</span>&nbsp;件&nbsp;&nbsp;&nbsp;&nbsp;
             合计：<span style={{color:'red'}}>￥{ amountToatl }</span> &nbsp;&nbsp;&nbsp;&nbsp;
-            <Button type="primary" onClick={updateStatusByIds}>结算</Button>
+            <Button type="primary" disabled={countTotal=='0'?true:false} onClick={updateStatusByIds}>结算</Button>
               </div>
 
             </Card>
