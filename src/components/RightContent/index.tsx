@@ -33,7 +33,7 @@ const GlobalHeaderRight: React.FC<{}> = () => {
       <HeaderSearch
         className={`${styles.action} ${styles.search}`}
         placeholder="站内搜索"
-        defaultValue="umi ui"
+        defaultValue=""
         options={[
           { label: <a href="https://umijs.org/zh/guide/umi-ui.html">umi ui</a>, value: 'umi ui' },
           {
@@ -61,14 +61,7 @@ const GlobalHeaderRight: React.FC<{}> = () => {
                 window.open('/~docs');
               }}
             >
-              组件文档
-            </Menu.Item>
-            <Menu.Item
-              onClick={() => {
-                window.open('https://pro.ant.design/docs/getting-started');
-              }}
-            >
-              Ant Design Pro 文档
+              帮助文档
             </Menu.Item>
           </Menu>
         }

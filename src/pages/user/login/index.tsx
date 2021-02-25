@@ -1,7 +1,4 @@
-import {
-  LockTwoTone,
-  UserOutlined,
-} from '@ant-design/icons';
+import { LockTwoTone, UserOutlined } from '@ant-design/icons';
 import { Alert, message } from 'antd';
 import React, { useState } from 'react';
 import ProForm, { ProFormCheckbox, ProFormText } from '@ant-design/pro-form';
@@ -32,9 +29,9 @@ const LoginMessage: React.FC<{
  * 此方法会跳转到 redirect 参数所在的位置
  */
 const goto = () => {
-  console.log('goto')
+  console.log('goto');
   if (!history) return;
-  console.log('goto end')
+  console.log('goto end');
   setTimeout(() => {
     const { query } = history.location;
     const { redirect } = query as { redirect: string };
@@ -59,12 +56,12 @@ const Login: React.FC<{}> = () => {
     if (typeof menuData == 'undefined') {
       return;
     }
-    console.log('fetchUserInfo', userInfo)
+    console.log('fetchUserInfo', userInfo);
     if (userInfo) {
       setInitialState({
         ...initialState,
         currentUser: userInfo,
-        menuData: menuData
+        menuData: menuData,
       });
     }
   };
@@ -72,11 +69,10 @@ const Login: React.FC<{}> = () => {
   const handleSubmit = async (values: LoginParams) => {
     setSubmitting(true);
     try {
-
       //加密密码
-      let encodePwdResult = await encodePwd(values.Pwd)
+      let encodePwdResult = await encodePwd(values.Pwd);
 
-      console.log('handleSubmit encodePwdResult', encodePwdResult)
+      console.log('handleSubmit encodePwdResult', encodePwdResult);
 
       if (typeof encodePwdResult == 'undefined') {
         message.error('登录失败，请重试！');
@@ -89,10 +85,9 @@ const Login: React.FC<{}> = () => {
       if (values.encodePwd) {
         values.Pwd = values.encodePwd;
         // 登录
-        let loginResult = await fakeAccountLogin(values)
+        let loginResult = await fakeAccountLogin(values);
 
         if (loginResult.status == '0') {
-
           let userInfo = loginResult.data;
           if (userInfo) {
             userInfo.Pwd = values.encodePwd;
@@ -102,14 +97,12 @@ const Login: React.FC<{}> = () => {
           localStorge.setStorage('userInfo', userInfo);
           await fetchUserInfo();
           goto();
-
         } else {
-          console.log('登录失败', loginResult)
+          console.log('登录失败', loginResult);
           // 如果失败去设置用户错误信息
           setUserLoginState(loginResult);
         }
       }
-
     } catch (error) {
       console.log(error);
 
@@ -119,8 +112,8 @@ const Login: React.FC<{}> = () => {
   };
   const { LOGINRESULT } = userLoginState;
 
-  console.log('userLoginState', userLoginState)
-  console.log('LOGINRESULT', LOGINRESULT)
+  console.log('userLoginState', userLoginState);
+  console.log('LOGINRESULT', LOGINRESULT);
 
   return (
     <div className={styles.container}>
@@ -129,11 +122,14 @@ const Login: React.FC<{}> = () => {
         <div className={styles.top}>
           <div className={styles.header}>
             <Link to="/">
-              <img alt="logo" className={styles.logo} src={require('../../../../public/logo.svg')} />
-              <span className={styles.title}>仓库管理系统</span>
+              <img
+                alt="logo"
+                className={styles.logo}
+                src={require('../../../../public/logo.svg')}
+              />
+              <span className={styles.title}>服装管理系统</span>
             </Link>
           </div>
-
         </div>
 
         <div className={styles.main}>
@@ -167,16 +163,8 @@ const Login: React.FC<{}> = () => {
               }}
             />
 
-            {LOGINRESULT === 'InvalidUser' && (
-              <LoginMessage
-                content="账户或密码错误"
-              />
-            )}
-            {LOGINRESULT === 'Exception' && (
-              <LoginMessage
-                content="登录异常"
-              />
-            )}
+            {LOGINRESULT === 'InvalidUser' && <LoginMessage content="账户或密码错误" />}
+            {LOGINRESULT === 'Exception' && <LoginMessage content="登录异常" />}
             <ProFormText
               name="UserCode"
               fieldProps={{
@@ -238,7 +226,6 @@ const Login: React.FC<{}> = () => {
               </a>
             </div>
           </ProForm>
-
         </div>
       </div>
       <Footer />

@@ -4,7 +4,7 @@ const Settings: LayoutSettings & {
   pwa?: boolean;
   logo?: string;
 } = {
-  navTheme: 'realDark',
+  navTheme: 'light',
   // 拂晓蓝
   primaryColor: '#1890ff',
 
@@ -15,7 +15,7 @@ const Settings: LayoutSettings & {
   colorWeak: false,
   title: '服装管理系统',
   pwa: false,
-  // logo: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
+  logo: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
   iconfontUrl: '',
 };
 
