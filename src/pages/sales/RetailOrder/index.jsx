@@ -18,7 +18,8 @@ import {
   Checkbox,
   Tabs,
   Divider ,
-  message   
+  message,
+  InputNumber    
 } from 'antd';
 import { findDOMNode } from 'react-dom';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -82,6 +83,25 @@ export default () => {
   const [headerId,setHeaderId] = useState();
 
   useEffect(() => {
+    loadCarSales();
+  }, []);
+  const paginationProps = {
+    showSizeChanger: true,
+    showQuickJumper: true,
+    pageSize: 5,
+    total: 50,
+  };
+
+  const showModal = () => {
+    setVisible(true);
+    setCurrent(undefined);
+  };
+
+  const showEditModal = (item) => {
+    setVisible(true);
+    setCurrent(item);
+  };
+  const loadCarSales = () => {
     HttpService.post('reportServer/sales/getCarSales', null).then((res) => {
       if (res.resultCode == '1000') {
         // setList(res.data);
@@ -100,35 +120,22 @@ export default () => {
         }
       }
     });
-  }, []);
-  const paginationProps = {
-    showSizeChanger: true,
-    showQuickJumper: true,
-    pageSize: 5,
-    total: 50,
+  }
+  const deleteItem = (id) => {
+    HttpService.post('reportServer/sales/deleteLineById', JSON.stringify({"lineId":id})).then((res) => {
+      loadCarSales();
+    });
   };
-
-  const showModal = () => {
-    setVisible(true);
-    setCurrent(undefined);
-  };
-
-  const showEditModal = (item) => {
-    setVisible(true);
-    setCurrent(item);
-  };
-
-  const deleteItem = (id) => {};
 
   const editAndDelete = (key, currentItem) => {
     if (key === 'edit') showEditModal(currentItem);
     else if (key === 'delete') {
       Modal.confirm({
-        title: '删除任务',
-        content: '确定删除该任务吗？',
+        title: '删除商品',
+        content: '确定删除该商品吗？',
         okText: '确认',
         cancelText: '取消',
-        onOk: () => deleteItem(currentItem.id),
+        onOk: () => deleteItem(currentItem.so_line_id),
       });
     }
   };
@@ -276,6 +283,13 @@ export default () => {
     },
   ];
 
+  const updateQuantity = (item,v) => {
+   
+    HttpService.post('reportServer/sales/updateQuantity', JSON.stringify({"lineId":item.so_line_id,"quantity":v})).then((res) => {
+      loadCarSales();
+    });
+  }
+
 //结算
 const updateStatusByIds = () => {
   console.log(headerId);
@@ -419,7 +433,7 @@ const updateStatusByIds = () => {
                       {/* <p>{owner}</p> */}
                     </div>
                     <div className={styles.listContentItem}>
-                      <span>{item.quantity}</span>
+                      <span><InputNumber min={1} max={1000} defaultValue={item.quantity} bordered={false}  onChange={(val)=>{updateQuantity(item,val)}} /></span>
                       {/* <p>{moment(createdAt).format('YYYY-MM-DD HH:mm')}</p> */}
                     </div>
                     <div className={styles.listContentItem}>
