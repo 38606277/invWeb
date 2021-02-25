@@ -389,7 +389,7 @@ export default () => {
                   />
                   <div className={styles.listContent}>
                     <div className={styles.listContentItem}>
-                      <span>￥{item.cost_price}</span>
+                      <span>￥{item.retail_price}</span>
                       {/* <p>{owner}</p> */}
                     </div>
                     <div className={styles.listContentItem}>
@@ -397,7 +397,7 @@ export default () => {
                       {/* <p>{moment(createdAt).format('YYYY-MM-DD HH:mm')}</p> */}
                     </div>
                     <div className={styles.listContentItem}>
-                      <span>￥{item.retail_price}</span>
+                      <span>￥{item.amount}</span>
                     </div>
                   </div>
                 </List.Item>
