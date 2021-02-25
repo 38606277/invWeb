@@ -17,7 +17,8 @@ import {
   Form,
   Checkbox,
   Tabs,
-  Divider  
+  Divider ,
+  message   
 } from 'antd';
 import { findDOMNode } from 'react-dom';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -75,6 +76,9 @@ export default () => {
   const [list, setList] = useState([]);
   const [tableForm] = Form.useForm();
   const [mainForm] = Form.useForm();
+  const [amountToatl,setamountToatl] = useState();
+  const [countTotal,setcountTotal] = useState();
+  const [headerId,setHeaderId] = useState();
 
   useEffect(() => {
     HttpService.post('reportServer/sales/getCarSales', null).then((res) => {
@@ -86,6 +90,9 @@ export default () => {
             so_date: moment(res.data.maindata.so_date),
           });
           setList(res.data.lines);
+          setamountToatl(res.data.amountAll);
+          setcountTotal(res.data.countnum);
+          setHeaderId(res.data.maindata.so_header_id)
         }
       }
     });
@@ -265,6 +272,21 @@ export default () => {
     },
   ];
 
+//结算
+const updateStatusByIds = () => {
+  console.log(headerId);
+  HttpService.post(
+    'reportServer/wholeSale/updateWholeSaleStatusByIds',
+    JSON.stringify({ ids:headerId , status: 1 }),
+  ).then((res) => {
+    if (res.resultCode == '1000') {
+      //刷新
+      history.push(`/retail/itemselect`);
+    } else {
+      message.error(res.message);
+    }
+  });
+};
   return (
     <div>
      
@@ -403,6 +425,12 @@ export default () => {
                 </List.Item>
               )}
             />
+            <div style={{float: 'right',    fontSize: 'large'}}>
+            已选商品&nbsp;<span style={{color:'red'}}>{ countTotal }</span>&nbsp;件&nbsp;&nbsp;&nbsp;&nbsp;
+            合计：<span style={{color:'red'}}>￥{ amountToatl }</span> &nbsp;&nbsp;&nbsp;&nbsp;
+            <Button type="primary" onClick={updateStatusByIds}>结算</Button>
+              </div>
+
             </Card>
         </Form>
         </div>
