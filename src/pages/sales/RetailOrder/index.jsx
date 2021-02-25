@@ -365,15 +365,15 @@ export default () => {
               renderItem={(item) => (
                 <List.Item
                   actions={[
-                    <a
-                      key="edit"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        showEditModal(item);
-                      }}
-                    >
-                      编辑
-                    </a>,
+                    // <a
+                    //   key="edit"
+                    //   onClick={(e) => {
+                    //     e.preventDefault();
+                    //     showEditModal(item);
+                    //   }}
+                    // >
+                    //   编辑
+                    // </a>,
                     <MoreBtn key="more" item={item} />,
                   ]}
                 >
