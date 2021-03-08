@@ -11,7 +11,7 @@ import SelectItemCategoryDialog from '@/components/itemCategory/SelectItemCatego
 import SelectVendorDialog from '@/components/Customers/SelectVendorDialog';
 import StandardFormRow from '@/components/StandardFormRow';
 import LocalStorge  from '../../../utils/LogcalStorge.jsx';
-
+import Barcode from './Barcode.js';
 const localStorge = new LocalStorge();
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -62,9 +62,11 @@ export default (props) => {
   const [names, setNames] = useState({});
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
-
+  const [namesURL, setNamesURL] = useState({});
+  const [barcode,setbarcode]  = useState();
 
   useEffect(() => {
+    setNamesURL("1111111");
     const outlist = [];
     if (
       'null' != props.match.params.category_id &&
@@ -135,6 +137,7 @@ export default (props) => {
             let mainFormV = res.data;
             setImageUrl(mainFormV.image_url);
             setCatName(mainFormV.category_name);
+            setbarcode(mainFormV.bar_code);
             mainForm.setFieldsValue(mainFormV);
             mainForm.setFieldsValue({
               item_category_name: mainFormV.category_name,
@@ -321,7 +324,12 @@ export default (props) => {
       getBase64(info.file.originFileObj, imageUrl => setImageUrl(info.file.response.data));
     }
   }
-
+  const barcodeChange = (e) => {
+    setbarcode(e.target.value);
+    mainForm.setFieldsValue({
+      bar_code:e.target.value,
+    });
+  }
   return (
     <PageContainer
       ghost="true"
@@ -456,7 +464,9 @@ export default (props) => {
                 <Input
                   id="bar_code"
                   name="bar_code"
+                  onChange={(e)=>barcodeChange(e)}
                 />
+                <Barcode value={barcode} height={50} width={2} />
               </Form.Item>
             </Col>
           </Row>
