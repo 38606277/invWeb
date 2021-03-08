@@ -466,7 +466,8 @@ export default (props) => {
                   name="bar_code"
                   onChange={(e)=>barcodeChange(e)}
                 />
-                <Barcode value={barcode} height={50} width={2} />
+                {barcode!=null?barcode!=""?
+                <Barcode value={barcode} height={50} width={2} />:"":""}
               </Form.Item>
             </Col>
           </Row>
