@@ -23,8 +23,8 @@ const formItemLayout2 = {
   wrapperCol: { span: 16 },
 };
 const formItemLayout1 = {
-  labelCol: { span: 3 },
-  wrapperCol: { span: 12 },
+  labelCol: { span: 4 },
+  wrapperCol: { span: 24 },
 };
 
 function getBase64(img, callback) {
@@ -468,11 +468,12 @@ export default (props) => {
           onCollapse={(collapse) => console.log(collapse)}
         >
           <Row gutter={24}>
-          <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
+          <Col xl={8} md={12} sm={24}>
               <Form.Item
                 label="类别名称"
                 name="item_category_name"
                 rules={[{ required: true, message: '请选择类别名称' }]}
+                {...formItemLayout2}
               >
                 <Search
                   placeholder="请选择分类"
@@ -488,11 +489,11 @@ export default (props) => {
                 />
               </Form.Item>
             </Col>
-            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
+            <Col xl={8} md={12} sm={24}>
               <Form.Item name="item_id" style={{ display: 'none' }}>
                 <Input id="item_id" name="item_id" value={mainForm.item_id} />
               </Form.Item>
-              <Form.Item label="类别编码" name="category_code">
+              <Form.Item label="类别编码" name="category_code" {...formItemLayout2}>
                 <Input id="category_code" name="category_code" />
               </Form.Item>
               <Form.Item name="item_category_id" style={{ display: 'none' }}>
@@ -504,24 +505,20 @@ export default (props) => {
               </Form.Item>
             </Col>
             
-            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
+            <Col xl={8} md={12} sm={24}>
               <Form.Item
                 label="单位"
                 name="uom"
                 rules={[{ required: true, message: '请输入单位' }]}
+                {...formItemLayout2}
               >
                 <Input id="uom" name="uom" />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={24}>
-            <Col xl={{ span: 10, offset: 2 }}  sm={24}>
-              <Form.Item label="商品描述" name="item_description" {...formItemLayout1}>
-                <Input id="item_description" name="item_description" style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col xl={{ span: 10, offset: 2 }}  sm={24}>
-              <Form.Item label="供应商" name="vendor_name" {...formItemLayout1}>
+          <Col xl={8} md={12} sm={24}>
+              <Form.Item label="供应商" name="vendor_name" {...formItemLayout2}>
               <Search
                   placeholder="请选择供应商"
                   allowClear
@@ -539,10 +536,8 @@ export default (props) => {
                 <Input id="vendor_id" name="vendor_id" value={mainForm.vendor_id} />
               </Form.Item>
             </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
-              <Form.Item label="bar_code" name="bar_code" >
+            <Col xl={8} md={12} sm={24}>
+              <Form.Item label="bar_code" name="bar_code" {...formItemLayout2}>
                 <Input
                   id="bar_code"
                   name="bar_code"
@@ -552,6 +547,16 @@ export default (props) => {
             
            
           </Row>
+          <Row gutter={24}>
+           
+          <Col xl={16} md={12} sm={24}>
+              <Form.Item label="商品描述" name="item_description" {...formItemLayout1}>
+                <Input id="item_description" name="item_description" style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+           
+          </Row>
+         
         </ProCard>
         
         <ProCard collapsible title="关键信息">
