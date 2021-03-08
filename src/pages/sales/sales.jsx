@@ -340,9 +340,9 @@ export default (props) => {
             </Col>
             <Col xs={24} sm={11}>
               <Form.Item
-                label="供应商"
+                label="客户"
                 name="customer_id"
-                rules={[{ required: true, message: '请输入供应商' }]}
+                rules={[{ required: true, message: '请输入客户' }]}
               >
                 <Input id="customer_id" disabled={disabled} />
               </Form.Item>

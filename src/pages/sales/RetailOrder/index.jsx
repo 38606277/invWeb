@@ -406,7 +406,7 @@ const updateStatusByIds = () => {
                 <List.Item
                   actions={[
                     <a
-                      key="edit"
+                      key="delete"
                       // onClick={(e) => {
                       //   e.preventDefault();
                       //   showEditModal(item);

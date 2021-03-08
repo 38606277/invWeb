@@ -44,6 +44,7 @@ export default (props) => {
             category_code: mainFormV.category_code,
             category_name: mainFormV.category_name,
             category_pid: mainFormV.category_pid,
+            cost_method:mainFormV.cost_method+"",
           });
 
           //初始化数据
@@ -58,6 +59,7 @@ export default (props) => {
         category_id: '',
         category_code: '',
         category_name: '',
+        cost_method: '1',
         category_pid:
           props.match.params.category_pid == 'null' ? '-1' : props.match.params.category_pid,
       });
@@ -65,15 +67,7 @@ export default (props) => {
     }
   }, []);
 
-  const selectChage = (e) => {
-    setDisplayType(e);
-    if (
-      mainForm.getFieldValue('category_id') == '' ||
-      mainForm.getFieldValue('category_id') == 'null'
-    ) {
-      tableRef?.current?.initData([]);
-    }
-  };
+
   return (
     <PageContainer
       title="类别设置"
@@ -174,6 +168,21 @@ export default (props) => {
                 rules={[{ required: true, message: '请选择字典名称' }]}
               >
                 <Input style={{ width: '100%' }} placeholder="请输入字典名称" />
+              </Form.Item>
+            </Col>
+            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
+              <Form.Item
+                label="计价方式"
+                name="cost_method"
+                rules={[{ required: true, message: '请选择计价方式' }]}
+              >
+                <Select
+                  placeholder="请选择计价方式"
+                  defaultValue={mainForm.cost_method}
+                >
+                  <Option value="1">移动加平均</Option>
+                  <Option value="2">单独记价</Option>
+                </Select>
               </Form.Item>
             </Col>
           </Row>

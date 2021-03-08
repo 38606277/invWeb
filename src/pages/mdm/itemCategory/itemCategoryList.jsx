@@ -24,6 +24,9 @@ const itemCategoryList = () => {
   const [treeData, setTreeData] = useState([]);
   const [catId, setCatId] = useState('-1'); // 用于编辑赋初始值
   const [minHeight, setMinHeight] = useState(window.innerHeight - 92 + 'px'); // 用于编辑赋初始值
+  const [checkVal, setCheckVal] = useState([]);
+  const [expandedKeysVal, setExpandedKeysVal] = useState([]);
+
 
   const getAllChildrenRecursionById = (catId) => {
     HttpService.post(
@@ -43,6 +46,8 @@ const itemCategoryList = () => {
   };
   useEffect(() => {
     refreshData();
+    setCheckVal(['-1']);
+    setExpandedKeysVal(['-1']);
   }, []);
 
   //删除按钮事件
@@ -161,13 +166,28 @@ const itemCategoryList = () => {
       ],
     },
   ];
+  const onSelectTree = (selectedKeys,e) => {
+    if(selectedKeys.length>0){
+      setCatId(selectedKeys[0])
+      setCheckVal(selectedKeys);
+      
+    }else{
+      setCatId("-1")
+      setCheckVal(["-1"]);
+    }
+    
+  }
+  const onExpandClick = (expandedKeys, {expanded: bool, node}) => {
+    setExpandedKeysVal(expandedKeys)
+  }
 
   return (
     <PageContainer ghost="true" title="商品类别">
       <div style={{ backgroundColor: 'white' }}>
         <SplitPane split="vertical" minSize={10} defaultSize={200}  style={{minHeight:minHeight,overflow:'auto'}}>
           <Tree
-            defaultExpandAll
+            defaultExpandAll="true"
+            expandedKeys={expandedKeysVal}
             style={{
               width: '100%',
               minHeight: '450px',
@@ -176,19 +196,12 @@ const itemCategoryList = () => {
               overflow: 'auto'
             }}
             showLine
+            selectedKeys={checkVal}
+            onExpand={onExpandClick}
             treeData={treeData}
+            onSelect={onSelectTree}
             titleRender={(item) => {
-              return (
-                <div style={{ width: '100%' }} key={item.category_id}>
-                  <span
-                    onClick={() => {
-                      onTreeSelect(item);
-                    }}
-                  >
-                    {item.category_name}
-                  </span>
-                </div>
-              );
+              return (item.category_name);
             }}
           ></Tree>
 

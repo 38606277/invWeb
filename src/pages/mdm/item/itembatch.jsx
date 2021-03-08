@@ -550,14 +550,7 @@ export default (props) => {
               </Form.Item>
             </Col>
             
-            <Col xl={{ span: 6, offset: 2 }} lg={{ span: 6 }} md={{ span: 12 }} sm={24}>
-              <Form.Item
-                label="iot_code"
-                name="iot_code"
-              >
-                <Input id="iot_code" name="iot_code" />
-              </Form.Item>
-            </Col>
+           
           </Row>
         </ProCard>
         

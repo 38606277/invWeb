@@ -32,6 +32,7 @@ const itemList = (props) => {
   const [minHeight, setMinHeight] = useState(window.innerHeight - 92 + 'px'); // 用于编辑赋初始值
   const [mainForm] = Form.useForm();
   const [selectRows, setSelectRows] = useState([]);
+  const [expandedKeysVal, setExpandedKeysVal] = useState([]);
 
   const getAllChildrenRecursionById = (catId) => {
     HttpService.post(
@@ -105,6 +106,7 @@ const itemList = (props) => {
       setColumnData(columns);
     }
     refreshData();
+    setExpandedKeysVal(["-1"]);
   }, []);
 
   //删除按钮事件
@@ -165,8 +167,8 @@ const itemList = (props) => {
     });
   };
   const onTreeSelect = (category_id) => {
-    setCheckVal();
-    setCheckVal(category_id);
+    setCheckVal([]);
+    setCheckVal([category_id]);
     const outlist = [
       {
         title: '描述',
@@ -175,9 +177,10 @@ const itemList = (props) => {
         align: 'center',
       },
     ];
+    setCatId(category_id);
     if (catId !== category_id && '-1' != category_id) {
       setColumnData([]);
-      setCatId(category_id);
+     
       let params = {
         category_id: category_id,
       };
@@ -242,6 +245,18 @@ const itemList = (props) => {
       setColumnData(outlist);
     }
   };
+
+  const onSelectTree = (selectedKeys,e) => {
+    if(selectedKeys.length>0){
+      onTreeSelect(selectedKeys[0])
+    }else{
+      onTreeSelect("-1")
+    }
+  }
+  const onExpandClick = (expandedKeys, {expanded: bool, node}) => {
+    setExpandedKeysVal(expandedKeys)
+  }
+
   const batchUpdateClickListener = (ref,selectedRowKeys,selectedRows) => {
     console.log(selectedRows);
     setSelectRows(selectedRowKeys);
@@ -265,6 +280,7 @@ const itemList = (props) => {
         <SplitPane split="vertical" minSize={0} defaultSize={180}  style={{minHeight:minHeight,overflow:'auto'}}>
           <Tree
             defaultExpandAll="true"
+            expandedKeys={expandedKeysVal}
             style={{
               width: '100%',
               minHeight: '450px',
@@ -273,19 +289,12 @@ const itemList = (props) => {
               overflow: 'auto',
             }}
             showLine
+            selectedKeys={checkVal}
+            onExpand={onExpandClick}
             treeData={treeData}
+            onSelect={onSelectTree}
             titleRender={(item) => {
-              return (
-                <div style={{ width: '100%' }} key={item.category_id}>
-                  <span
-                    onClick={() => {
-                      onTreeSelect(item.category_id);
-                    }}
-                  >
-                    {item.category_name}
-                  </span>
-                </div>
-              );
+              return (item.category_name);
             }}
           ></Tree>
           <ProTable
