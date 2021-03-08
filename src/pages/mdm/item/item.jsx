@@ -325,10 +325,14 @@ export default (props) => {
     }
   }
   const barcodeChange = (e) => {
-    setbarcode(e.target.value);
-    mainForm.setFieldsValue({
-      bar_code:e.target.value,
-    });
+    const vals = e.target.value;
+    if(/^[a-zA-Z0-9]+$/.test(vals)){
+      setbarcode(vals);
+      mainForm.setFieldsValue({
+        bar_code:vals,
+      });
+    }
+    
   }
   return (
     <PageContainer
@@ -460,7 +464,11 @@ export default (props) => {
               </Form.Item>
             </Col>
             <Col  xl={8} md={12} sm={24}>
-              <Form.Item label="bar_code" name="bar_code" {...formItemLayout2}>
+              <Form.Item label="bar_code" name="bar_code" {...formItemLayout2}
+               rules={[{ required: false, message: '请输入单位',
+                 pattern: new RegExp(/^[a-zA-Z0-9,]*$/)}
+              ]}
+              >
                 <Input
                   id="bar_code"
                   name="bar_code"
