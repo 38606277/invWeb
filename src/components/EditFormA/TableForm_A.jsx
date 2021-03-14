@@ -41,9 +41,6 @@ const TableForm = forwardRef((props, ref) => {
 
   const [data, setData] = useState(value || []); //列表行数据
 
-  console.log('TableForm data', data)
-
-
   const [deleteRecordKeys, setDeleteRecordKeys] = useState([]); //删除记录
   const [deleteRecord, setDeleteRecord] = useState([]); //删除记录
   const [mSelectedRows, setMSelectedRows] = useState([]);
@@ -244,7 +241,6 @@ const TableForm = forwardRef((props, ref) => {
   return (
     <Form className={styles.tableForm} key="tableForm" form={tableForm}>
       <Table
-        {...tableParams}
         className="formTable"
         rowKey={primaryKey}
         columns={buildColumns(columns || [])}
@@ -255,6 +251,7 @@ const TableForm = forwardRef((props, ref) => {
           type: 'checkbox',
           onChange: onTableChange,
         }}
+        {...tableParams}
       />
     </Form>
   );

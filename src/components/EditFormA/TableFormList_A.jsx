@@ -32,7 +32,7 @@ import TableForm_A from '@/components/EditFormA/TableForm_A';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
 
-const TableFormList = forwardRef(({ disabled, primaryKey, onAddClick }, ref) => {
+const TableFormList = forwardRef(({ disabled, primaryKey, onAddClick, onQuickAddClick }, ref) => {
 
     console.log('TableFormList 绘制 - ', disabled)
 
@@ -62,9 +62,20 @@ const TableFormList = forwardRef(({ disabled, primaryKey, onAddClick }, ref) => 
         tableFormList.push(<ProCardCollapse
             title={tableFormData.title}
             extra={[
+                // <Button
+                //     disabled={disabled}
+                //     size="small"
+                //     style={{ marginLeft: '6px' }}
+                //     onClick={() => {
+                //         if (onQuickAddClick) {
+                //             onQuickAddClick(tableFormData);
+                //         }
+                //     }}
+                // >快速添加</Button>,
                 <Button
                     disabled={disabled}
                     icon={<PlusOutlined />}
+                    style={{ marginLeft: '6px' }}
                     size="small"
                     onClick={() => {
                         if (onAddClick) {

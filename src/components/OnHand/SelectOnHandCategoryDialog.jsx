@@ -8,41 +8,16 @@ import HttpService from '@/utils/HttpService.jsx';
 const Search = Input.Search;
 const columns = [
   {
-    title: '物料描述',
-    dataIndex: 'item_description',
-    key: 'item_description',
+    title: '类别名称',
+    dataIndex: 'category_name',
+    key: 'category_name',
     valueType: 'text',
-  },
-  {
-    title: '单价',
-    dataIndex: 'price',
-    key: 'price',
-    valueType: 'text',
-  },
-  {
-    title: '数量',
-    dataIndex: 'on_hand_quantity',
-    key: 'on_hand_quantity',
-    valueType: 'text',
-  },
-  {
-    title: '金额',
-    dataIndex: 'amount',
-    key: 'amount',
-    valueType: 'text',
-  },
-
-  {
-    title: '仓库',
-    dataIndex: 'org_name',
-    key: 'org_name',
-    valueType: 'text',
-  },
+  }
 ];
 
-const primaryKey = "item_id";
+const primaryKey = 'category_id';
 
-const SelectOnHandDialog = (props) => {
+const SelectOnHandCategoryDialog = (props) => {
   const { modalVisible, handleOk, handleCancel } = props;
   const [checkKeys, setCheckKeys] = useState([]);
   const [checkRows, setCheckRows] = useState([]);
@@ -81,7 +56,7 @@ const SelectOnHandDialog = (props) => {
     };
 
     const result = await HttpService.post(
-      '/reportServer/invOnHand/getItemOnHandByPage',
+      '/reportServer/invOnHand/getItemOnHandCategoryByPage',
       JSON.stringify(requestParam),
     );
     console.log('result : ', result);
@@ -110,7 +85,7 @@ const SelectOnHandDialog = (props) => {
 
   return (
     <Drawer
-      title="选择物料"
+      title="选择类别"
       visible={modalVisible}
       onClose={handleCancel}
       bodyStyle={{ paddingBottom: 80 }}
@@ -168,7 +143,7 @@ const SelectOnHandDialog = (props) => {
 
                     //移除record
                     const newCheckRows = checkRows.filter((item) => {
-                      return item.item_id !== record[primaryKey];
+                      return item[primaryKey] !== record[primaryKey];
                     });
 
                     setCheckKeys(newCheckKeys);
@@ -189,12 +164,12 @@ const SelectOnHandDialog = (props) => {
             type: selectType,
             onChange: selectOnChange,
             selectedRowKeys: checkKeys,
-            getCheckboxProps: (record) => {
-              console.log('0 < (record.on_hand_quantity || 0)', 0 < (record.on_hand_quantity || 0));
-              return {
-                disabled: (record.on_hand_quantity || 0) == '0', // Column configuration not to be checked
-              };
-            },
+            // getCheckboxProps: (record) => {
+            //   console.log('0 < (record.on_hand_quantity || 0)', 0 < (record.on_hand_quantity || 0));
+            //   return {
+            //     disabled: (record.on_hand_quantity || 0) == '0', // Column configuration not to be checked
+            //   };
+            // },
           }}
           tableAlertRender={false}
           tableAlertOptionRender={false}
@@ -212,4 +187,4 @@ const SelectOnHandDialog = (props) => {
   );
 };
 
-export default SelectOnHandDialog;
+export default SelectOnHandCategoryDialog;

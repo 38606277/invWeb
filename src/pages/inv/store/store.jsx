@@ -9,6 +9,8 @@ import SelectPdDialog from '@/components/Pd/SelectPdDialog';
 import SelectItemDialog from '@/components/itemCategory/SelectItemDialog';
 import SelectItemCategoryDialog from '@/components/itemCategory/SelectItemCategoryDialog';
 
+import MatrixAddDialog from '@/components/itemCategory/MatrixAddDialog';
+
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
@@ -48,6 +50,8 @@ const store = (props) => {
   const [selectPoDialogVisible, setSelectPoDialogVisible] = useState(false);
 
   const [selectPdDialogVisible, setSelectPdDialogVisible] = useState(false);
+
+  const [matrixAddDialogVisible, setMatrixAddDialogVisible] = useState(false);
 
   const [selectItemDialogVisible, setSelectItemDialogVisible] = useState(false);
   const [categoryId, setCategoryId] = useState('-1')
@@ -740,6 +744,13 @@ const store = (props) => {
             setSelectPoDialogVisible(true);
           }
         }}
+
+        onQuickAddClick={
+          (tableFormData) => {
+            setCategoryId(tableFormData.parimaryId);
+            setMatrixAddDialogVisible(true);
+          }
+        }
       />
       <SelectOrgDialog
         modalVisible={selectOrgDialogVisible}
@@ -1026,6 +1037,17 @@ const store = (props) => {
         }}
         handleCancel={() => {
           setSelectItemCategoryDialogVisible(false);
+        }}
+      />
+
+      <MatrixAddDialog
+        categoryId={categoryId}
+        modalVisible={matrixAddDialogVisible}
+        handleOk={(checkRows, checkKeys) => {
+          setMatrixAddDialogVisible(false);
+        }}
+        handleCancel={() => {
+          setMatrixAddDialogVisible(false);
         }}
       />
 
