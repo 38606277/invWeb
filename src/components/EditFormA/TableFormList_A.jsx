@@ -24,6 +24,7 @@
     参数：disabled    // 是否失效
     参数：primaryKey  // 数据唯一标识 
     参数：onAddClick  // 新增点击事件
+    参数：hasQuickAdd //是否包含快捷添加按钮
  * 
  */
 import React, { forwardRef, useState, useImperativeHandle } from 'react';
@@ -32,7 +33,11 @@ import TableForm_A from '@/components/EditFormA/TableForm_A';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
 
-const TableFormList = forwardRef(({ disabled, primaryKey, onAddClick, onQuickAddClick }, ref) => {
+
+
+
+
+const TableFormList = forwardRef(({ disabled, primaryKey, onAddClick, hasQuickAdd, onQuickAddClick }, ref) => {
 
     console.log('TableFormList 绘制 - ', disabled)
 
@@ -52,48 +57,53 @@ const TableFormList = forwardRef(({ disabled, primaryKey, onAddClick, onQuickAdd
         }
     }));
 
-
-
-
     let tableFormList = [];
     for (let index in data) {
         let tableFormData = data[index];
 
+
+        let actoinBtnList = [
+            <Button
+                disabled={disabled}
+                icon={<PlusOutlined />}
+                style={{ marginLeft: '6px' }}
+                size="small"
+                onClick={() => {
+                    if (onAddClick) {
+                        onAddClick(tableFormData);
+                    }
+                }}
+            ></Button>,
+            <Button
+                disabled={disabled}
+                size="small"
+                style={{ marginLeft: '6px' }}
+                icon={<MinusOutlined />}
+                onClick={() => {
+                    //删除选中项
+                    tableFormData?.tableRef?.current?.removeRows();
+                }}
+            ></Button>,
+        ]
+
+        if (hasQuickAdd) {
+            actoinBtnList.unshift(<Button
+                disabled={disabled}
+                size="small"
+                style={{ marginLeft: '6px' }}
+                onClick={() => {
+                    if (onQuickAddClick) {
+                        onQuickAddClick(tableFormData);
+                    }
+                }}
+            >快速添加</Button>);
+        }
+
+
+
         tableFormList.push(<ProCardCollapse
             title={tableFormData.title}
-            extra={[
-                // <Button
-                //     disabled={disabled}
-                //     size="small"
-                //     style={{ marginLeft: '6px' }}
-                //     onClick={() => {
-                //         if (onQuickAddClick) {
-                //             onQuickAddClick(tableFormData);
-                //         }
-                //     }}
-                // >快速添加</Button>,
-                <Button
-                    disabled={disabled}
-                    icon={<PlusOutlined />}
-                    style={{ marginLeft: '6px' }}
-                    size="small"
-                    onClick={() => {
-                        if (onAddClick) {
-                            onAddClick(tableFormData);
-                        }
-                    }}
-                ></Button>,
-                <Button
-                    disabled={disabled}
-                    size="small"
-                    style={{ marginLeft: '6px' }}
-                    icon={<MinusOutlined />}
-                    onClick={() => {
-                        //删除选中项
-                        tableFormData?.tableRef?.current?.removeRows();
-                    }}
-                ></Button>,
-            ]}
+            extra={actoinBtnList}
         >
             <TableForm_A
                 tableParams={

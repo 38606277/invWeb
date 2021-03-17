@@ -16,7 +16,12 @@
             // 具体控件的参数 如：Input Select
             widgetParams:{
 
+            },
+            //添加widgetParamsBuild 实现函数可以覆盖widgetParams 可以通过record的值来控制组件
+            widgetParamsBuild:(text, record, index)=>{
+              return widgetParams;
             }
+
         }
       }
     ]
@@ -212,6 +217,12 @@ const TableForm = forwardRef((props, ref) => {
         renderParams.record = record
         renderParams.tableForm = tableForm
         renderParams.handleFieldChange = handleFieldChange
+
+        //添加widgetParamsBuild 实现函数可以覆盖widgetParams 可以通过record的值来控制组件
+        if (renderParams?.widgetParamsBuild) {
+          renderParams.widgetParams = renderParams?.widgetParamsBuild(text, record, index) || (renderParams?.widgetParams || {});
+        }
+
         return getItemEF(columnParams?.renderType || 'InputEF', renderParams);
       },
       ...columnParams

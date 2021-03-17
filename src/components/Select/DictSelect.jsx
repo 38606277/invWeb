@@ -11,6 +11,10 @@ const DictSelect = (props) => {
 
     const [dataList, setDataList] = useState([])
     const { dictCode } = props;
+    const { dictId } = props;
+
+    const valueType = props?.valueType || 'code'; // code or name
+
 
     useEffect(() => {
         //监听类型是否改变 
@@ -25,13 +29,23 @@ const DictSelect = (props) => {
                     }
                 },
             );
+        } else if (dictId != null) {
+            HttpService.post('/reportServer/mdmDict/getDictValueByDictId', JSON.stringify({ dict_id: dictId })).then(
+                (res) => {
+                    if (res.resultCode == '1000') {
+                        setDataList(res.data);
+                    } else {
+                        message.error(res.message);
+                    }
+                },
+            );
         } else {
             setDataList([]);
         }
     }, [dictCode]);
 
     return (<Select {...props}>
-        {dataList == null ? [] : dataList.map(item => <Option key={item.value_code} value={item.value_code}> {item.value_name} </Option>)}
+        {dataList == null ? [] : dataList.map(item => <Option key={item.value_code} value={valueType == 'code' ? item.value_code : item.value_name}> {item.value_name} </Option>)}
     </Select>);
 }
 

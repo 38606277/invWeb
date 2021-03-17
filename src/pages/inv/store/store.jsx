@@ -744,7 +744,7 @@ const store = (props) => {
             setSelectPoDialogVisible(true);
           }
         }}
-
+        hasQuickAdd={type == 'other'}
         onQuickAddClick={
           (tableFormData) => {
             setCategoryId(tableFormData.parimaryId);
@@ -1043,7 +1043,19 @@ const store = (props) => {
       <MatrixAddDialog
         categoryId={categoryId}
         modalVisible={matrixAddDialogVisible}
-        handleOk={(checkRows, checkKeys) => {
+        handleOk={(resultList) => {
+          const tableFormDataList = tableFormListRef?.current?.getTableFormDataList();
+          const tableFormDate = tableFormDataList.find((element) => {
+            return element.parimaryId == categoryId;
+          })
+
+          const newResultList = resultList.map((value) => {
+            value.line_id = `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`;
+            return value;
+          })
+
+          tableFormDate?.tableRef?.current?.initData(newResultList);
+
           setMatrixAddDialogVisible(false);
         }}
         handleCancel={() => {

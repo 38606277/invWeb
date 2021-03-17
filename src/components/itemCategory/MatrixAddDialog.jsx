@@ -2,13 +2,55 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, message, Row, Col, Input, Table, Form, Drawer, Typography } from 'antd';
 import TableForm_A from '@/components/EditFormA/TableForm_A';
+import DictSelect from '@/components/Select/DictSelect';
+import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import HttpService from '@/utils/HttpService.jsx';
+
 const Search = Input.Search;
 const { Text } = Typography;
 
+const formItemLayout2 = {
+    labelCol: { span: 8 },
+    wrapperCol: { span: 16 },
+};
+
+const primaryKey = 'value_name';
+
+const RowLine = (list) => {
+    const rowLineItemList = list.map((record) => {
+
+        if (record.input_mode == "dict") {
+            return (<Col xs={24} sm={11}>
+                <Form.Item
+                    label={record.segment_name}
+                    name={record.segment}
+                    rules={[{ required: true, message: `请选择${record.segment_name}` }]}
+                >
+                    <DictSelect dictId={record.dict_id} valueType="name" />
+                </Form.Item>
+            </Col>);
+        } else {
+            return (<Col xs={24} sm={11}>
+                <Form.Item
+                    label={record.segment_name}
+                    name={record.segment}
+                    rules={[{ required: true, message: `请输入${record.segment_name}` }]}
+                >
+                    <Input placeholder={`请输入${record.segment_name}`} />
+                </Form.Item>
+            </Col>);
+        }
+    })
+
+
+
+
+    return (<Row>{rowLineItemList}</Row>);
+}
+
 const MatrixAddDialog = (props) => {
     const tableRef = useRef();
-    const [tableForm] = Form.useForm();
+    const [mainForm] = Form.useForm();
 
     const { modalVisible, handleOk, handleCancel } = props;
 
@@ -16,8 +58,15 @@ const MatrixAddDialog = (props) => {
 
     const [columnList, setColumnList] = useState([]);
 
-    const [primaryKey, setPrimaryKey] = useState([]);
     const [firstColumnName, setFirstColumnName] = useState('');
+
+    const [rSegment, setRSegment] = useState('');
+    const [cSegment, setCSegment] = useState('');
+
+    const [itemList, setItemList] = useState([]);
+
+
+    const [mainLayout, setMainLayout] = useState([]);
 
     //重置选中状态
     useEffect(() => {
@@ -27,33 +76,40 @@ const MatrixAddDialog = (props) => {
                 item_category_id: categoryId
             }
 
-            // HttpService.post('reportServer/itemCategory/getMKeySegmentByCategoryId', JSON.stringify(postData))
-            //     .then(res => {
-            //         if (res.resultCode == "1000") {
+            HttpService.post('reportServer/itemCategory/getMKeySegmentByCategoryId', JSON.stringify(postData))
+                .then(res => {
+                    if (res.resultCode == "1000") {
 
-            //             //动态生成头表单
-            //             let mKeySegmentList = res.data;
+                        //动态生成头表单
+                        const mKeySegmentList = res.data;
 
-            //             let keySegmentLayout = [];
+                        const keySegmentLayout = [];
 
+                        const length = mKeySegmentList.length;
+                        const count = Math.ceil(length / 2);
+                        console.log('length - ', length)
+                        console.log('count - ', count)
 
+                        for (let i = 0; i < count; i++) {
+                            console.log('i - ', i)
+                            let tempArr = [];
+                            if ((i * 2) < length) {
+                                tempArr.push(mKeySegmentList[i * 2]);
+                            }
+                            if (i * 2 + 1 < length) {
+                                tempArr.push(mKeySegmentList[i * 2 + 1]);
+                            }
+                            keySegmentLayout.push(RowLine(tempArr))
+                        }
 
+                        console.log('keySegmentLayout', keySegmentLayout)
+                        setMainLayout(keySegmentLayout);
+                    } else {
+                        message.error(res.message);
+                    }
+                });
 
-
-            //             mKeySegmentList.forEach((value, index) => {
-            //                 if (index / 2 == 0) {
-
-            //                 }
-            //             })
-
-
-
-            //             } else {
-            //                 message.error(res.message);
-            //             }
-            //         });
-
-            getItemRowAndColumn();
+            // getItemRowAndColumn();
         }
 
 
@@ -62,25 +118,24 @@ const MatrixAddDialog = (props) => {
 
 
 
-    const getItemRowAndColumn = () => {
+    const getItemRowAndColumn = (params) => {
         let postData = {
+            ...params,
             item_category_id: categoryId,
-            segment3: 'ABC111'
         }
 
-        HttpService.post('reportServer/item/getItemRowAndColumn', JSON.stringify(postData))
+        HttpService.post('reportServer/item/getItemRowAndColumn2', JSON.stringify(postData))
             .then(res => {
                 if (res.resultCode == "1000") {
+                    const itemList = res.data.itemList
                     const rSegment = res.data.r.segment;
                     const rSegmentName = res.data.r.segmentName;
                     const rList = res.data.r.list;
 
                     let rowDataList = [];
                     rList.forEach((value) => {
-                        rowDataList.push({
-                            name: value[rSegment],
-                            count: 0
-                        });
+                        value.count = 0;
+                        rowDataList.push(value);
                     })
 
                     const cSegment = res.data.c.segment;
@@ -89,12 +144,16 @@ const MatrixAddDialog = (props) => {
 
                     let columnDataList = [];
                     cList.forEach((value) => {
-                        columnDataList.push(value[cSegment])
+                        columnDataList.push(value['value_name'])
                     })
 
-                    setPrimaryKey(rSegment)
+                    setRSegment(rSegment);
+                    setCSegment(cSegment);
+
                     setFirstColumnName(`${rSegmentName}/${cSegmentName}`)
+
                     setColumnList(columnDataList);
+                    setItemList(itemList);
 
                     tableRef.current.initData(rowDataList);
 
@@ -104,10 +163,6 @@ const MatrixAddDialog = (props) => {
                 }
             });
     }
-
-
-
-
 
 
     const calculateCount = (value, name, record) => {
@@ -122,11 +177,10 @@ const MatrixAddDialog = (props) => {
     }
 
     const buildColumns = (firstName, cloumnDataList) => {
-
         const cloumnList = [];
         cloumnList.push({
             title: firstName,
-            dataIndex: 'name',
+            dataIndex: 'value_name',
             renderParams: {
                 widgetParams: { disabled: true },
             },
@@ -136,11 +190,20 @@ const MatrixAddDialog = (props) => {
                 {
                     title: value,
                     dataIndex: value,
+
                     renderType: 'InputNumberEF',
                     renderParams: {
-                        widgetParams: {
-                            precision: 0,
-                            onChange: calculateCount,
+                        widgetParamsBuild: (text, record, index) => {
+                            const itemResult = itemList.find((item) => {
+                                const rBoo = item[rSegment] == record[primaryKey];
+                                const cBoo = item[cSegment] == value;
+                                return rBoo && cBoo;
+                            });
+                            return {
+                                precision: 0,
+                                onChange: calculateCount,
+                                disabled: itemResult ? false : true
+                            };
                         }
                     },
                 },
@@ -156,14 +219,13 @@ const MatrixAddDialog = (props) => {
         return cloumnList;
     };
 
-
     return (
         <Drawer
             title="快捷添加"
             visible={modalVisible}
             onClose={handleCancel}
             bodyStyle={{ paddingBottom: 80 }}
-            width={720}
+            width={960}
             footer={
                 <div
                     style={{
@@ -175,7 +237,43 @@ const MatrixAddDialog = (props) => {
             </Button>
                     <Button
                         onClick={() => {
-                            handleOk([], []);
+
+                            const tableData = tableRef?.current?.getTableData();
+
+                            //匹配item信息出来
+                            console.log('tableData', tableData)
+
+                            const resultList = [];
+
+                            columnList.forEach((col) => { //  列
+
+                                tableData.forEach((row) => { //   行
+
+                                    itemList.forEach((item) => { //   item
+                                        const rBoo = item[rSegment] == row[primaryKey];
+                                        const cBoo = item[cSegment] == col;
+                                        if (rBoo && cBoo) { // 行和列的信息相同
+                                            // 获取数量
+                                            const quantity = row[col];
+                                            resultList.push({
+                                                ...item,
+                                                quantity: quantity
+
+                                            })
+
+                                        }
+                                    })
+
+                                })
+
+
+                            })
+
+                            //tableData 为行 value_name 为值
+                            //columnList 为列
+
+                            handleOk(resultList);
+
                         }}
                         type="primary"
                     >
@@ -183,55 +281,36 @@ const MatrixAddDialog = (props) => {
             </Button>
                 </div>
             }>
+            {/* <ProCardCollapse
+                title="基础信息"
+            > */}
+            <Form
+                {...formItemLayout2}
+                form={mainForm}
+                onFinish={async (values) => {
+                    console.log(values)
+                    getItemRowAndColumn(values);
+
+                }}
+            >
+
+                {mainLayout}
+
+                <Row>
+                    <Col xs={22} sm={22}><Button style={{ float: 'right', marginBottom: '10px' }} type='primary' onClick={() => {
+                        mainForm?.submit();
+                    }}>查询</Button></Col>
+                </Row>
+
+            </Form>
+            {/* </ProCardCollapse> */}
 
 
-            <Row>
-                <Col xs={24} sm={10}>
-                    <Form.Item
-                        label="货号"
-                        name="huohoa"
-                        rules={[{ required: true, message: '请输入货号' }]}
-                    >
-                        <Search
-                            placeholder="请输入货号"
-                            allowClear
-                            enterButton
-                            onClick={() => {
-                                console.log('数据---', tableRef.current.getTableData());
-                            }}
-                            onSearch={() => {
-                                console.log('数据---', tableRef.current.getTableData());
-                            }}
-                        />
-                    </Form.Item>
-                </Col>
-
-                <Col xs={24} sm={11}>
-                    <Form.Item
-                        label="品名"
-                        name="pinming"
-                        rules={[{ required: true, message: '品名' }]}
-                    >
-                        <Input placeholder="品名" />
-                    </Form.Item>
-                </Col>
-                <Col xs={24} sm={11}>
-                    <Form.Item
-                        label="品牌"
-                        name="pinpai"
-                        rules={[{ required: true, message: '品牌' }]}
-                    >
-                        <Input placeholder="品牌" />
-                    </Form.Item>
-                </Col>
-            </Row>
 
             <TableForm_A
                 ref={tableRef}
                 columns={buildColumns(firstColumnName, columnList)}
                 primaryKey={primaryKey}
-                tableForm={tableForm}
-
                 tableParams={
                     {
                         rowSelection: false,
