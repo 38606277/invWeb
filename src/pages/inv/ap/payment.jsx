@@ -370,7 +370,7 @@ const payment = (props) => {
 
               for (let j = 0; j < tableData.length; j++) {
                 const isLine = item['invoice_id'] == tableData[j]['invoice_id'];
-                if (isHeader && isLine) {
+                if (isLine) {
                   isAdd = false;
                   break;
                 }

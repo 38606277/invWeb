@@ -124,13 +124,14 @@ const poList = (props) => {
             title: '订单编号',
             dataIndex: 'header_code',
             valueType: 'text',
-            render: (_) => <a>{_}</a>,
+            render: (text, record) => <a onClick={() => {
+                history.push(`/order/po/edit/${record.po_header_id}`);
+            }}>{text}</a>,
         },
         {
             title: '订单类型',
             dataIndex: 'po_type_name',
             key: 'po_type',
-            valueType: 'text',
         },
         {
             title: '采购员',
@@ -145,8 +146,7 @@ const poList = (props) => {
         {
             title: '生效日期',
             dataIndex: 'po_date',
-            valueType: 'dateTimeRange'
-
+            valueType: 'dateTime'
         },
         {
             title: '收单地点',
@@ -163,8 +163,9 @@ const poList = (props) => {
             dataIndex: 'status',
             valueType: 'select',
             valueEnum: {
-                0: { text: '新建', status: 'Warning' },
-                1: { text: '已过账', status: 'Success' },
+                0: { text: '草稿' },
+                1: { text: '处理中' },
+                2: { text: '已完成' },
             },
         },
         // {

@@ -103,7 +103,16 @@ const countList = () => {
             key: 'manufactory_id',
             valueType: 'text',
         },
-
+        {
+            title: '订单状态',
+            dataIndex: 'status',
+            valueType: 'select',
+            valueEnum: {
+                0: { text: '草稿' },
+                1: { text: '处理中' },
+                2: { text: '已完成' },
+            },
+        },
         {
             title: '更新时间',
             dataIndex: 'update_date',

@@ -42,7 +42,7 @@ const columns = [
   {
     title: '生效日期',
     dataIndex: 'po_date',
-    valueType: 'dateTimeRange',
+    valueType: 'dateTime'
   },
   {
     title: '收单地点',
@@ -55,19 +55,28 @@ const columns = [
   {
     title: '订单状态',
     dataIndex: 'status',
+    valueEnum: {
+      1: {
+        text: '进行中',
+      },
+      2: {
+        text: '已完成',
+      },
+    },
+
   },
-  {
-    title: '合同编号',
-    dataIndex: 'contract_code',
-  },
-  {
-    title: '合同名称',
-    dataIndex: 'contract_name',
-  },
-  {
-    title: '合同文件',
-    dataIndex: 'contract_file',
-  },
+  // {
+  //   title: '合同编号',
+  //   dataIndex: 'contract_code',
+  // },
+  // {
+  //   title: '合同名称',
+  //   dataIndex: 'contract_name',
+  // },
+  // {
+  //   title: '合同文件',
+  //   dataIndex: 'contract_file',
+  // },
   {
     title: '业务描述',
     dataIndex: 'comments',
@@ -75,7 +84,7 @@ const columns = [
   {
     title: '创建时间',
     dataIndex: 'create_date',
-    valueType: 'dateTimeRange',
+    valueType: 'dateTime'
   },
 ];
 
@@ -228,7 +237,14 @@ const SelectPoDialog = (props) => {
               if (selectPoHeader?.po_header_id != null) {
                 //判断是否选择了采购订单
                 //返回订单头信息，行信息
-                handleOk(selectPoHeader, checkRows);
+
+
+                if (0 < checkRows.length) {
+                  handleOk(selectPoHeader, checkRows);
+                } else {
+                  message.info("请选择行信息")
+                }
+
               } else {
                 handleCancel();
               }
@@ -246,6 +262,10 @@ const SelectPoDialog = (props) => {
             return {
               // 点击行
               onClick: (event) => {
+                if (record.status == '2') {
+                  return;
+                }
+
                 setMainCheckKeys([record.po_header_id]);
                 setSelectPoHeader(record);
               },
@@ -258,11 +278,15 @@ const SelectPoDialog = (props) => {
             type: 'radio',
             onChange: mainSelectOnChange,
             selectedRowKeys: mainCheckKeys,
+            getCheckboxProps: (record) => ({
+              disabled: record.status == '2', // Column configuration not to be checked
+            }),
           }}
           tableAlertRender={false}
           tableAlertOptionRender={false}
           pagination={{
             showQuickJumper: true,
+            pageSize: 5
           }}
           options={{
             search: true,

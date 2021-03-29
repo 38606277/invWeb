@@ -416,6 +416,7 @@ const count = (props) => {
                                             deleteData: deleteIds.toString(), // 删除项
                                         });
                                     } else {
+                                        values.status = 1;
                                         save({
                                             mainData: values,
                                             linesData: [...tableData, ...materialTableData],
@@ -460,7 +461,7 @@ const count = (props) => {
 
                         <Col xs={24} sm={11}>
                             <Form.Item
-                                label="制作商"
+                                label="制造商"
                                 name="manufactory_name"
                                 rules={[{ required: true, message: '请选择供应商' }]}
                             >

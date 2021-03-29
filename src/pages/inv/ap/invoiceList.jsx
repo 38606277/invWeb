@@ -26,7 +26,7 @@ const onUpdateClickListener = (ref, selectedRowKeys) => {
     onOk() {
       updateStatusByIds(ref, selectedRowKeys);
     },
-    onCancel() {},
+    onCancel() { },
   });
 };
 
@@ -46,7 +46,7 @@ const onDeleteClickListener = (ref, selectedRowKeys) => {
     onOk() {
       deleteByIds(ref, selectedRowKeys);
     },
-    onCancel() {},
+    onCancel() { },
   });
 };
 //删除
@@ -107,7 +107,7 @@ const invoiceList = () => {
       valueType: 'text',
     },
     {
-      title: '已付金额',
+      title: '付款类型',
       dataIndex: 'invoice_type',
       key: 'invoice_type',
       valueType: 'text',

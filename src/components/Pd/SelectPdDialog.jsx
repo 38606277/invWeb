@@ -31,6 +31,16 @@ const columns = [
     valueType: 'text',
   },
   {
+    title: '订单状态',
+    dataIndex: 'status',
+    valueType: 'select',
+    valueEnum: {
+      0: { text: '草稿' },
+      1: { text: '处理中' },
+      2: { text: '已完成' },
+    },
+  },
+  {
     title: '更新时间',
     dataIndex: 'update_date',
     valueType: 'dateTime',
@@ -211,7 +221,10 @@ const SelectPdDialog = (props) => {
             return {
               // 点击行
               onClick: (event) => {
-                setMainCheckKeys([record.po_header_id]);
+                if (record.status == '2') {
+                  return;
+                }
+                setMainCheckKeys([record.pd_header_id]);
                 setSelectPdHeader(record);
               },
             };
@@ -223,6 +236,9 @@ const SelectPdDialog = (props) => {
             type: 'radio',
             onChange: mainSelectOnChange,
             selectedRowKeys: mainCheckKeys,
+            getCheckboxProps: (record) => ({
+              disabled: record.status == '2', // Column configuration not to be checked
+            }),
           }}
           tableAlertRender={false}
           tableAlertOptionRender={false}

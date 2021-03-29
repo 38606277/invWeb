@@ -342,12 +342,13 @@ const invoice = (props) => {
         handleOk={(mainData, linesData) => {
           console.log('SelectPoDialog', mainData, linesData);
           let tableData = tableRef.current.getTableData();
+
           let newLinesData = [];
 
           for (let i = 0; i < linesData.length; i++) {
             const item = linesData[i];
 
-            //检查改行是否存在
+            //检查该行是否存在
             let isAdd = true;
 
             for (let j = 0; j < tableData.length; j++) {
