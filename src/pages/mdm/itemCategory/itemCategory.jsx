@@ -44,6 +44,7 @@ export default (props) => {
             category_code: mainFormV.category_code,
             category_name: mainFormV.category_name,
             category_pid: mainFormV.category_pid,
+            unit:mainFormV.unit,
             cost_method:mainFormV.cost_method+"",
           });
 
@@ -60,6 +61,7 @@ export default (props) => {
         category_code: '',
         category_name: '',
         cost_method: '1',
+        unit:'',
         category_pid:
           props.match.params.category_pid == 'null' ? '-1' : props.match.params.category_pid,
       });
@@ -183,6 +185,17 @@ export default (props) => {
                   <Option value="1">移动加平均</Option>
                   <Option value="2">单独记价</Option>
                 </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col lg={6} md={12} sm={24}>
+              <Form.Item
+                label="单位"
+                name="unit"
+                rules={[{ required: true, message: '请输入单位' }]}
+              >
+                <Input placeholder="请输入单位" />
               </Form.Item>
             </Col>
           </Row>
