@@ -7,6 +7,7 @@ import { history } from 'umi';
 import SplitPane from 'react-split-pane';
 import './style.less';
 import HttpService from '@/utils/HttpService.jsx';
+import InventoryRulesDialog from '@/components/Inventory/InventoryRulesDialog'
 
 
 
@@ -18,6 +19,10 @@ const inventoryList = () => {
     const [columnData, setColumnData] = useState([]);
     const [catId, setCatId] = useState('-1'); // 用于编辑赋初始值
     const [checkVal, setCheckVal] = useState([]);
+
+    const [inventoryRulesDialogVisible, setInventoryRulesDialogVisible] = useState(false);
+
+
     const [minHeight, setMinHeight] = useState(window.innerHeight - 92 + 'px'); // 用于编辑赋初始值
 
     const [orientation, setOrientation] = useState(false);
@@ -172,6 +177,22 @@ const inventoryList = () => {
                                 segmentOptionList.push({ label: item.segment_name, value: item.segment });
                                 outlist.push(json);
                             });
+
+
+                            outlist.push({
+                                title: '操作',
+                                key: 'option',
+                                valueType: 'option',
+                                render: (text, record) => [
+                                    <a onClick={() => {
+                                        setInventoryRulesDialogVisible(true)
+                                    }}
+                                    >
+                                        设置
+                            </a>
+                                ],
+                            })
+
                             setColumnData(outlist);
                             setSegmentOption(segmentOptionList);
 
@@ -182,6 +203,20 @@ const inventoryList = () => {
                     })
             } else if ('-1' == category_id) {
                 setCheckVal([category_id]);
+
+                outlist.push({
+                    title: '操作',
+                    key: 'option',
+                    valueType: 'option',
+                    render: (text, record) => [
+                        <a onClick={() => {
+                            setInventoryRulesDialogVisible(true)
+                        }}
+                        >
+                            设置
+                </a>
+                    ],
+                })
                 setColumnData(outlist);
                 setCatId(category_id);
             }
@@ -296,6 +331,19 @@ const inventoryList = () => {
                     />
                 </SplitPane>
             </div>
+
+            <InventoryRulesDialog
+                //categoryId={categoryId}
+                modalVisible={inventoryRulesDialogVisible}
+                handleOk={(resultList) => {
+
+                    setInventoryRulesDialogVisible(false);
+                }}
+                handleCancel={() => {
+                    setInventoryRulesDialogVisible(false);
+                }}
+            />
+
         </PageContainer>
 
 

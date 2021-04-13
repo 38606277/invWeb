@@ -111,6 +111,11 @@ const invoiceList = () => {
       dataIndex: 'invoice_type',
       key: 'invoice_type',
       valueType: 'text',
+      valueEnum: {
+        0: { text: '快速' },
+        1: { text: '人工' },
+        2: { text: '退款' },
+      },
     },
     {
       title: '供应商',

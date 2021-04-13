@@ -1,19 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+/**
+ * 订单详情 新增、编辑
+ */
+import React, { useRef, useState, useEffect } from 'react';
 import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
-import { PageContainer } from '@ant-design/pro-layout';
+import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
-import TableFormList_A from '@/components/EditFormA/TableFormList_A';
-import SelectItemDialog from '@/components/itemCategory/SelectItemDialog';
-import SelectItemCategoryDialog from '@/components/itemCategory/SelectItemCategoryDialog';
+import TableForm_A from '@/components/EditFormA/TableForm_A';
 import SelectUserDialog from '@/components/User/SelectUserDialog';
 import SelectCustomersDialog from '@/components/Customers/SelectCustomersDialog';
+import SelectItemDialog from '@/components/itemCategory/SelectItemDialog';
 import DictSelect from '@/components/Select/DictSelect';
-
 import HttpService from '@/utils/HttpService.jsx';
 import { history } from 'umi';
 import moment from 'moment';
-import { SaveOutlined } from '@ant-design/icons';
+import { SaveOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import 'moment/locale/zh-cn';
+
+import SelectItemCategoryDialog from '@/components/itemCategory/SelectItemCategoryDialog';
 
 const { Search } = Input;
 const { RangePicker } = DatePicker;
@@ -28,16 +31,10 @@ const formItemLayout1 = {
     wrapperCol: { span: 20 },
 };
 
-
-
-
 const po = (props) => {
-    const tableFormListRef = useRef();
+    const tableRef = useRef();
+    const [tableForm] = Form.useForm();
     const [mainForm] = Form.useForm();
-
-    const [selectItemDialogVisible, setSelectItemDialogVisible] = useState(false);
-    const [categoryId, setCategoryId] = useState('-1')
-    const [selectItemCategoryDialogVisible, setSelectItemCategoryDialogVisible] = useState(false);
     const [disabled, setDisabled] = useState(false);
 
     const [selectUserDialogVisible, setSelectUserDialogVisible] = useState(false);
@@ -45,23 +42,15 @@ const po = (props) => {
     const [selectCustomersDialogVisible, setSelectCustomersDialogVisible] = useState(false);
     const [selectCustomersFiledName, setSelectCustomersFiledName] = useState('');
 
-    const type = props?.match?.params?.type || 'other';
+    const [categoryId, setCategoryId] = useState('-1')
+    const [selectItemCategoryDialogVisible, setSelectItemCategoryDialogVisible] = useState(false);
+    const [selectItemDialogVisible, setSelectItemDialogVisible] = useState(false);
+
+    const [columnList, setColumnList] = useState([]);
+
     const action = props?.match?.params?.action || 'add';
     const id = props?.match?.params?.id || -1;
 
-
-    const calculateAmount = (value, name, record) => {
-        const amount = record['quantity'] * record['price'];
-        let tableFormData = tableFormListRef?.current?.getTableFormDataList()?.find((item) => {
-            return item.parimaryId == record.item_category_id;
-        })
-
-        tableFormData?.tableRef?.current?.handleObjChange(
-            {
-                amount: amount
-            },
-            record);
-    }
 
     /**
      *   //构建列 
@@ -88,7 +77,7 @@ const po = (props) => {
                     formItemParams: {
                         rules: [{ required: true, message: '请选择物料' }]
                     },
-                    widgetParams: { disabled: disabled }
+                    widgetParams: { disabled: true }
                 }
             },
             ...dynamicList, // 动态展示列
@@ -160,42 +149,16 @@ const po = (props) => {
         ]
     }
 
-    const buildActionButtonList = () => {
-
-        const btnList = [
-            <Button
-                disabled={disabled}
-                key="submit"
-                type="danger"
-                icon={<SaveOutlined />}
-                onClick={() => {
-                    setSelectItemCategoryDialogVisible(true);
-                }}
-            >
-                添加类别
-        </Button>,
-            <Button
-                disabled={disabled}
-                key="submit"
-                type="danger"
-                icon={<SaveOutlined />}
-                onClick={() => {
-                    mainForm?.submit();
-                }}
-            >
-                保存采购订单
-            </Button>,
-            <Button
-                key="reset"
-                onClick={() => {
-                    history.goBack();
-                }}
-            >
-                返回
-  </Button>];
-
-        return btnList;
+    const calculateAmount = (value, name, record) => {
+        const amount = record['quantity'] * record['price'];
+        tableRef.current?.handleObjChange(
+            {
+                amount: amount
+            },
+            record);
     }
+
+
 
     const save = (params) => {
         HttpService.post('reportServer/po/createPo', JSON.stringify(params)).then((res) => {
@@ -227,39 +190,30 @@ const po = (props) => {
             HttpService.post('reportServer/po/getPoById', JSON.stringify({ po_header_id: id })).then(
                 (res) => {
                     if (res.resultCode == '1000') {
-                        setDisabled(res?.data?.mainData?.status == '1');
+                        setDisabled(res?.data?.mainData?.status != 0);
                         mainForm.setFieldsValue({
                             ...res.data.mainData,
                             po_date: moment(res.data.mainData.po_date),
+                            po_date_end: moment(res.data.mainData.po_date_end),
                         });
 
-
-                        //回填行信息
-                        let linesData = res.data.linesData;
-                        let newLinesData = [];
-                        for (let index in linesData) {
-                            let lines = linesData[index];
-
-                            let columnList = [];
-                            for (let columnIndex in lines.columnList) {
-                                let column = lines.columnList[columnIndex];
-
-                                columnList.push({
-                                    ...column,
-                                    renderParams: {
-                                        widgetParams: { disabled: true }
-                                    }
-                                });
-                            }
-                            newLinesData.push({
-                                ...lines,
-                                title: lines.categoryName,
-                                parimaryId: lines.categoryId,
-                                columnList: buildColumns(columnList),
-                                tableRef: React.createRef()
-                            })
+                        const columnList = [];
+                        //构建列
+                        for (let index in res.data.linesData[0].columnList) {
+                            let column = res.data.linesData[0].columnList[index];
+                            columnList.push({
+                                title: column.segment_name,
+                                dataIndex: column.segment,
+                                renderParams: {
+                                    widgetParams: { disabled: true }
+                                }
+                            });
                         }
-                        tableFormListRef?.current?.setTableFormDataList(newLinesData);
+
+                        setColumnList(columnList);
+
+                        tableRef?.current?.initData(res.data.linesData[0].dataList);
+
                     } else {
                         message.error(res.message);
                     }
@@ -268,77 +222,97 @@ const po = (props) => {
         }
     }, []);
 
-
     return (
         <PageContainer
             ghost="true"
             title="采购订单"
             header={{
-                extra: buildActionButtonList()
+                extra: [
+                    <Button
+                        disabled={disabled}
+                        key="submit"
+                        type="danger"
+                        icon={<SaveOutlined />}
+                        onClick={() => {
+                            mainForm?.submit();
+                        }}
+                    >
+                        保存
+                 </Button>,
+                    //     <Button
+                    //         disabled={disabled}
+                    //         key="submit"
+                    //         type="danger"
+                    //         icon={<SaveOutlined />}
+                    //         onClick={() => {
+                    //             mainForm?.submit();
+                    //         }}
+                    //     >
+                    //         提交
+                    // </Button>,
+                    <Button
+                        key="reset"
+                        onClick={() => {
+                            history.goBack();
+                        }}
+                    >
+                        返回
+           </Button>,
+                ],
             }}
         >
             <Form
                 {...formItemLayout2}
                 form={mainForm}
                 onFinish={async (fieldsValue) => {
-                    const tableFormDataList = tableFormListRef?.current?.getTableFormDataList();
-                    let tableFormPromiseList = [];
-                    for (let index in tableFormDataList) {
-                        tableFormPromiseList.push(tableFormDataList[index].tableRef.current.validateFields());
-                    }
-                    let promiseAll = Promise.all(tableFormPromiseList);
-                    promiseAll.then((res) => {
-                        console.log('promiseAll then', res);
+                    //验证tableForm
+                    tableForm
+                        .validateFields()
+                        .then(() => {
+                            //验证成功
 
-                        let tableData = [];
-                        for (let index in tableFormDataList) {
-                            tableData.push(...tableFormDataList[index].tableRef.current.getTableData());
-                        }
-                        const values = {
-                            ...fieldsValue,
-                            po_date: fieldsValue['po_date'].format('YYYY-MM-DD HH:mm:ss'),
-                        };
+                            let tableData = tableRef.current.getTableData();
 
-                        if (action === 'edit') {
-                            let deleteRecordKeys = [];
-                            for (let deleteIndex in tableFormDataList) {
-                                deleteRecordKeys.push(...tableFormDataList[deleteIndex].tableRef.current.getDeleteRecordKeys());
+                            const values = {
+                                ...fieldsValue,
+                                po_date: fieldsValue['po_date'].format('YYYY-MM-DD HH:mm:ss'),
+                                po_date_end: fieldsValue['po_date_end'].format('YYYY-MM-DD HH:mm:ss')
+                            };
+
+                            if (action === 'edit') {
+                                let deleteRecordKeys = tableRef.current.getDeleteRecordKeys();
+                                console.log('deleteRecordKeys', deleteRecordKeys);
+                                //过滤deleteRecord中的临时数据
+                                let deleteIds = deleteRecordKeys.filter((element) => {
+                                    return element.toString().indexOf('NEW_TEMP_ID_') < 0;
+                                });
+                                update({
+                                    mainData: values,
+                                    linesData: tableData,
+                                    deleteData: deleteIds.toString(), // 删除项
+                                });
+                            } else {
+                                values.status = 0;
+                                save({
+                                    mainData: values,
+                                    linesData: tableData,
+                                });
                             }
-                            console.log('deleteRecordKeys', deleteRecordKeys);
-                            //过滤deleteRecord中的临时数据
-                            let deleteIds = deleteRecordKeys.filter((element) => {
-                                return element.toString().indexOf('NEW_TEMP_ID_') < 0;
-                            });
-
-
-                            update({
-                                mainData: values,
-                                linesData: tableData,
-                                deleteData: deleteIds.toString(), // 删除项
-                            });
-                        } else {
-
-                            values.status = 1;
-
-                            save({
-                                mainData: values,
-                                linesData: tableData,
-                            });
-                        }
-
-
-                    }).catch((error) => {
-                        console.log('promiseAll catch', error)
-                        message.error('提交失败');
-                    });
-
+                        })
+                        .catch((errorInfo) => {
+                            console.log(errorInfo);
+                            //验证失败
+                            message.error('提交失败');
+                        });
                 }}
             >
                 <ProCardCollapse
                     title="基础信息"
                 >
+                    <Form.Item hidden label="订单Id" name="po_header_id" />
                     <Form.Item hidden label="采购员Id" name="agent_id" />
                     <Form.Item hidden label="供应商Id" name="vendor_id" />
+                    <Form.Item hidden label="类别Id" name="category_id" />
 
                     <Row>
                         <Col xs={24} sm={11}>
@@ -420,62 +394,47 @@ const po = (props) => {
                         </Col>
                     </Row>
 
-
-
-                    {/* <Row>
+                    <Row>
                         <Col xs={24} sm={11}>
-                            <Form.Item label="合同编号" name="contract_code"
-                                rules={[{ required: true, message: '请选择合同编号' }]}>
+                            <Form.Item
+                                name="po_date"
+                                label="开始日期"
+                                rules={[{ required: true, message: '请选择开始日期' }]}
+                            >
+                                <DatePicker style={{ width: "100%" }} disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
+                            </Form.Item>
+                        </Col>
+
+                        <Col xs={24} sm={11}>
+                            <Form.Item
+                                name="po_date_end"
+                                label="结束日期"
+                                rules={[{ required: true, message: '请选择结束日期' }]}
+                            >
+                                <DatePicker style={{ width: "100%" }} disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <Row>
+
+                        <Col xs={24} sm={11}>
+                            <Form.Item label="类别" name="category_name"
+                                rules={[{ required: true, message: '请选择类别' }]}>
                                 <Search
                                     disabled={disabled}
                                     allowClear
                                     readOnly={true}
                                     enterButton
                                     onClick={() => {
-                                        mainForm.setFieldsValue({
-                                            contract_code: 'HT_0000001',
-                                            contract_name: '羊毛采购合同'
-                                        })
+                                        setSelectItemCategoryDialogVisible(true);
                                     }}
                                     onSearch={() => {
-                                        mainForm.setFieldsValue({
-                                            contract_code: 'HT_0000001',
-                                            contract_name: '羊毛采购合同'
-                                        })
+                                        setSelectItemCategoryDialogVisible(true);
                                     }}
                                 />
                             </Form.Item>
                         </Col>
-                        <Col xs={24} sm={11}>
-                            <Form.Item
-                                label="合同名称"
-                                name="contract_name"
-                                rules={[{ required: true, message: '请选择输入合同名称' }]}
-                            >
-                                <Input disabled={true} />
-                            </Form.Item>
-                        </Col>
-                    </Row> */}
-
-                    {/* <Row>
-                        <Col xs={24} sm={11}>
-                            <Form.Item label="合同文件" name="contract_file">
-                                <Input disabled={disabled} />
-                            </Form.Item>
-                        </Col>
-                    </Row> */}
-
-                    <Row>
-                        <Col xs={24} sm={11}>
-                            <Form.Item
-                                name="po_date"
-                                label="生效日期"
-                                rules={[{ required: true, message: '请选择生效日期' }]}
-                            >
-                                <DatePicker style={{ width: "100%" }} disabled={disabled} showTime format="YYYY-MM-DD HH:mm:ss" />
-                            </Form.Item>
-                        </Col>
-
                     </Row>
 
                     <Row>
@@ -491,106 +450,40 @@ const po = (props) => {
                     </Row>
                 </ProCardCollapse>
             </Form>
-            <TableFormList_A
-                ref={tableFormListRef}
-                //tableFormDataList={tableFormDataList}
-                disabled={disabled}
-                primaryKey="line_id"
-                onAddClick={(tableFormData) => {
 
-                    if (type == 'other') {
-                        setCategoryId(tableFormData.parimaryId);
-                        setSelectItemDialogVisible(true)
-                    } else {
-                        setSelectPoDialogVisible(true);
-                    }
-                }}
-            />
+            <ProCardCollapse
+                title="行信息"
+                extra={[
+                    <Button
+                        disabled={disabled}
+                        icon={<PlusOutlined />}
+                        size="small"
+                        onClick={() => {
+                            //新增一行
+                            // tableRef.current.addItem({
+                            //     line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                            //     cancel_flag: 0
+                            // });
 
-            <SelectItemDialog
-                categoryId={categoryId}
-                modalVisible={selectItemDialogVisible}
-                selectType='checkbox'
-                handleOk={(checkRows, checkKeys, columnData, catId, catname) => {
-                    const tableFormDataList = tableFormListRef?.current?.getTableFormDataList();
-                    let tableFormDate = tableFormDataList.find((element) => {
-                        return element.parimaryId == catId;
-                    })
-
-                    if (tableFormDate) {
-                        let addItemList = [];
-                        for (let index in checkRows) {
-                            let row = checkRows[index];
-                            addItemList.push({
-                                ...row,
-                                line_type_id: 0,
-                                category_id: catId,
-                                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                                material_id: row.item_id,
-                                material_description: row.item_description,
-                                uom: row.uom
-                            })
-                        }
-                        tableFormDate?.tableRef?.current?.addItemList(addItemList)
-                    }
-                    tableFormListRef?.current?.setTableFormDataList(tableFormDataList);
-
-                    setSelectItemDialogVisible(false);
-                }}
-                handleCancel={() => {
-                    setSelectItemDialogVisible(false);
-                }}
-            />
-
-            <SelectItemCategoryDialog
-                modalVisible={selectItemCategoryDialogVisible}
-                handleOk={(checkRows, checkKeys) => {
-                    console.log('SelectItemCategoryDialog', checkRows, checkKeys)
-                    if (checkRows.category_id == -1) {
-                        message.warning('根节点无法作为类别')
-                        return;
-                    }
-
-                    const tableFormDataList = tableFormListRef?.current?.getTableFormDataList();
-                    //添加类别
-                    let tableFormDate = tableFormDataList.find((element) => {
-                        return element.parimaryId == checkRows.category_id;
-                    })
-
-                    if (tableFormDate) {
-                        message.warning('类别已存在，请勿重复添加')
-                    } else {
-                        const columnList = [];
-                        //构建列
-                        for (let index in checkRows.segmentlist) {
-                            let column = checkRows.segmentlist[index];
-                            columnList.push({
-                                title: column.segment_name,
-                                dataIndex: column.segment,
-                                renderParams: {
-                                    widgetParams: { disabled: true }
-                                }
-                            });
-                        }
-
-                        let tableFormData = {
-                            dataList: [],
-                            title: checkRows.category_name,
-                            parimaryId: checkRows.category_id,
-                            columnList: buildColumns(columnList),
-                            tableRef: React.createRef()
-                        }
-                        tableFormDataList.push(tableFormData);
-                    }
-                    tableFormListRef?.current?.setTableFormDataList(tableFormDataList);
-                    setSelectItemCategoryDialogVisible(false);
-                }}
-                handleCancel={() => {
-                    setSelectItemCategoryDialogVisible(false);
-                }}
-            />
+                            setSelectItemDialogVisible(true)
 
 
+                        }}
+                    ></Button>,
+                    <Button
+                        disabled={disabled}
+                        size="small"
+                        style={{ marginLeft: '6px' }}
+                        icon={<MinusOutlined />}
+                        onClick={() => {
+                            //删除选中项
+                            tableRef.current.removeRows();
+                        }}
+                    ></Button>
+                ]}
+            >
+                <TableForm_A ref={tableRef} disabled={disabled} columns={buildColumns(columnList)} primaryKey="line_id" tableForm={tableForm} />
+            </ProCardCollapse>
             <SelectUserDialog
                 modalVisible={selectUserDialogVisible}
                 handleOk={(selectUser) => {
@@ -620,6 +513,74 @@ const po = (props) => {
                 }}
                 handleCancel={() => {
                     setSelectCustomersDialogVisible(false);
+                }}
+            />
+
+            <SelectItemCategoryDialog
+                modalVisible={selectItemCategoryDialogVisible}
+                handleOk={(checkRows, checkKeys) => {
+                    console.log('SelectItemCategoryDialog', checkRows, checkKeys)
+                    if (checkRows.category_id == -1) {
+                        message.warning('根节点无法作为类别')
+                        return;
+                    }
+
+                    mainForm.setFieldsValue({
+                        'category_id': checkRows.category_id,
+                        'category_name': checkRows.category_name,
+                    });
+
+                    setCategoryId(checkRows.category_id);
+                    const columnList = [];
+                    //构建列
+                    for (let index in checkRows.segmentlist) {
+                        let column = checkRows.segmentlist[index];
+                        columnList.push({
+                            title: column.segment_name,
+                            dataIndex: column.segment,
+                            renderParams: {
+                                widgetParams: { disabled: true }
+                            }
+                        });
+                    }
+
+                    setColumnList(columnList);
+
+                    setSelectItemCategoryDialogVisible(false);
+                }}
+                handleCancel={() => {
+                    setSelectItemCategoryDialogVisible(false);
+                }}
+            />
+
+
+
+            <       SelectItemDialog
+                categoryId={categoryId}
+                modalVisible={selectItemDialogVisible}
+                selectType='checkbox'
+                handleOk={(checkRows, checkKeys, columnData, catId, catname) => {
+
+                    let addItemList = [];
+                    for (let index in checkRows) {
+                        let row = checkRows[index];
+                        addItemList.push({
+                            ...row,
+                            line_type_id: 0,
+                            category_id: catId,
+                            line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                            material_id: row.item_id,
+                            material_description: row.item_description,
+                            uom: row.uom
+                        })
+                    }
+                    tableRef.current.addItemList(addItemList)
+
+
+                    setSelectItemDialogVisible(false);
+                }}
+                handleCancel={() => {
+                    setSelectItemDialogVisible(false);
                 }}
             />
 

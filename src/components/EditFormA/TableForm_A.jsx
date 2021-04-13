@@ -28,11 +28,13 @@
  * 
  */
 import { Table, Form, message } from 'antd';
-import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
+import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import InputEF_A from '@/components/EditFormA/InputEF_A'
 import SelectEF_A from '@/components/EditFormA/SelectEF_A'
 import InputNumberEF_A from '@/components/EditFormA/InputNumberEF_A'
 import InputSearchEF_A from '@/components/EditFormA/InputSearchEF_A'
+import DebounceSelectEF_A from '@/components/EditFormA/DebounceSelectEF_A'
+import SearchSelectEF_A from '@/components/EditFormA/SearchSelectEF_A'
 import styles from './index.less';
 
 const TableForm = forwardRef((props, ref) => {
@@ -244,6 +246,10 @@ const TableForm = forwardRef((props, ref) => {
       return <InputSearchEF_A  {...renderParams} />;
     } else if (renderType === 'SelectEF') {//选择框
       return <SelectEF_A  {...renderParams} />;
+    } else if (renderType === 'DebounceSelectEF') {
+      return <DebounceSelectEF_A  {...renderParams} />;
+    } else if (renderType === 'SearchSelectEF') {
+      return <SearchSelectEF_A  {...renderParams} />;
     } else {// 默认输入框
       return <InputEF_A  {...renderParams} />;
     }

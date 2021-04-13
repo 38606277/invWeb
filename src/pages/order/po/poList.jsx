@@ -7,39 +7,53 @@ import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined } from '@ant-d
 import ProTable from '@ant-design/pro-table';
 import { history } from 'umi';
 import HttpService from '@/utils/HttpService.jsx';
+import LocalStorge from '@/utils/LogcalStorge.jsx';
+
+const localStorge = new LocalStorge();
 
 const { confirm } = Modal;
 
-//过账按钮事件
-const onUpdateClickListener = (ref, selectedRowKeys) => {
-    if (selectedRowKeys.length < 1) {
-        message.error('请选择需要过账的内容');
-        return;
-    }
 
+/**
+ * 审批
+ */
+const onApprovalClickListener = (ref, recordId) => {
     confirm({
         title: '温馨提示',
-        content: `您确定要过账吗？`,
+        content: `您确定要审批吗？`,
         okText: '确定',
         cancelText: '取消',
         okType: 'danger',
         onOk() {
-            updateStatusByIds(ref, selectedRowKeys);
+            updateStatusById(ref, recordId, '2');
         },
         onCancel() { },
     });
-};
+}
 
-//删除
-const updateStatusByIds = (ref, selectedRowKeys) => {
-    if (selectedRowKeys.length < 1) {
-        message.error('请选择需要过账的内容');
-        return;
-    }
+/**
+ * 提交
+ */
+const onSubmitClickListener = (ref, recordId) => {
+    confirm({
+        title: '温馨提示',
+        content: `您确定要提交吗？`,
+        okText: '确定',
+        cancelText: '取消',
+        okType: 'danger',
+        onOk() {
+            updateStatusById(ref, recordId, '1');
+        },
+        onCancel() { },
+    });
+}
 
+
+//修改状态
+const updateStatusById = (ref, billId, billStatus) => {
     HttpService.post(
-        'reportServer/po/updatePoStatusByIds',
-        JSON.stringify({ ids: selectedRowKeys.toString(), bill_status: 1 }),
+        'reportServer/po/updatePoStatusById',
+        JSON.stringify({ bill_id: billId, bill_status: billStatus }),
     ).then((res) => {
         if (res.resultCode == '1000') {
             //刷新
@@ -115,8 +129,56 @@ const fetchData = async (params, sort, filter) => {
 };
 
 
+
+
 const poList = (props) => {
     const ref = useRef();
+
+
+    const getTableAction = (record) => {
+
+        const actionList = [];
+
+        if (record.status == 0) {
+            actionList.push(<a onClick={() => {
+                history.push(`/order/po/edit/${record.po_header_id}`);
+            }}
+            >
+                编辑
+            </a>);
+            actionList.push(<a onClick={() => {
+                onSubmitClickListener(ref, record.po_header_id);
+            }}
+            >
+                提交
+            </a>);
+        } else {
+            actionList.push(<a onClick={() => {
+                history.push(`/order/po/edit/${record.po_header_id}`);
+            }}
+            >
+                查看详情
+            </a>);
+
+            let userInfo = localStorge.getStorage('userInfo');
+            if (record.status == 1 && record.approval_id == userInfo.id) {
+                actionList.push(<a onClick={() => {
+                    onApprovalClickListener(ref, record.po_header_id);
+                }}
+                >
+                    审批
+                </a>);
+            }
+        }
+        actionList.push(<a onClick={() => {
+            onDeleteClickListener(ref, [record.po_header_id])
+        }}
+        >
+            删除
+        </a>);
+
+        return actionList;
+    }
 
     //定义列
     const columns = [
@@ -164,25 +226,11 @@ const poList = (props) => {
             valueType: 'select',
             valueEnum: {
                 0: { text: '草稿' },
-                1: { text: '处理中' },
-                2: { text: '已完成' },
+                1: { text: '待审批' },
+                2: { text: '待入库' },
+                3: { text: '已完成' },
             },
         },
-        // {
-        //     title: '合同编号',
-        //     dataIndex: 'contract_code',
-        //     render: (_) => <a>{_}</a>,
-        // },
-        // {
-        //     title: '合同名称',
-        //     dataIndex: 'contract_name',
-
-        // },
-        // {
-        //     title: '合同文件',
-        //     dataIndex: 'contract_file',
-
-        // },
         {
             title: '业务描述',
             dataIndex: 'comments',
@@ -197,21 +245,12 @@ const poList = (props) => {
             title: '操作',
             key: 'option',
             valueType: 'option',
-            render: (text, record) => [
-                <a onClick={() => {
-                    history.push(`/order/po/edit/${record.po_header_id}`);
-                }}
-                >
-                    编辑
-        </a>,
-                <a onClick={() => {
-                    onDeleteClickListener(ref, [record.po_header_id])
-                }}>
-                    删除
-        </a>,
-            ],
+            render: (text, record) => getTableAction(record),
         },
     ];
+
+
+
 
     return (
         <ProTable
@@ -244,8 +283,7 @@ const poList = (props) => {
             tableAlertOptionRender={({ selectedRowKeys }) => (
                 <Space size={16}>
                     <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
-
-                    <a onClick={() => onUpdateClickListener(ref, selectedRowKeys)}> 批量过账</a>
+                    {/* <a onClick={() => onUpdateClickListener(ref, selectedRowKeys)}> 批量审批</a> */}
                 </Space>
             )}
             pagination={{

@@ -109,7 +109,7 @@ const countList = () => {
             valueType: 'select',
             valueEnum: {
                 0: { text: '草稿' },
-                1: { text: '处理中' },
+                1: { text: '待审批' },
                 2: { text: '已完成' },
             },
         },
