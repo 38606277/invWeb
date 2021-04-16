@@ -310,6 +310,16 @@
         path: '/transation/inventoryQuery',
         component: './inv/inventory/inventoryQuery',
       },
+      {
+        name: 'user.user-list',
+        path: '/transation/approvalRuleList',
+        component: './inv/approvalRule/approvalRuleList',
+      },
+      {
+        name: 'user.user-list',
+        path: '/transation/approvalRule/:action/:id/',
+        component: './inv/approvalRule/approvalRule',
+      },
     ],
   },
   {
