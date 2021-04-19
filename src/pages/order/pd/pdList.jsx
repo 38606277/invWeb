@@ -1,7 +1,6 @@
 /**
- * 生产订单列表
+ * 采购订单列表
  */
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Space, message, Modal } from 'antd';
 import ProTable from '@ant-design/pro-table';
@@ -12,6 +11,59 @@ import LocalStorge from '@/utils/LogcalStorge.jsx';
 const localStorge = new LocalStorge();
 
 const { confirm } = Modal;
+
+
+/**
+ * 审批
+ */
+const onApprovalClickListener = (ref, recordId) => {
+    confirm({
+        title: '温馨提示',
+        content: `您确定要审批吗？`,
+        okText: '确定',
+        cancelText: '取消',
+        okType: 'danger',
+        onOk() {
+            updateStatusById(ref, recordId, '2');
+        },
+        onCancel() { },
+    });
+}
+
+/**
+ * 提交
+ */
+const onSubmitClickListener = (ref, recordId) => {
+    confirm({
+        title: '温馨提示',
+        content: `您确定要提交吗？`,
+        okText: '确定',
+        cancelText: '取消',
+        okType: 'danger',
+        onOk() {
+            updateStatusById(ref, recordId, '1');
+        },
+        onCancel() { },
+    });
+}
+
+
+//修改状态
+const updateStatusById = (ref, billId, billStatus) => {
+    HttpService.post(
+        'reportServer/pd/updatePdStatusById',
+        JSON.stringify({ bill_id: billId, bill_status: billStatus }),
+    ).then((res) => {
+        if (res.resultCode == '1000') {
+            //刷新
+            // 清空选中项
+            ref.current.clearSelected();
+            ref.current.reload();
+        } else {
+            message.error(res.message);
+        }
+    });
+};
 
 //删除按钮事件
 const onDeleteClickListener = (ref, selectedRowKeys) => {
@@ -59,15 +111,11 @@ const fetchData = async (params, sort, filter) => {
     console.log('getByKeyword', params, sort, filter);
     // current: 1, pageSize: 20
     let requestParam = {
+        status: '0,1,2',
         pageNum: params.current,
         perPage: params.pageSize,
         ...params,
-        bill_type: 'count'
     };
-
-    let userInfo = localStorge.getStorage('userInfo');
-    requestParam.operator = userInfo.id;
-
     const result = await HttpService.post(
         'reportServer/pd/getListByPage',
         JSON.stringify(requestParam),
@@ -80,16 +128,67 @@ const fetchData = async (params, sort, filter) => {
     });
 };
 
-const countList = () => {
+
+
+
+const pdList = (props) => {
     const ref = useRef();
+
+
+    const getTableAction = (record) => {
+
+        const actionList = [];
+
+        if (record.status == 0) {
+            actionList.push(<a onClick={() => {
+                history.push(`/order/pd/edit/${record.pd_header_id}`);
+            }}
+            >
+                编辑
+             </a>);
+            actionList.push(<a onClick={() => {
+                onSubmitClickListener(ref, record.pd_header_id);
+            }}
+            >
+                提交
+             </a>);
+        } else {
+            actionList.push(<a onClick={() => {
+                history.push(`/order/pd/edit/${record.pd_header_id}`);
+            }}
+            >
+                查看详情
+             </a>);
+
+            let userInfo = localStorge.getStorage('userInfo');
+            if (record.status == 1 && record.approval_id == userInfo.id) {
+                actionList.push(<a onClick={() => {
+                    onApprovalClickListener(ref, record.pd_header_id);
+                }}
+                >
+                    审批
+                 </a>);
+            }
+        }
+        actionList.push(<a onClick={() => {
+            onDeleteClickListener(ref, [record.pd_header_id])
+        }}
+        >
+            删除
+         </a>);
+
+        return actionList;
+    }
 
     //定义列
     const columns = [
         {
             title: '订单编号',
             dataIndex: 'pd_header_code',
-            key: 'pd_header_code',
             valueType: 'text',
+            render: (text, record) => <a onClick={() => {
+                history.push(`/order/pd/edit/${record.pd_header_id}`);
+            }}>{text}</a>,
         },
         {
             title: '订单名称',
@@ -110,7 +209,8 @@ const countList = () => {
             valueEnum: {
                 0: { text: '草稿' },
                 1: { text: '待审批' },
-                2: { text: '已完成' },
+                2: { text: '待入库' },
+                3: { text: '已完成' },
             },
         },
         {
@@ -122,23 +222,14 @@ const countList = () => {
             title: '操作',
             key: 'option',
             valueType: 'option',
-            render: (text, record) => [
-                <a
-                    onClick={() => {
-                        history.push(`/order/pd/edit/${record.pd_header_id}`);
-                    }}
-                >
-                    编辑
-                </a>,
-                <a onClick={() => { onDeleteClickListener(ref, [record.pd_header_id]) }}>
-                    删除
-                </a>,
-            ],
+            render: (text, record) => getTableAction(record),
         },
     ];
 
-    return (
 
+
+
+    return (
         <ProTable
             actionRef={ref}
             columns={columns}
@@ -155,20 +246,21 @@ const countList = () => {
                 <Space size={24}>
                     <span>
                         已选 {selectedRowKeys.length} 项
-            <a
+             <a
                             style={{
                                 marginLeft: 8,
                             }}
                             onClick={onCleanSelected}
                         >
                             取消选择
-            </a>
+             </a>
                     </span>
                 </Space>
             )}
             tableAlertOptionRender={({ selectedRowKeys }) => (
                 <Space size={16}>
                     <a onClick={() => onDeleteClickListener(ref, selectedRowKeys)}> 批量删除</a>
+                    {/* <a onClick={() => onUpdateClickListener(ref, selectedRowKeys)}> 批量审批</a> */}
                 </Space>
             )}
             pagination={{
@@ -182,12 +274,10 @@ const countList = () => {
             toolBarRender={(action, { selectedRows }) => [
                 <Button type="primary" onClick={() => history.push('/order/pd/add/null')}>
                     新建
-        </Button>,
+         </Button>,
             ]}
         />
 
     );
 };
-export default countList;
-
-
+export default pdList;

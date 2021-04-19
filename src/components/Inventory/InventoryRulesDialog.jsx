@@ -2,7 +2,7 @@
  * 库存补货规则 
  */
 import React, { useState, useEffect } from 'react';
-import { Input, Drawer, Button, TimePicker, Select, Form, Row, Col } from 'antd';
+import { Input, Drawer, Button, TimePicker, Select, Form, Row, Col, message } from 'antd';
 
 
 import HttpService from '@/utils/HttpService.jsx';
@@ -20,11 +20,22 @@ const InventoryRulesDialog = (props) => {
   const [mainForm] = Form.useForm();
   const [auto, setAuto] = useState('N')
 
-  const org_id = props?.org_id || '-1';
-  const item_id = props?.item_id || '-1';
+  const orgId = props?.orgId || '-1';
+  const itemId = props?.itemId || '-1';
 
   //重置选中状态
   useEffect(() => {
+    //获取规则明细
+    if (modalVisible) {
+      HttpService.post('reportServer/invOnHand/getItemOnHandSettingByOrgIdAndItemId', JSON.stringify({ org_id: orgId, item_id: itemId }))
+        .then(res => {
+          if (res.resultCode === "1000") {
+            mainForm.setFieldsValue(res.data)
+          } else {
+            message.error(res.message);
+          }
+        });
+    }
 
   }, [modalVisible]);
 
@@ -46,16 +57,6 @@ const InventoryRulesDialog = (props) => {
           </Button>
           <Button
             onClick={() => {
-              // if (0 < checkKeys.length) {
-              //   if (selectType === 'radio') {
-              //     handleOk(checkRows[0], checkKeys[0]);
-              //   } else {
-              //     handleOk(checkRows, checkKeys);
-              //   }
-              // } else {
-              //   handleCancel();
-              // }
-
               mainForm?.submit();
             }}
             type="primary"
@@ -79,9 +80,18 @@ const InventoryRulesDialog = (props) => {
 
           }}
           onFinish={async (values) => {
-            console.log(values)
+            values.item_id = itemId;
+            values.org_id = orgId;
 
-            // 'time-picker': fieldsValue['time-picker'].format('HH:mm:ss'),
+            HttpService.post('reportServer/invOnHand/updateItemOnHand', JSON.stringify(values))
+              .then(res => {
+                if (res.resultCode === "1000") {
+                  mainForm.setFieldsValue(res.data)
+                  handleOk();
+                } else {
+                  message.error(res.message);
+                }
+              });
 
           }}
         >

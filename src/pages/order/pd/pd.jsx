@@ -320,7 +320,7 @@ const count = (props) => {
             HttpService.post('reportServer/pd/getPdById', JSON.stringify({ pd_header_id: id })).then(
                 (res) => {
                     if (res.resultCode == '1000') {
-                        setDisabled(true);
+                        setDisabled(res.data.mainData.status != '0');
                         mainForm.setFieldsValue({
                             ...res.data.mainData,
                             begin_date: moment(res.data.mainData.begin_date),
@@ -416,7 +416,7 @@ const count = (props) => {
                                             deleteData: deleteIds.toString(), // 删除项
                                         });
                                     } else {
-                                        values.status = 1;
+                                        values.status = 0;
                                         save({
                                             mainData: values,
                                             linesData: [...tableData, ...materialTableData],

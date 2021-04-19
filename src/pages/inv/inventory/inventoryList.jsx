@@ -22,7 +22,6 @@ const inventoryList = () => {
 
     const [inventoryRulesDialogVisible, setInventoryRulesDialogVisible] = useState(false);
 
-
     const [minHeight, setMinHeight] = useState(window.innerHeight - 92 + 'px'); // 用于编辑赋初始值
 
     const [orientation, setOrientation] = useState(false);
@@ -30,6 +29,10 @@ const inventoryList = () => {
     const [mergeColumn, setMergeColumn] = useState('segment1');
 
     const [segmentOption, setSegmentOption] = useState([]);
+
+    const [itemId, setItemId] = useState('-1')
+    const [orgId, setOrgId] = useState('-1')
+
 
 
     const getAllChildrenRecursionById = (catId) => {
@@ -86,7 +89,7 @@ const inventoryList = () => {
                     });
                     setColumnData(resultlist);
                     setSegmentOption(segmentOptionList);
-                    ref.current.reload()
+                    ref?.current?.reload()
                 } else {
                     message.error(res.message);
                 }
@@ -126,14 +129,14 @@ const inventoryList = () => {
             align: "center"
         },
         {
-            title: '预警最大值',
-            dataIndex: 'max',
+            title: '预警最小值',
+            dataIndex: 'min',
             valueType: 'text',
             align: "center"
         },
         {
-            title: '预警最小值',
-            dataIndex: 'min',
+            title: '预警最大值',
+            dataIndex: 'max',
             valueType: 'text',
             align: "center"
         },
@@ -185,6 +188,8 @@ const inventoryList = () => {
                                 valueType: 'option',
                                 render: (text, record) => [
                                     <a onClick={() => {
+                                        setOrgId(record.org_id);
+                                        setItemId(record.item_id);
                                         setInventoryRulesDialogVisible(true)
                                     }}
                                     >
@@ -196,7 +201,7 @@ const inventoryList = () => {
                             setColumnData(outlist);
                             setSegmentOption(segmentOptionList);
 
-                            ref.current.reload()
+                            ref?.current?.reload()
                         } else {
                             message.error(res.message);
                         }
@@ -277,7 +282,6 @@ const inventoryList = () => {
                     ></Tree>
                     <ProTable
                         bordered
-                        style={{ height: '100%' }}
                         actionRef={ref}
                         columns={columnData}
                         request={fetchData}
@@ -286,12 +290,17 @@ const inventoryList = () => {
                         pagination={{
                             showQuickJumper: true,
                         }}
-                        search={{
-                            defaultCollapsed: true,
-                        }}
+                        // search={{
+                        //     defaultCollapsed: true,
+                        // }}
+                        search={false}
                         dateFormatter="string"
                         headerTitle="库存列表"
-
+                        pagination={
+                            {
+                                pageSize: 10,
+                            }
+                        }
                         toolbar={{
                             search: {
                                 onSearch: (value) => {
@@ -333,10 +342,11 @@ const inventoryList = () => {
             </div>
 
             <InventoryRulesDialog
-                //categoryId={categoryId}
+                itemId={itemId}
+                orgId={orgId}
                 modalVisible={inventoryRulesDialogVisible}
-                handleOk={(resultList) => {
-
+                handleOk={() => {
+                    ref?.current?.reload()
                     setInventoryRulesDialogVisible(false);
                 }}
                 handleCancel={() => {

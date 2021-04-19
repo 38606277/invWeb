@@ -185,7 +185,6 @@ const bankAccount = (props) => {
                                 </Select>
                             </Form.Item>
                         </Col>
-
                     </Row>
                 </ProCardCollapse>
             </Form>

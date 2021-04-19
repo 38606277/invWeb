@@ -3,7 +3,6 @@
  */
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Space, message, Modal } from 'antd';
-import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import ProTable from '@ant-design/pro-table';
 import { history } from 'umi';
 import HttpService from '@/utils/HttpService.jsx';
@@ -112,6 +111,7 @@ const fetchData = async (params, sort, filter) => {
     console.log('getByKeyword', params, sort, filter);
     // current: 1, pageSize: 20
     let requestParam = {
+        status: '0,1,2',
         pageNum: params.current,
         perPage: params.pageSize,
         ...params,
