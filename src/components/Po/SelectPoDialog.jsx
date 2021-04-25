@@ -56,14 +56,11 @@ const columns = [
     title: '订单状态',
     dataIndex: 'status',
     valueEnum: {
-      1: {
-        text: '进行中',
-      },
-      2: {
-        text: '已完成',
-      },
-    },
-
+      0: { text: '草稿' },
+      1: { text: '待审批' },
+      2: { text: '待入库' },
+      3: { text: '已完成' },
+    }
   },
   // {
   //   title: '合同编号',
@@ -184,7 +181,10 @@ const SelectPoDialog = (props) => {
       pageNum: params.current,
       perPage: params.pageSize,
       ...params,
+      status: '2'
     };
+
+
     const result = await HttpService.post(
       'reportServer/po/getPoListByPage',
       JSON.stringify(requestParam),
@@ -262,7 +262,7 @@ const SelectPoDialog = (props) => {
             return {
               // 点击行
               onClick: (event) => {
-                if (record.status == '2') {
+                if (record.status == '3') {
                   return;
                 }
 
@@ -279,7 +279,7 @@ const SelectPoDialog = (props) => {
             onChange: mainSelectOnChange,
             selectedRowKeys: mainCheckKeys,
             getCheckboxProps: (record) => ({
-              disabled: record.status == '2', // Column configuration not to be checked
+              disabled: record.status == '3', // Column configuration not to be checked
             }),
           }}
           tableAlertRender={false}

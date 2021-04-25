@@ -12,7 +12,6 @@ const localStorge = new LocalStorge();
 
 const { confirm } = Modal;
 
-
 /**
  * 审批
  */
@@ -225,9 +224,6 @@ const pdList = (props) => {
             render: (text, record) => getTableAction(record),
         },
     ];
-
-
-
 
     return (
         <ProTable

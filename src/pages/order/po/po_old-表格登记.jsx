@@ -3,7 +3,7 @@
  */
 import React, { useRef, useState, useEffect } from 'react';
 import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
-import { PageContainer } from '@ant-design/pro-layout';
+import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import TableForm_A from '@/components/EditFormA/TableForm_A';
 import SelectUserDialog from '@/components/User/SelectUserDialog';
@@ -29,9 +29,6 @@ const formItemLayout1 = {
     labelCol: { span: 4 },
     wrapperCol: { span: 20 },
 };
-
-const expendSegment = 'segment5';
-
 
 const po = (props) => {
     const tableRef = useRef();
@@ -78,7 +75,7 @@ const po = (props) => {
                         onHandleSearch: (searchValue, callBack) => {
                             HttpService.post('reportServer/item/getColumnListBySKU',
                                 JSON.stringify({
-                                    segment: expendSegment,
+                                    segment: 'segment5',
                                     item_category_id: itemCategoryId,
                                     sku: searchValue
                                 }))
@@ -128,19 +125,20 @@ const po = (props) => {
                     },
                     widgetParams: { disabled: disabled, onChange: calculateAmount }
                 }
+            },
+
+            {
+                title: '备注',
+                dataIndex: 'remark',
+                fixed: 'right',
+                width: '100px',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: false, message: '请输入备注' }]
+                    },
+                    widgetParams: { disabled: disabled }
+                }
             }
-            // {
-            //     title: '备注',
-            //     dataIndex: 'remark',
-            //     fixed: 'right',
-            //     width: '100px',
-            //     renderParams: {
-            //         formItemParams: {
-            //             rules: [{ required: false, message: '请输入备注' }]
-            //         },
-            //         widgetParams: { disabled: disabled }
-            //     }
-            // }
         ]
     }
 
@@ -156,7 +154,6 @@ const po = (props) => {
 
 
     const save = (params) => {
-        params.expendSegment = expendSegment;
         HttpService.post('reportServer/po/createPoNew', JSON.stringify(params)).then((res) => {
             if (res.resultCode == '1000') {
                 history.goBack();
@@ -168,8 +165,7 @@ const po = (props) => {
     };
 
     const update = (params) => {
-        params.expendSegment = expendSegment;
-        HttpService.post('reportServer/po/updatePoByIdNew', JSON.stringify(params)).then(
+        HttpService.post('reportServer/po/updatePoById', JSON.stringify(params)).then(
             (res) => {
                 if (res.resultCode == '1000') {
                     history.goBack();
@@ -184,7 +180,7 @@ const po = (props) => {
     const handleChange = (value) => {
         //setItemCategoryUnit();
         setItemCategoryId(value);
-        getItemCategoryById(value, expendSegment)
+        getItemCategoryById(value, 'segment5')
     }
 
 
@@ -200,6 +196,7 @@ const po = (props) => {
                 if (res.resultCode == "1000") {
                     const resultlist = res.data;
                     console.log('resultlist', resultlist)
+
                     const newColumnList = [];
                     resultlist.forEach((item) => {
                         if (item?.children) {
@@ -239,13 +236,10 @@ const po = (props) => {
 
         if (action === 'edit') {
             //初始化编辑数据
-            HttpService.post('reportServer/po/getPoByIdNew', JSON.stringify({ po_header_id: id, segment: expendSegment })).then(
+            HttpService.post('reportServer/po/getPoById', JSON.stringify({ po_header_id: id })).then(
                 (res) => {
                     if (res.resultCode == '1000') {
-                        const isDisabled = res?.data?.mainData?.status != 0;
-                        setDisabled(isDisabled);
-
-                        setItemCategoryId(res.data.mainData.category_id);
+                        setDisabled(res?.data?.mainData?.status != 0);
                         mainForm.setFieldsValue({
                             ...res.data.mainData,
                             po_date: moment(res.data.mainData.po_date),
@@ -253,50 +247,21 @@ const po = (props) => {
                         });
 
                         const newColumnList = [];
-                        // //构建列
-                        // for (let index in res.data.linesData[0].columnList) {
-                        //     let column = res.data.linesData[0].columnList[index];
-                        //     newColumnList.push({
-                        //         title: column.segment_name,
-                        //         dataIndex: column.segment,
-                        //         renderParams: {
-                        //             widgetParams: { disabled: true }
-                        //         }
-                        //     });
-                        // }
-                        res.data.columnData.forEach((item) => {
-                            if (item?.children) {
-                                item?.children.forEach((childrenItem) => {
-                                    newColumnList.push({
-                                        ...childrenItem, renderParams: {
-                                            widgetParams: {
-                                                disabled: isDisabled
-                                            }
-                                        }
-                                    });
-                                })
-                            } else {
-                                newColumnList.push({
-                                    ...item,
-                                    renderParams: {
-                                        widgetParams: {
-                                            disabled: true
-                                        }
-                                    }
-                                })
-                            }
-                        })
+                        //构建列
+                        for (let index in res.data.linesData[0].columnList) {
+                            let column = res.data.linesData[0].columnList[index];
+                            newColumnList.push({
+                                title: column.segment_name,
+                                dataIndex: column.segment,
+                                renderParams: {
+                                    widgetParams: { disabled: true }
+                                }
+                            });
+                        }
 
                         setColumnList(newColumnList);
 
-                        const newLineData = res.data.linesData.map((item) => {
-                            return {
-                                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                                ...item
-                            }
-                        })
-
-                        tableRef?.current?.addItemList(newLineData);
+                        tableRef?.current?.initData(res.data.linesData[0].dataList);
 
                     } else {
                         message.error(res.message);
@@ -505,7 +470,7 @@ const po = (props) => {
                         <Col xs={24} sm={11}>
                             <Form.Item label="类别" name="category_name"
                                 rules={[{ required: true, message: '请选择类别' }]}>
-                                <Select onChange={handleChange} disabled={disabled}>
+                                <Select onChange={handleChange}>
                                     {typeList.map((item) => {
                                         return <Option value={item.category_id}>{item.category_name}</Option>
                                     })}
@@ -556,7 +521,7 @@ const po = (props) => {
             >
                 <TableForm_A
                     tableParams={
-                        { scroll: { x: 1300 } }
+                        { scroll: { x: 1700 } }
                     }
                     ref={tableRef}
                     disabled={disabled}

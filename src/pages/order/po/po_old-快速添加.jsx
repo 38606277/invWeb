@@ -14,7 +14,7 @@ import { history } from 'umi';
 import moment from 'moment';
 import { SaveOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import 'moment/locale/zh-cn';
-
+import MatrixAddDialog from '@/components/itemCategory/MatrixAddDialog';
 
 
 const { Search } = Input;
@@ -30,9 +30,6 @@ const formItemLayout1 = {
     wrapperCol: { span: 20 },
 };
 
-const expendSegment = 'segment5';
-
-
 const po = (props) => {
     const tableRef = useRef();
     const [tableForm] = Form.useForm();
@@ -43,6 +40,8 @@ const po = (props) => {
     const [selectUserFiledName, setSelectUserFiledName] = useState('');
     const [selectCustomersDialogVisible, setSelectCustomersDialogVisible] = useState(false);
     const [selectCustomersFiledName, setSelectCustomersFiledName] = useState('');
+
+    const [matrixAddDialogVisible, setMatrixAddDialogVisible] = useState(false);
 
     const [columnList, setColumnList] = useState([]);
     const [typeList, setTypeList] = useState([]);
@@ -74,11 +73,11 @@ const po = (props) => {
                     widgetParams: {
                         keyName: 'sku',
                         valueName: 'sku',
-                        disabled: disabled,
+                        disabled: true,
                         onHandleSearch: (searchValue, callBack) => {
                             HttpService.post('reportServer/item/getColumnListBySKU',
                                 JSON.stringify({
-                                    segment: expendSegment,
+                                    segment: 'segment5',
                                     item_category_id: itemCategoryId,
                                     sku: searchValue
                                 }))
@@ -104,6 +103,18 @@ const po = (props) => {
                 }
             },
             ...dynamicList, // 动态展示列
+            {
+                title: '数量',
+                dataIndex: 'quantity',
+                width: '100px',
+                fixed: 'right',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: true, message: '请输入数量' }]
+                    },
+                    widgetParams: { disabled: disabled }
+                }
+            },
             // {
             //     title: '单位',
             //     dataIndex: 'uom',
@@ -128,19 +139,20 @@ const po = (props) => {
                     },
                     widgetParams: { disabled: disabled, onChange: calculateAmount }
                 }
+            },
+
+            {
+                title: '备注',
+                dataIndex: 'remark',
+                fixed: 'right',
+                width: '100px',
+                renderParams: {
+                    formItemParams: {
+                        rules: [{ required: false, message: '请输入备注' }]
+                    },
+                    widgetParams: { disabled: disabled }
+                }
             }
-            // {
-            //     title: '备注',
-            //     dataIndex: 'remark',
-            //     fixed: 'right',
-            //     width: '100px',
-            //     renderParams: {
-            //         formItemParams: {
-            //             rules: [{ required: false, message: '请输入备注' }]
-            //         },
-            //         widgetParams: { disabled: disabled }
-            //     }
-            // }
         ]
     }
 
@@ -156,7 +168,6 @@ const po = (props) => {
 
 
     const save = (params) => {
-        params.expendSegment = expendSegment;
         HttpService.post('reportServer/po/createPoNew', JSON.stringify(params)).then((res) => {
             if (res.resultCode == '1000') {
                 history.goBack();
@@ -168,8 +179,7 @@ const po = (props) => {
     };
 
     const update = (params) => {
-        params.expendSegment = expendSegment;
-        HttpService.post('reportServer/po/updatePoByIdNew', JSON.stringify(params)).then(
+        HttpService.post('reportServer/po/updatePoById', JSON.stringify(params)).then(
             (res) => {
                 if (res.resultCode == '1000') {
                     history.goBack();
@@ -184,7 +194,7 @@ const po = (props) => {
     const handleChange = (value) => {
         //setItemCategoryUnit();
         setItemCategoryId(value);
-        getItemCategoryById(value, expendSegment)
+        getItemCategoryById(value, 'segment5')
     }
 
 
@@ -192,31 +202,41 @@ const po = (props) => {
         //获取合并列
         let params = {
             "category_id": category_id,
-            "segment": segment
         }
 
-        HttpService.post('reportServer/itemCategory/getItemCategoryById2', JSON.stringify(params))
+        HttpService.post('reportServer/itemCategory/getItemCategoryByID', JSON.stringify(params))
             .then(res => {
                 if (res.resultCode == "1000") {
                     const resultlist = res.data;
                     console.log('resultlist', resultlist)
+
+
                     const newColumnList = [];
-                    resultlist.forEach((item) => {
-                        if (item?.children) {
-                            item?.children.forEach((childrenItem) => {
-                                newColumnList.push({ ...childrenItem, renderType: 'InputNumberEF' });
-                            })
-                        } else {
-                            newColumnList.push({
-                                ...item,
-                                renderParams: {
-                                    widgetParams: {
-                                        disabled: true
-                                    }
+                    resultlist.lineForm.forEach((item) => {
+
+                        newColumnList.push({
+                            title: item.segment_name,
+                            dataIndex: item.segment,
+                            renderParams: {
+                                widgetParams: {
+                                    disabled: true
                                 }
-                            })
-                        }
+                            }
+                        })
                     })
+
+                    resultlist.lineForm2.forEach((item) => {
+                        newColumnList.push({
+                            title: item.segment_name,
+                            dataIndex: item.segment,
+                            renderParams: {
+                                widgetParams: {
+                                    disabled: true
+                                }
+                            }
+                        })
+                    })
+
                     setColumnList(newColumnList);
                 } else {
                     message.error(res.message);
@@ -239,13 +259,10 @@ const po = (props) => {
 
         if (action === 'edit') {
             //初始化编辑数据
-            HttpService.post('reportServer/po/getPoByIdNew', JSON.stringify({ po_header_id: id, segment: expendSegment })).then(
+            HttpService.post('reportServer/po/getPoById', JSON.stringify({ po_header_id: id })).then(
                 (res) => {
                     if (res.resultCode == '1000') {
-                        const isDisabled = res?.data?.mainData?.status != 0;
-                        setDisabled(isDisabled);
-
-                        setItemCategoryId(res.data.mainData.category_id);
+                        setDisabled(res?.data?.mainData?.status != 0);
                         mainForm.setFieldsValue({
                             ...res.data.mainData,
                             po_date: moment(res.data.mainData.po_date),
@@ -253,50 +270,21 @@ const po = (props) => {
                         });
 
                         const newColumnList = [];
-                        // //构建列
-                        // for (let index in res.data.linesData[0].columnList) {
-                        //     let column = res.data.linesData[0].columnList[index];
-                        //     newColumnList.push({
-                        //         title: column.segment_name,
-                        //         dataIndex: column.segment,
-                        //         renderParams: {
-                        //             widgetParams: { disabled: true }
-                        //         }
-                        //     });
-                        // }
-                        res.data.columnData.forEach((item) => {
-                            if (item?.children) {
-                                item?.children.forEach((childrenItem) => {
-                                    newColumnList.push({
-                                        ...childrenItem, renderParams: {
-                                            widgetParams: {
-                                                disabled: isDisabled
-                                            }
-                                        }
-                                    });
-                                })
-                            } else {
-                                newColumnList.push({
-                                    ...item,
-                                    renderParams: {
-                                        widgetParams: {
-                                            disabled: true
-                                        }
-                                    }
-                                })
-                            }
-                        })
+                        //构建列
+                        for (let index in res.data.linesData[0].columnList) {
+                            let column = res.data.linesData[0].columnList[index];
+                            newColumnList.push({
+                                title: column.segment_name,
+                                dataIndex: column.segment,
+                                renderParams: {
+                                    widgetParams: { disabled: true }
+                                }
+                            });
+                        }
 
                         setColumnList(newColumnList);
 
-                        const newLineData = res.data.linesData.map((item) => {
-                            return {
-                                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                                ...item
-                            }
-                        })
-
-                        tableRef?.current?.addItemList(newLineData);
+                        tableRef?.current?.initData(res.data.linesData[0].dataList);
 
                     } else {
                         message.error(res.message);
@@ -323,17 +311,6 @@ const po = (props) => {
                     >
                         保存
                  </Button>,
-                    //     <Button
-                    //         disabled={disabled}
-                    //         key="submit"
-                    //         type="danger"
-                    //         icon={<SaveOutlined />}
-                    //         onClick={() => {
-                    //             mainForm?.submit();
-                    //         }}
-                    //     >
-                    //         提交
-                    // </Button>,
                     <Button
                         key="reset"
                         onClick={() => {
@@ -505,7 +482,7 @@ const po = (props) => {
                         <Col xs={24} sm={11}>
                             <Form.Item label="类别" name="category_name"
                                 rules={[{ required: true, message: '请选择类别' }]}>
-                                <Select onChange={handleChange} disabled={disabled}>
+                                <Select onChange={handleChange}>
                                     {typeList.map((item) => {
                                         return <Option value={item.category_id}>{item.category_name}</Option>
                                     })}
@@ -536,10 +513,11 @@ const po = (props) => {
                         size="small"
                         onClick={() => {
                             //新增一行
-                            tableRef.current.addItem({
-                                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                                line_type_id: '0'
-                            });
+                            // tableRef.current.addItem({
+                            //     line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                            //     line_type_id: '0'
+                            // });
+                            setMatrixAddDialogVisible(true)
                         }}
                     ></Button>,
                     <Button
@@ -556,7 +534,7 @@ const po = (props) => {
             >
                 <TableForm_A
                     tableParams={
-                        { scroll: { x: 1300 } }
+                        { scroll: { x: 1700 } }
                     }
                     ref={tableRef}
                     disabled={disabled}
@@ -594,6 +572,23 @@ const po = (props) => {
                 }}
                 handleCancel={() => {
                     setSelectCustomersDialogVisible(false);
+                }}
+            />
+
+            <MatrixAddDialog
+                categoryId={itemCategoryId}
+                modalVisible={matrixAddDialogVisible}
+                handleOk={(resultList) => {
+                    console.log('MatrixAddDialog', resultList)
+                    const newResultList = resultList.map((value) => {
+                        value.line_id = `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`;
+                        return value;
+                    })
+                    tableRef?.current?.initData(newResultList);
+                    setMatrixAddDialogVisible(false);
+                }}
+                handleCancel={() => {
+                    setMatrixAddDialogVisible(false);
                 }}
             />
 

@@ -227,7 +227,9 @@ const TableForm = forwardRef((props, ref) => {
 
         return getItemEF(columnParams?.renderType || 'InputEF', renderParams);
       },
+      align: 'center',
       ...columnParams
+
     }
   }
 

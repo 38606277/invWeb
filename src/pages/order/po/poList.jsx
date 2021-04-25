@@ -210,16 +210,16 @@ const poList = (props) => {
             dataIndex: 'po_date',
             valueType: 'dateTime'
         },
-        {
-            title: '收单地点',
-            dataIndex: 'bill_to_location',
+        // {
+        //     title: '收单地点',
+        //     dataIndex: 'bill_to_location',
 
-        },
-        {
-            title: '收货地点',
-            dataIndex: 'ship_to_location',
+        // },
+        // {
+        //     title: '收货地点',
+        //     dataIndex: 'ship_to_location',
 
-        },
+        // },
         {
             title: '订单状态',
             dataIndex: 'status',
@@ -229,13 +229,13 @@ const poList = (props) => {
                 1: { text: '待审批' },
                 2: { text: '待入库' },
                 3: { text: '已完成' },
-            },
+            }
         },
-        {
-            title: '业务描述',
-            dataIndex: 'comments',
+        // {
+        //     title: '业务描述',
+        //     dataIndex: 'comments',
 
-        },
+        // },
         {
             title: '创建时间',
             dataIndex: 'create_date',

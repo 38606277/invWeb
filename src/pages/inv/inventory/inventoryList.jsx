@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Space, Modal, message, Row, TreeSelect, Tree, Col, Cascader, Switch, Select } from 'antd';
-import { EllipsisOutlined, QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import ProTable from '@ant-design/pro-table';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import { history } from 'umi';
@@ -105,7 +104,7 @@ const inventoryList = () => {
             align: "center"
         },
         {
-            title: '物料名称',
+            title: '物料类别',
             dataIndex: 'category_name',
             valueType: 'text',
             align: "center"
@@ -254,7 +253,7 @@ const inventoryList = () => {
         });
     }
     return (
-        <PageContainer ghost="true" title="分类列表">
+        <PageContainer ghost="true" title="库存存量">
             <div style={{ backgroundColor: 'white' }}>
                 <SplitPane split="vertical" minSize={0} defaultSize={180} style={{ minHeight: minHeight, overflow: 'auto' }}>
                     <Tree

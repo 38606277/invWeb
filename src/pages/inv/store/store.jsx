@@ -544,7 +544,7 @@ const store = (props) => {
                 });
               }
               newLinesData.push({
-                disabled: disabled,//false
+                disabled: disabled,//dynamicList
                 ...lines,
                 title: lines.categoryName,
                 parimaryId: lines.categoryId,
