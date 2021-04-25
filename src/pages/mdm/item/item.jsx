@@ -64,6 +64,8 @@ export default (props) => {
   const [fileList, setFileList] = useState([]);
   const [namesURL, setNamesURL] = useState({});
   const [barcode,setbarcode]  = useState();
+  const [skuList,setskuList] = useState([]);
+  const [skuValue,setskuValue] = useState();
 
   useEffect(() => {
     setNamesURL("1111111");
@@ -81,12 +83,14 @@ export default (props) => {
         (res) => {
           if (res.resultCode == '1000') {
             const resultlist = res.data.lineForm;
-            //setColumnData(resultlist);
+            const newinlist = resultlist.concat(res.data.lineForm2);
+            setskuList(newinlist)
             const datainfo = res.data.mainForm;
             mainForm.setFieldsValue({
               item_category_id: datainfo.category_id,
               category_code: datainfo.category_code,
               item_category_name: datainfo.category_name,
+              
             });
             
             //条件列两两一组进行组合，作为一行显示
@@ -142,6 +146,7 @@ export default (props) => {
             mainForm.setFieldsValue({
               item_category_name: mainFormV.category_name,
               vendor_name:mainFormV.vendor_name,
+              sku: mainFormV.sku==""?[]: mainFormV.sku.split(',')
             });
           } else {
             message.error(res.message);
@@ -162,6 +167,9 @@ export default (props) => {
       (res) => {
         if (res.resultCode == '1000') {
           const resultlist = res.data.lineForm;
+
+          const newinlist = resultlist.concat(res.data.lineForm2);
+          setskuList(newinlist)
           //条件列两两一组进行组合，作为一行显示
           const inlist = [];
           var k = Math.ceil(resultlist.length / 3);
@@ -334,6 +342,14 @@ export default (props) => {
     }
     
   }
+
+  const skuhandleChange =(value) => {
+    console.log(value);
+    setskuValue(value.join(","))
+    mainForm.setFieldsValue({
+      sku:value
+    });
+  }
   return (
     <PageContainer
       ghost="true"
@@ -366,6 +382,7 @@ export default (props) => {
               //验证成功
               let postData = {
                 ...values,
+                sku:skuValue,
                 image_url:imageUrl
               };
               console.log(postData);
@@ -476,6 +493,28 @@ export default (props) => {
                 />
                 {barcode!=null?barcode!=""?
                 <Barcode value={barcode} height={50} width={2} />:"":""}
+              </Form.Item>
+            </Col>
+            <Col  xl={8} md={12} sm={24}>
+              <Form.Item label="SKU" name="sku" {...formItemLayout2}
+               rules={[{ required: true, message: '请选择SKU'} ]}
+              >
+                <Select
+                  mode="multiple"
+                  allowClear
+                  style={{ width: '100%' }}
+                  placeholder="请选择SKU"
+                  onChange={skuhandleChange}
+                >
+                  {skuList == null
+                ? []
+                : skuList.map((item) => (
+                    <Option key={item['segment_name']} value={item['segment_name']}>
+                      {item['segment_name']}
+                    </Option>
+                  ))}
+                </Select>
+
               </Form.Item>
             </Col>
           </Row>
