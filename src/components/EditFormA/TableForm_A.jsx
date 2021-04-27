@@ -106,9 +106,14 @@ const TableForm = forwardRef((props, ref) => {
           reject(false);
         });
       });
+    },
+    clear() {
+      setData([]);
+      setDeleteRecord([]);
+      setDeleteRecordKeys([]);
+      setMSelectedRows([]);
+      setMSelectedRowKeys([]);
     }
-
-
   }));
 
   //新增一行

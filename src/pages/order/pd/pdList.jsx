@@ -133,7 +133,6 @@ const fetchData = async (params, sort, filter) => {
 const pdList = (props) => {
     const ref = useRef();
 
-
     const getTableAction = (record) => {
 
         const actionList = [];
@@ -146,7 +145,8 @@ const pdList = (props) => {
                 编辑
              </a>);
             actionList.push(<a onClick={() => {
-                onSubmitClickListener(ref, record.pd_header_id);
+                // onSubmitClickListener(ref, record.pd_header_id);
+                history.push(`/order/pd/edit/${record.pd_header_id}`);
             }}
             >
                 提交
@@ -162,7 +162,8 @@ const pdList = (props) => {
             let userInfo = localStorge.getStorage('userInfo');
             if (record.status == 1 && record.approval_id == userInfo.id) {
                 actionList.push(<a onClick={() => {
-                    onApprovalClickListener(ref, record.pd_header_id);
+                    //onApprovalClickListener(ref, record.pd_header_id);
+                    history.push(`/order/pd/edit/${record.pd_header_id}`);
                 }}
                 >
                     审批
@@ -171,6 +172,7 @@ const pdList = (props) => {
         }
         actionList.push(<a onClick={() => {
             onDeleteClickListener(ref, [record.pd_header_id])
+
         }}
         >
             删除

@@ -2,7 +2,7 @@
  * 生产订单
  */
 import React, { useRef, useState, useEffect } from 'react';
-import { message, Form, Button, Row, Col, Select, Input, DatePicker, Tabs } from 'antd';
+import { message, Form, Button, Row, Col, Select, Input, DatePicker, Tabs, Modal } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
 import TableForm_A from '@/components/EditFormA/TableForm_A';
 import SelectItemDialog from '@/components/itemCategory/SelectItemDialog';
@@ -10,14 +10,19 @@ import SelectCustomersDialog from '@/components/Customers/SelectCustomersDialog'
 import SelectBomDialog from '@/components/Bom/SelectBomDialog';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import HttpService from '@/utils/HttpService.jsx';
+import LocalStorge from '@/utils/LogcalStorge.jsx';
+
 import { history } from 'umi';
 import moment from 'moment';
 import { SaveOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
+const localStorge = new LocalStorge();
 
 const { TabPane } = Tabs;
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 const { Option } = Select;
+
+const { confirm } = Modal;
 
 const formItemLayout2 = {
     labelCol: { span: 8 },
@@ -51,6 +56,7 @@ const count = (props) => {
 
     const [tabKey, setTabKey] = useState('product');
 
+    const [pdData, setPdData] = useState({});
 
     const action = props?.match?.params?.action || 'add';
     const id = props?.match?.params?.id || -1;
@@ -290,10 +296,61 @@ const count = (props) => {
     }
 
 
+    /**
+  * 审批
+  */
+    const onApprovalClickListener = (recordId) => {
+        confirm({
+            title: '温馨提示',
+            content: `您确定要审批吗？`,
+            okText: '确定',
+            cancelText: '取消',
+            okType: 'danger',
+            onOk() {
+                updateStatusById(recordId, '2');
+            },
+            onCancel() { },
+        });
+    }
+
+    /**
+     * 提交
+     */
+    const onSubmitClickListener = (recordId) => {
+        confirm({
+            title: '温馨提示',
+            content: `您确定要提交吗？`,
+            okText: '确定',
+            cancelText: '取消',
+            okType: 'danger',
+            onOk() {
+                updateStatusById(recordId, '1');
+            },
+            onCancel() { },
+        });
+    }
+
+
+    //修改状态
+    const updateStatusById = (billId, billStatus) => {
+        HttpService.post(
+            'reportServer/pd/updatePdStatusById',
+            JSON.stringify({ bill_id: billId, bill_status: billStatus }),
+        ).then((res) => {
+            if (res.resultCode == '1000') {
+                //刷新
+                loadData(id)
+            } else {
+                message.error(res.message);
+            }
+        });
+    };
+
     const save = (params) => {
         HttpService.post('reportServer/pd/createPd', JSON.stringify(params)).then((res) => {
             if (res.resultCode == '1000') {
-                history.push(`/order/pdList`);
+                history.replace(`/order/pd/edit/${res.data}`);
+                loadData(res.data);
                 message.success(res.message);
             } else {
                 message.error(res.message);
@@ -305,7 +362,8 @@ const count = (props) => {
         HttpService.post('reportServer/pd/updatePdById', JSON.stringify(params)).then(
             (res) => {
                 if (res.resultCode == '1000') {
-                    history.push(`/order/pdList`);
+                    history.replace(`/order/pd/edit/${res.data}`);
+                    loadData(res.data);
                     message.success(res.message);
                 } else {
                     message.error(res.message);
@@ -314,70 +372,116 @@ const count = (props) => {
         );
     };
 
+
+    const loadData = (id) => {
+        //初始化编辑数据
+        HttpService.post('reportServer/pd/getPdById', JSON.stringify({ pd_header_id: id })).then(
+            (res) => {
+                if (res.resultCode == '1000') {
+                    setPdData(res.data.mainData)
+                    setDisabled(res.data.mainData.status != '0');
+                    mainForm.setFieldsValue({
+                        ...res.data.mainData,
+                        begin_date: moment(res.data.mainData.begin_date),
+                        end_date: moment(res.data.mainData.end_date),
+                    });
+
+                    let linesData = [];
+                    let materialLinesData = [];
+
+                    for (let index in res.data.linesData) {
+                        const line = res.data.linesData[index];
+                        if (line.item_type == '0') {
+                            linesData.push(line)
+                        } else {
+                            materialLinesData.push(line)
+                        }
+                    }
+
+                    tableRef?.current?.clear();
+                    materialTableRef?.current?.clear();
+                    tableRef?.current?.initData(linesData);
+                    materialTableRef?.current?.initData(materialLinesData);
+                } else {
+                    message.error(res.message);
+                }
+            },
+        );
+    }
+
     useEffect(() => {
         if (action === 'edit') {
-            //初始化编辑数据
-            HttpService.post('reportServer/pd/getPdById', JSON.stringify({ pd_header_id: id })).then(
-                (res) => {
-                    if (res.resultCode == '1000') {
-                        setDisabled(res.data.mainData.status != '0');
-                        mainForm.setFieldsValue({
-                            ...res.data.mainData,
-                            begin_date: moment(res.data.mainData.begin_date),
-                            end_date: moment(res.data.mainData.end_date),
-                        });
-
-                        let linesData = [];
-                        let materialLinesData = [];
-
-                        for (let index in res.data.linesData) {
-                            const line = res.data.linesData[index];
-                            if (line.item_type == '0') {
-                                linesData.push(line)
-                            } else {
-                                materialLinesData.push(line)
-                            }
-                        }
-
-                        tableRef?.current?.initData(linesData);
-                        materialTableRef?.current?.initData(materialLinesData);
-
-
-
-                    } else {
-                        message.error(res.message);
-                    }
-                },
-            );
+            loadData(id);
         }
     }, []);
+
+
+
+    const getActionButtonList = () => {
+
+        let actionButtonList = []
+        const userId = localStorge?.getStorage('userInfo')?.id;
+        const status = pdData?.status || 0;
+
+        if (status == 0) {//草稿状态
+            actionButtonList.push(<Button
+                key="save"
+                type="danger"
+                icon={<SaveOutlined />}
+                onClick={() => {
+                    mainForm?.submit();
+                }}
+            >
+                保存
+         </Button>)
+
+            if (action == 'edit') {
+                actionButtonList.push(<Button
+                    key="submit"
+                    type="danger"
+                    icon={<SaveOutlined />}
+                    onClick={() => {
+                        onSubmitClickListener(id);
+                    }}
+                >
+                    提交
+            </Button>)
+            }
+
+
+        } else if (status == 1 && pdData.approval_id == userId) {
+            actionButtonList.push(<Button
+                key="save"
+                type="danger"
+                icon={<SaveOutlined />}
+                onClick={() => {
+                    onApprovalClickListener(id);
+                }}
+            >
+                审批
+         </Button>)
+        }
+
+        actionButtonList.push(<Button
+            key="reset"
+            onClick={() => {
+                history.goBack();
+            }}
+        >
+            返回
+        </Button>)
+
+        return actionButtonList;
+
+    }
+
 
     return (
         <PageContainer
             ghost="true"
             title="生产订单"
             header={{
-                extra: [
-                    <Button
-                        disabled={disabled}
-                        key="submit"
-                        type="danger"
-                        icon={<SaveOutlined />}
-                        onClick={() => {
-                            mainForm?.submit();
-                        }}
-                    >
-                        保存生产订单
-          </Button>,
-                    <Button
-                        key="reset"
-                        onClick={() => {
-                            history.goBack();
-                        }}
-                    >
-                        返回
-          </Button>,
-                ],
+                extra: getActionButtonList(),
             }}
         >
             <Form

@@ -7,7 +7,6 @@ import ProTable from '@ant-design/pro-table';
 import { history } from 'umi';
 import HttpService from '@/utils/HttpService.jsx';
 import LocalStorge from '@/utils/LogcalStorge.jsx';
-
 const localStorge = new LocalStorge();
 
 const { confirm } = Modal;
@@ -147,7 +146,8 @@ const poList = (props) => {
                 编辑
             </a>);
             actionList.push(<a onClick={() => {
-                onSubmitClickListener(ref, record.po_header_id);
+                //onSubmitClickListener(ref, record.po_header_id);
+                history.push(`/order/po/edit/${record.po_header_id}`);
             }}
             >
                 提交
@@ -163,13 +163,20 @@ const poList = (props) => {
             let userInfo = localStorge.getStorage('userInfo');
             if (record.status == 1 && record.approval_id == userInfo.id) {
                 actionList.push(<a onClick={() => {
-                    onApprovalClickListener(ref, record.po_header_id);
+                    //onApprovalClickListener(ref, record.po_header_id);
+                    history.push(`/order/po/edit/${record.po_header_id}`);
                 }}
                 >
                     审批
                 </a>);
             }
         }
+        actionList.push(<a onClick={() => {
+            history.push(`/order/po/supplement/${record.po_header_id}`);
+        }}
+        >
+            补单
+        </a>);
         actionList.push(<a onClick={() => {
             onDeleteClickListener(ref, [record.po_header_id])
         }}

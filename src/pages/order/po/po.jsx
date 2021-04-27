@@ -2,7 +2,7 @@
  * 订单详情 新增、编辑
  */
 import React, { useRef, useState, useEffect } from 'react';
-import { message, Form, Button, Row, Col, Select, Input, DatePicker } from 'antd';
+import { message, Form, Button, Row, Col, Select, Input, DatePicker, Modal } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProCardCollapse from '@/components/ProCard/ProCardCollapse'
 import TableForm_A from '@/components/EditFormA/TableForm_A';
@@ -15,6 +15,10 @@ import moment from 'moment';
 import { SaveOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import 'moment/locale/zh-cn';
 
+import LocalStorge from '@/utils/LogcalStorge.jsx';
+const localStorge = new LocalStorge();
+
+const { confirm } = Modal;
 
 
 const { Search } = Input;
@@ -51,8 +55,11 @@ const po = (props) => {
 
     const [skuList, setSkuList] = useState([]);
 
+    const [poData, setPoData] = useState({});
+
     const action = props?.match?.params?.action || 'add';
     const id = props?.match?.params?.id || -1;
+
 
     /**
      *   //构建列 
@@ -154,12 +161,65 @@ const po = (props) => {
     }
 
 
+    /**
+ * 审批
+ */
+    const onApprovalClickListener = (recordId) => {
+        confirm({
+            title: '温馨提示',
+            content: `您确定要审批吗？`,
+            okText: '确定',
+            cancelText: '取消',
+            okType: 'danger',
+            onOk() {
+                updateStatusById(recordId, '2');
+            },
+            onCancel() { },
+        });
+    }
+
+    /**
+     * 提交
+     */
+    const onSubmitClickListener = (recordId) => {
+        confirm({
+            title: '温馨提示',
+            content: `您确定要提交吗？`,
+            okText: '确定',
+            cancelText: '取消',
+            okType: 'danger',
+            onOk() {
+                updateStatusById(recordId, '1');
+            },
+            onCancel() { },
+        });
+    }
+
+    //修改状态
+    const updateStatusById = (billId, billStatus) => {
+        HttpService.post(
+            'reportServer/po/updatePoStatusById',
+            JSON.stringify({ bill_id: billId, bill_status: billStatus }),
+        ).then((res) => {
+            if (res.resultCode == '1000') {
+                //刷新
+                loadData(billId, expendSegment);
+            } else {
+                message.error(res.message);
+            }
+        });
+    };
+
+
 
     const save = (params) => {
         params.expendSegment = expendSegment;
         HttpService.post('reportServer/po/createPoNew', JSON.stringify(params)).then((res) => {
             if (res.resultCode == '1000') {
-                history.goBack();
+                //history.goBack();
+                //history.push();
+                history.replace(`/order/po/edit/${res.data}`)
+                loadData(res.data, expendSegment);
                 message.success(res.message);
             } else {
                 message.error(res.message);
@@ -172,7 +232,8 @@ const po = (props) => {
         HttpService.post('reportServer/po/updatePoByIdNew', JSON.stringify(params)).then(
             (res) => {
                 if (res.resultCode == '1000') {
-                    history.goBack();
+                    history.replace(`/order/po/edit/${res.data}`)
+                    loadData(res.data, expendSegment);
                     message.success(res.message);
                 } else {
                     message.error(res.message);
@@ -224,6 +285,141 @@ const po = (props) => {
             })
     }
 
+    const getActionButtonList = () => {
+
+        let actionButtonList = []
+        const userId = localStorge?.getStorage('userInfo')?.id;
+        const status = poData?.status || 0;
+
+        if (status == 0) {//草稿状态
+            actionButtonList.push(<Button
+                key="save"
+                type="danger"
+                icon={<SaveOutlined />}
+                onClick={() => {
+                    mainForm?.submit();
+                }}
+            >
+                保存
+         </Button>)
+
+            if (action == 'edit') {
+                actionButtonList.push(<Button
+                    key="submit"
+                    type="danger"
+                    icon={<SaveOutlined />}
+                    onClick={() => {
+                        onSubmitClickListener(id);
+                    }}
+                >
+                    提交
+            </Button>)
+            }
+
+
+        } else if (status == 1 && poData.approval_id == userId) {
+            actionButtonList.push(<Button
+                key="save"
+                type="danger"
+                icon={<SaveOutlined />}
+                onClick={() => {
+                    onApprovalClickListener(id);
+                }}
+            >
+                审批
+         </Button>)
+        }
+
+        actionButtonList.push(<Button
+            key="reset"
+            onClick={() => {
+                history.goBack();
+            }}
+        >
+            返回
+        </Button>)
+
+        return actionButtonList;
+
+    }
+
+    const loadData = (id, expendSegment) => {
+        //初始化编辑数据
+        HttpService.post('reportServer/po/getPoByIdNew', JSON.stringify({ po_header_id: id, segment: expendSegment })).then(
+            (res) => {
+                if (res.resultCode == '1000') {
+                    let isDisabled;
+                    if (action == 'supplement') {
+                        setPoData({});
+                        isDisabled = false;
+                        res.data.mainData.header_code = '';
+                        res.data.mainData.comments = '';
+                    } else {
+                        setPoData(res?.data?.mainData)
+                        isDisabled = res?.data?.mainData?.status != 0;
+                    }
+                    console.log('isDisabled', isDisabled)
+                    setDisabled(isDisabled);
+
+                    setItemCategoryId(res.data.mainData.category_id);
+                    mainForm.setFieldsValue({
+                        ...res.data.mainData,
+                        po_date: moment(res.data.mainData.po_date),
+                        po_date_end: moment(res.data.mainData.po_date_end),
+                    });
+
+                    const newColumnList = [];
+                    // //构建列
+                    // for (let index in res.data.linesData[0].columnList) {
+                    //     let column = res.data.linesData[0].columnList[index];
+                    //     newColumnList.push({
+                    //         title: column.segment_name,
+                    //         dataIndex: column.segment,
+                    //         renderParams: {
+                    //             widgetParams: { disabled: true }
+                    //         }
+                    //     });
+                    // }
+                    res.data.columnData.forEach((item) => {
+                        if (item?.children) {
+                            item?.children.forEach((childrenItem) => {
+                                newColumnList.push({
+                                    ...childrenItem, renderParams: {
+                                        widgetParams: {
+                                            disabled: isDisabled
+                                        }
+                                    }
+                                });
+                            })
+                        } else {
+                            newColumnList.push({
+                                ...item,
+                                renderParams: {
+                                    widgetParams: {
+                                        disabled: true
+                                    }
+                                }
+                            })
+                        }
+                    })
+
+                    setColumnList(newColumnList);
+
+                    const newLineData = res.data.linesData.map((item) => {
+                        return {
+                            line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
+                            ...item
+                        }
+                    })
+                    tableRef?.current?.clear();
+                    tableRef?.current?.addItemList(newLineData);
+
+                } else {
+                    message.error(res.message);
+                }
+            },
+        );
+    }
 
 
     useEffect(() => {
@@ -237,72 +433,8 @@ const po = (props) => {
             },
         );
 
-        if (action === 'edit') {
-            //初始化编辑数据
-            HttpService.post('reportServer/po/getPoByIdNew', JSON.stringify({ po_header_id: id, segment: expendSegment })).then(
-                (res) => {
-                    if (res.resultCode == '1000') {
-                        const isDisabled = res?.data?.mainData?.status != 0;
-                        setDisabled(isDisabled);
-
-                        setItemCategoryId(res.data.mainData.category_id);
-                        mainForm.setFieldsValue({
-                            ...res.data.mainData,
-                            po_date: moment(res.data.mainData.po_date),
-                            po_date_end: moment(res.data.mainData.po_date_end),
-                        });
-
-                        const newColumnList = [];
-                        // //构建列
-                        // for (let index in res.data.linesData[0].columnList) {
-                        //     let column = res.data.linesData[0].columnList[index];
-                        //     newColumnList.push({
-                        //         title: column.segment_name,
-                        //         dataIndex: column.segment,
-                        //         renderParams: {
-                        //             widgetParams: { disabled: true }
-                        //         }
-                        //     });
-                        // }
-                        res.data.columnData.forEach((item) => {
-                            if (item?.children) {
-                                item?.children.forEach((childrenItem) => {
-                                    newColumnList.push({
-                                        ...childrenItem, renderParams: {
-                                            widgetParams: {
-                                                disabled: isDisabled
-                                            }
-                                        }
-                                    });
-                                })
-                            } else {
-                                newColumnList.push({
-                                    ...item,
-                                    renderParams: {
-                                        widgetParams: {
-                                            disabled: true
-                                        }
-                                    }
-                                })
-                            }
-                        })
-
-                        setColumnList(newColumnList);
-
-                        const newLineData = res.data.linesData.map((item) => {
-                            return {
-                                line_id: `NEW_TEMP_ID_${(Math.random() * 1000000).toFixed(0)}`,
-                                ...item
-                            }
-                        })
-
-                        tableRef?.current?.addItemList(newLineData);
-
-                    } else {
-                        message.error(res.message);
-                    }
-                },
-            );
+        if (action === 'edit' || action === 'supplement') {
+            loadData(id, expendSegment);
         }
     }, []);
 
@@ -311,38 +443,7 @@ const po = (props) => {
             ghost="true"
             title="采购订单"
             header={{
-                extra: [
-                    <Button
-                        disabled={disabled}
-                        key="submit"
-                        type="danger"
-                        icon={<SaveOutlined />}
-                        onClick={() => {
-                            mainForm?.submit();
-                        }}
-                    >
-                        保存
-                 </Button>,
-                    //     <Button
-                    //         disabled={disabled}
-                    //         key="submit"
-                    //         type="danger"
-                    //         icon={<SaveOutlined />}
-                    //         onClick={() => {
-                    //             mainForm?.submit();
-                    //         }}
-                    //     >
-                    //         提交
-                    // </Button>,
-                    <Button
-                        key="reset"
-                        onClick={() => {
-                            history.goBack();
-                        }}
-                    >
-                        返回
-           </Button>,
-                ],
+                extra: getActionButtonList(),
             }}
         >
             <Form
@@ -396,7 +497,6 @@ const po = (props) => {
                     <Form.Item hidden label="订单Id" name="po_header_id" />
                     <Form.Item hidden label="采购员Id" name="agent_id" />
                     <Form.Item hidden label="供应商Id" name="vendor_id" />
-                    <Form.Item hidden label="类别Id" name="category_id" />
 
                     <Row>
                         <Col xs={24} sm={11}>
@@ -503,7 +603,7 @@ const po = (props) => {
                     <Row>
 
                         <Col xs={24} sm={11}>
-                            <Form.Item label="类别" name="category_name"
+                            <Form.Item label="类别" name="category_id"
                                 rules={[{ required: true, message: '请选择类别' }]}>
                                 <Select onChange={handleChange} disabled={disabled}>
                                     {typeList.map((item) => {
