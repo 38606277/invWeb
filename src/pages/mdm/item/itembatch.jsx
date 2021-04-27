@@ -69,7 +69,8 @@ export default (props) => {
 
   const [newcolumns, setNewcolumns] = useState([]);
   const [newcolumnsData, setNewcolumnsData] = useState([]);
-
+  const [skuList,setskuList] = useState([]);
+  const [skuValue,setskuValue] = useState();
 
   useEffect(() => {
     const outlist = [];
@@ -94,6 +95,9 @@ export default (props) => {
             
             //条件列两两一组进行组合，作为一行显示
             const resultlist = res.data.listmkey;
+            const newinlist = resultlist.concat(res.data.listskey);
+            const newinlistNew = newinlist.concat(res.data.lineForm2);
+            setskuList(newinlistNew)
             const inlist = [];
             if(null!=resultlist){
               var k = Math.ceil(resultlist.length / 3);
@@ -201,6 +205,9 @@ export default (props) => {
       (res) => {
         if (res.resultCode == '1000') {
           const resultlist = res.data.listmkey;
+          const newinlist = resultlist.concat(res.data.listskey);
+          const newinlistNew = newinlist.concat(res.data.lineForm2);
+          setskuList(newinlistNew)
           //条件列两两一组进行组合，作为一行显示
           const inlist = [];
           var k = Math.ceil(resultlist.length / 3);
@@ -404,7 +411,12 @@ export default (props) => {
       getBase64(info.file.originFileObj, imageUrl => setImageUrl(info.file.response.data));
     }
   }
-
+  const skuhandleChange =(value) => {
+    setskuValue(value.join(","))
+    mainForm.setFieldsValue({
+      sku:value
+    });
+  }
   return (
     <PageContainer
       ghost="true"
@@ -439,6 +451,7 @@ export default (props) => {
               //验证成功
               let postData = {
                 ...values,
+                sku:skuValue,
                 'image_url':imageUrl,
                 'columnSkeyList':newcolumnsData
               };
@@ -544,7 +557,28 @@ export default (props) => {
                 />
               </Form.Item>
             </Col>
-            
+            <Col  xl={8} md={12} sm={24}>
+              <Form.Item label="SKU" name="sku" {...formItemLayout2}
+               rules={[{ required: true, message: '请选择SKU'} ]}
+              >
+                <Select
+                  mode="multiple"
+                  allowClear
+                  style={{ width: '100%' }}
+                  placeholder="请选择SKU"
+                  onChange={skuhandleChange}
+                >
+                  {skuList == null
+                ? []
+                : skuList.map((item) => (
+                    <Option key={item['segment_name']} value={item['segment_name']}>
+                      {item['segment_name']}
+                    </Option>
+                  ))}
+                </Select>
+
+              </Form.Item>
+            </Col>
            
           </Row>
           <Row gutter={24}>
